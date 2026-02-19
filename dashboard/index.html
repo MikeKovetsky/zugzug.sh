@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peon-Ping — WC3 Base Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --wc3-gold: #ffab01;
+  --wc3-dark-gold: #b8860b;
+  --wc3-bg: #1a1a2e;
+  --wc3-panel: #0d0d1a;
+  --wc3-border: #3a3a5c;
+  --wc3-text: #e0d8c8;
+  --wc3-muted: #8a8472;
+  --wc3-green: #4a8;
+  --wc3-red: #c44;
+  --wc3-blue: #48a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Cinzel', serif;
+  background: var(--wc3-bg);
+  color: var(--wc3-text);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(26,26,46,0.8) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+}
+
+.frame {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.resource-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 20px;
+  background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 100%);
+  border: 2px solid var(--wc3-border);
+  border-bottom: 3px solid var(--wc3-gold);
+  border-radius: 4px 4px 0 0;
+  flex-wrap: wrap;
+}
+.res-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.res-icon {
+  width: 22px; height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.res-gold { color: var(--wc3-gold); }
+.res-lumber { color: #8B6914; }
+.res-supply { color: var(--wc3-green); }
+.res-label { font-size: 11px; color: var(--wc3-muted); text-transform: uppercase; letter-spacing: 1px; }
+.res-bar-right { margin-left: auto; display: flex; gap: 16px; align-items: center; }
+.upkeep-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+.upkeep-none { background: #2a4a2a; color: #6c6; }
+.upkeep-low { background: #4a4a2a; color: #cc6; }
+.upkeep-high { background: #4a2a2a; color: #c66; }
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  border: 2px solid var(--wc3-border);
+  border-top: none;
+}
+
+.portrait-panel {
+  background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
+  padding: 16px;
+  border-right: 2px solid var(--wc3-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.portrait-frame {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #0a0a14;
+  border: 3px solid var(--wc3-dark-gold);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  position: relative;
+  overflow: hidden;
+}
+.portrait-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255,171,1,0.2);
+  border-radius: 2px;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.stat-val { color: var(--wc3-gold); font-weight: 700; }
+.sass-meter {
+  display: flex;
+  gap: 3px;
+  height: 8px;
+}
+.sass-pip {
+  flex: 1;
+  background: #2a2a3e;
+  border-radius: 2px;
+}
+.sass-pip.active { background: var(--wc3-red); }
+.sass-pip.active:nth-child(-n+2) { background: var(--wc3-gold); }
+
+.base-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 13px;
+  color: var(--wc3-gold);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 1px solid var(--wc3-border);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.buildings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.building-card {
+  background: #12121f;
+  border: 2px solid var(--wc3-border);
+  border-radius: 4px;
+  padding: 10px;
+  text-align: center;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.building-card.built {
+  border-color: var(--wc3-gold);
+  box-shadow: 0 0 12px rgba(255,171,1,0.15);
+}
+.building-card.locked {
+  opacity: 0.4;
+}
+.building-icon { font-size: 28px; margin-bottom: 4px; }
+.building-name { font-size: 11px; font-weight: 700; }
+.building-cost { font-size: 10px; color: var(--wc3-muted); }
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 2px solid var(--wc3-border);
+  border-top: none;
+}
+
+.achievements-panel, .activity-panel {
+  padding: 12px 16px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.achievements-panel { border-right: 2px solid var(--wc3-border); }
+
+.achiev-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+}
+.achiev-item {
+  font-size: 11px;
+  padding: 6px 8px;
+  background: #12121f;
+  border: 1px solid var(--wc3-border);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.achiev-item.unlocked {
+  border-color: var(--wc3-gold);
+  background: #1a1a0a;
+}
+.achiev-item.locked {
+  opacity: 0.35;
+}
+.achiev-icon { font-size: 16px; }
+
+.activity-item {
+  font-size: 11px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  display: flex;
+  gap: 8px;
+}
+.activity-time { color: var(--wc3-muted); min-width: 50px; }
+.activity-event { flex: 1; }
+.activity-gold { color: var(--wc3-gold); }
+.activity-gold.negative { color: var(--wc3-red); }
+
+.debt-warning {
+  text-align: center;
+  padding: 6px;
+  background: #3a1a1a;
+  color: var(--wc3-red);
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--wc3-red);
+  border-radius: 3px;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.streak-badge {
+  font-size: 12px;
+  color: var(--wc3-gold);
+}
+.combo-badge {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--wc3-gold);
+  text-shadow: 0 0 8px rgba(255,171,1,0.5);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--wc3-panel); }
+::-webkit-scrollbar-thumb { background: var(--wc3-border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="resource-bar">
+    <div class="res-item res-gold">
+      <span class="res-icon">&#x1F4B0;</span>
+      <span id="gold">0</span>
+    </div>
+    <div class="res-item res-lumber">
+      <span class="res-icon">&#x1FAB5;</span>
+      <span id="lumber">0</span>
+    </div>
+    <div class="res-item res-supply">
+      <span class="res-icon">&#x1F3E0;</span>
+      <span id="supply">0</span>
+    </div>
+    <div class="res-bar-right">
+      <span id="upkeep-badge" class="upkeep-badge upkeep-none">NO UPKEEP</span>
+      <span id="streak" class="streak-badge"></span>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="portrait-panel">
+      <div class="portrait-frame" id="portrait">&#x1F9CC;</div>
+      <div class="stat-row"><span>Pack</span><span class="stat-val" id="pack-name">peon</span></div>
+      <div class="stat-row"><span>Tasks</span><span class="stat-val" id="tasks">0</span></div>
+      <div class="stat-row"><span>Errors</span><span class="stat-val" id="errors">0</span></div>
+      <div class="stat-row"><span>Sessions</span><span class="stat-val" id="sessions">0</span></div>
+      <div class="stat-row"><span>Combo</span><span class="combo-badge" id="combo">0x</span></div>
+      <div class="stat-row"><span>Sass</span><span id="sass-display">0</span></div>
+      <div class="sass-meter" id="sass-meter">
+        <div class="sass-pip"></div><div class="sass-pip"></div><div class="sass-pip"></div>
+        <div class="sass-pip"></div><div class="sass-pip"></div>
+      </div>
+      <div id="debt-box"></div>
+    </div>
+
+    <div class="base-panel">
+      <div class="section-title">Base</div>
+      <div class="buildings-grid" id="buildings"></div>
+      <div class="section-title" style="margin-top:8px">Stats</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;">
+        <div class="stat-row"><span>Streak</span><span class="stat-val" id="streak-days">0 days</span></div>
+        <div class="stat-row"><span>Best streak</span><span class="stat-val" id="best-streak">0 days</span></div>
+        <div class="stat-row"><span>Max combo</span><span class="stat-val" id="max-combo">0x</span></div>
+        <div class="stat-row"><span>Lifetime gold</span><span class="stat-val" id="lifetime-gold">0</span></div>
+        <div class="stat-row"><span>Lifetime lumber</span><span class="stat-val" id="lifetime-lumber">0</span></div>
+        <div class="stat-row"><span>Daily tasks</span><span class="stat-val" id="daily-tasks">0/80</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="achievements-panel">
+      <div class="section-title">Peon Honors</div>
+      <div class="achiev-grid" id="achievements"></div>
+    </div>
+    <div class="activity-panel">
+      <div class="section-title">Activity</div>
+      <div id="activity"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BUILDINGS = {
+  great_hall:   { icon: '&#x1F3F0;', name: 'Great Hall', g: 0, l: 0, free: true },
+  stronghold:   { icon: '&#x1F3F0;', name: 'Stronghold', g: 500, l: 200 },
+  fortress:     { icon: '&#x1F451;', name: 'Fortress', g: 2000, l: 800 },
+  burrow:       { icon: '&#x1F573;', name: 'Burrow', g: 100, l: 50 },
+  war_mill:     { icon: '&#x2694;',  name: 'War Mill', g: 200, l: 100 },
+  watch_tower:  { icon: '&#x1F5FC;', name: 'Watch Tower', g: 150, l: 75 },
+  altar:        { icon: '&#x26A1;',  name: 'Altar of Storms', g: 300, l: 150 },
+  spirit_lodge: { icon: '&#x1F47B;', name: 'Spirit Lodge', g: 500, l: 200 },
+  tavern:       { icon: '&#x1F37A;', name: 'Tavern', g: 400, l: 200 },
+};
+
+const ACHIEVS = [
+  { id: 'first_blood', icon: '&#x1FA78;', name: 'First Blood' },
+  { id: 'zug_zug_veteran', icon: '&#x2692;', name: 'Zug Zug Veteran' },
+  { id: 'night_elf', icon: '&#x1F319;', name: 'Night Elf' },
+  { id: 'dawn_patrol', icon: '&#x1F305;', name: 'Dawn Patrol' },
+  { id: 'weekend_warrior', icon: '&#x1F5E1;', name: 'Weekend Warrior' },
+  { id: 'iron_peon', icon: '&#x1F4AA;', name: 'Iron Peon' },
+  { id: 'rage_quit', icon: '&#x1F4A2;', name: 'Rage Quit' },
+  { id: 'oops', icon: '&#x1F92D;', name: 'Oops' },
+  { id: 'the_grind', icon: '&#x26CF;', name: 'The Grind' },
+  { id: 'permit_patty', icon: '&#x1F6D1;', name: 'Permit Patty' },
+  { id: 'compact_survivor', icon: '&#x1F6E1;', name: 'Compact Survivor' },
+  { id: 'architect', icon: '&#x1F3D7;', name: 'Architect' },
+  { id: 'bankrupt', icon: '&#x1F4B8;', name: 'Bankrupt' },
+  { id: 'mogul', icon: '&#x1F4B0;', name: 'Mogul' },
+];
+
+const EVENT_LABELS = {
+  'session.start': 'Session Start',
+  'task.complete': 'Task Complete',
+  'task.error': 'Error',
+  'task.acknowledge': 'Acknowledged',
+  'input.required': 'Permission',
+  'resource.limit': 'Context Limit',
+  'user.spam': 'Spam Detected',
+};
+
+function update(state) {
+  const stats = state.stats || {};
+  const econ = state.economy || {};
+  const built = state.buildings || {};
+  const unlocked = (stats.achievements_unlocked) || {};
+
+  document.getElementById('gold').textContent = (econ.gold || 0).toLocaleString();
+  document.getElementById('lumber').textContent = (econ.lumber || 0).toLocaleString();
+
+  const sessions = Object.keys(state.session_packs || {}).length;
+  document.getElementById('supply').textContent = sessions + '/12';
+
+  const upkeep = econ.upkeep || 'none';
+  const ub = document.getElementById('upkeep-badge');
+  ub.textContent = upkeep === 'none' ? 'NO UPKEEP' : upkeep.toUpperCase() + ' UPKEEP';
+  ub.className = 'upkeep-badge upkeep-' + upkeep;
+
+  const streak = stats.current_streak_days || 0;
+  document.getElementById('streak').textContent = streak > 0 ? streak + ' day streak' : '';
+
+  document.getElementById('pack-name').textContent = (state.last_active || {}).pack || 'peon';
+  document.getElementById('tasks').textContent = (stats.tasks_completed || 0).toLocaleString();
+  document.getElementById('errors').textContent = stats.errors_total || 0;
+  document.getElementById('sessions').textContent = stats.sessions_total || 0;
+
+  const combo = state.combo_count || 0;
+  document.getElementById('combo').textContent = combo > 0 ? combo + 'x' : '—';
+
+  const sass = state.sass_level || 0;
+  document.getElementById('sass-display').textContent = sass;
+  const pips = document.querySelectorAll('.sass-pip');
+  pips.forEach((p, i) => p.classList.toggle('active', i < sass));
+
+  const debtBox = document.getElementById('debt-box');
+  if ((econ.gold || 0) < 0) {
+    debtBox.innerHTML = '<div class="debt-warning">IN DEBT: ' + econ.gold + ' gold</div>';
+  } else {
+    debtBox.innerHTML = '';
+  }
+
+  // Buildings
+  const bGrid = document.getElementById('buildings');
+  bGrid.innerHTML = '';
+  for (const [key, def] of Object.entries(BUILDINGS)) {
+    const isBuilt = key === 'great_hall' || key in built;
+    const card = document.createElement('div');
+    card.className = 'building-card ' + (isBuilt ? 'built' : 'locked');
+    card.innerHTML = `<div class="building-icon">${def.icon}</div><div class="building-name">${def.name}</div>` +
+      (def.free ? '' : `<div class="building-cost">${def.g}g / ${def.l}l</div>`);
+    card.title = isBuilt ? 'Built!' : `${def.g} gold, ${def.l} lumber`;
+    bGrid.appendChild(card);
+  }
+
+  // Stats
+  document.getElementById('streak-days').textContent = (stats.current_streak_days || 0) + ' days';
+  document.getElementById('best-streak').textContent = (stats.longest_streak_days || 0) + ' days';
+  document.getElementById('max-combo').textContent = (stats.max_combo || 0) + 'x';
+  document.getElementById('lifetime-gold').textContent = (stats.total_gold_earned || 0).toLocaleString();
+  document.getElementById('lifetime-lumber').textContent = (stats.total_lumber_earned || 0).toLocaleString();
+  document.getElementById('daily-tasks').textContent = (econ.daily_tasks || 0) + '/80';
+
+  // Achievements
+  const aGrid = document.getElementById('achievements');
+  aGrid.innerHTML = '';
+  for (const a of ACHIEVS) {
+    const u = a.id in unlocked;
+    const el = document.createElement('div');
+    el.className = 'achiev-item ' + (u ? 'unlocked' : 'locked');
+    el.innerHTML = `<span class="achiev-icon">${a.icon}</span><span>${a.name}</span>`;
+    if (u) {
+      const d = new Date(unlocked[a.id] * 1000);
+      el.title = 'Unlocked ' + d.toLocaleDateString();
+    }
+    aGrid.appendChild(el);
+  }
+
+  // Activity log
+  const aDiv = document.getElementById('activity');
+  const log = (state.activity_log || []).slice().reverse();
+  aDiv.innerHTML = '';
+  for (const entry of log.slice(0, 30)) {
+    const el = document.createElement('div');
+    el.className = 'activity-item';
+    const t = new Date(entry.t * 1000);
+    const time = t.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const label = EVENT_LABELS[entry.e] || entry.e;
+    const gd = entry.g || 0;
+    const gdClass = gd < 0 ? 'activity-gold negative' : 'activity-gold';
+    const gdText = gd !== 0 ? (gd > 0 ? '+' : '') + gd + 'g' : '';
+    let extra = '';
+    if (entry.c) extra += ' <b>' + entry.c + '</b>';
+    if (entry.a) extra += ' &#x1F3C6; ' + entry.a;
+    el.innerHTML = `<span class="activity-time">${time}</span><span class="activity-event">${label}${extra}</span><span class="${gdClass}">${gdText}</span>`;
+    aDiv.appendChild(el);
+  }
+}
+
+async function poll() {
+  try {
+    const res = await fetch('/api/state');
+    if (res.ok) {
+      const state = await res.json();
+      update(state);
+    }
+  } catch (e) {}
+}
+
+poll();
+setInterval(poll, 2000);
+</script>
+</body>
+</html>

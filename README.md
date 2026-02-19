@@ -21,6 +21,7 @@ AI coding agents don't notify you when they finish or need permission. You tab a
 - [Install](#install)
 - [What you'll hear](#what-youll-hear)
 - [Quick controls](#quick-controls)
+- [WC3 Metagame](#wc3-metagame)
 - [Configuration](#configuration)
 - [Peon Trainer](#peon-trainer)
 - [MCP server](#mcp-server)
@@ -143,6 +144,16 @@ peon mobile off           # Disable phone notifications
 peon mobile test          # Send a test notification
 peon relay --daemon       # Start audio relay (for SSH/devcontainer)
 peon relay --stop         # Stop background relay
+
+# WC3 Metagame
+peon economy              # Show gold, lumber, upkeep status
+peon achievements         # View unlocked/locked achievements
+peon build list           # List buildings with costs
+peon build <name>         # Build a structure (costs gold + lumber)
+peon bunker               # Suppress roasts for 1 hour (requires Burrow)
+peon resurrect            # Restore combo streak (requires Altar, once/day)
+peon taunt                # Play a random roast (requires Tavern)
+peon dashboard            # Open WC3 base dashboard in browser
 ```
 
 Available CESP categories for `peon preview`: `session.start`, `task.acknowledge`, `task.complete`, `task.error`, `input.required`, `resource.limit`, `user.spam`. (Extended categories `session.end` and `task.progress` are defined in the CESP spec and supported by pack manifests, but not currently triggered by built-in hook events.)
@@ -150,6 +161,78 @@ Available CESP categories for `peon preview`: `session.start`, `task.acknowledge
 Tab completion is supported — type `peon packs use <TAB>` to see available pack names.
 
 Pausing mutes sounds and desktop notifications instantly. Persists across sessions until you resume. Tab titles remain active when paused.
+
+## WC3 Metagame
+
+peon-ping includes a full Warcraft III base-building metagame layered on top of your coding sessions. Earn gold and lumber, build structures, unlock achievements, and get roasted by your peon.
+
+### Economy
+
+Every hook event affects your resources:
+
+| Event | Gold | Lumber |
+|---|---|---|
+| Task complete | +10 | — |
+| Task acknowledged | +2 | — |
+| Session start | — | +5 |
+| Prompt submitted | — | +1 |
+| Error | -5 | — |
+| Context limit hit | -20 | — |
+
+Gold income scales with **upkeep** (concurrent sessions: 0-3 = full, 4-6 = 70%, 7+ = 40%) and **depletion** (gold mine runs low after 50 tasks/day, collapses at 80). Go into debt and peon starts charging interest.
+
+### Buildings
+
+Spend gold and lumber to build structures that unlock real perks:
+
+| Building | Cost | Perk |
+|---|---|---|
+| **Stronghold** | 500g/200l | Unlocks random events (treasure, merchant, raids) |
+| **Fortress** | 2000g/800l | Max rank |
+| **Burrow** | 100g/50l | `peon bunker` — suppress roasts for 1 hour |
+| **War Mill** | 200g/100l | Unlocks combo system (multi-kill tracking) |
+| **Watch Tower** | 150g/75l | Early warning at 80% context |
+| **Altar of Storms** | 300g/150l | `peon resurrect` — restore combo once/day |
+| **Spirit Lodge** | 500g/200l | Unlocks idle peon thoughts |
+| **Tavern** | 400g/200l | `peon taunt` — play a random roast on demand |
+
+### Achievements
+
+14 achievements with WC3-themed flavor text, tracked across sessions:
+
+*First Blood* · *Zug Zug Veteran* (100 tasks) · *Night Elf* (code past 2 AM) · *Dawn Patrol* (session before 6 AM) · *Weekend Warrior* · *Iron Peon* (7-day streak) · *Rage Quit* (3+ errors) · *Oops* (50 errors) · *The Grind* (1000 tasks) · *Architect* (all buildings) · *Bankrupt* (-500 gold) · *Mogul* (5000 lifetime gold) · and more.
+
+### Roasts (Sass Levels 0-5)
+
+The worse you code, the more savage peon gets. Sass escalates on errors, context limits, and midnight coding. Cools down on clean completions. Resets daily.
+
+- **Level 0**: Normal. *"Job done."*
+- **Level 3**: *"Human considered different career?"*
+- **Level 5**: *"Peon quit. Find another peon."*
+
+Build a **Burrow** and run `peon bunker` to hide from roasts for an hour.
+
+### Combos
+
+Build a **War Mill** to unlock multi-kill tracking. Consecutive task completions without errors count as a combo: *Double kill!* → *Triple kill!* → *Mega kill!* → *UNSTOPPABLE!* → *GODLIKE!*
+
+### Dashboard
+
+Run `peon dashboard` to open a WC3-themed web dashboard at `localhost:19997`. Shows your base, resources, buildings, achievements, activity feed, and stats — all live-updating. The dashboard server auto-starts on the first hook event.
+
+### Time Awareness
+
+peon-ping knows what time it is and adjusts notifications accordingly:
+
+- **Dawn** (5-8 AM): *"New day dawns! Ready to work?"*
+- **Night** (9 PM-12 AM): *"It getting dark... human should sleep."*
+- **Witching hour** (12-5 AM): *"WHY ARE YOU STILL HERE?!"*
+- **Monday 9 AM**: *"Back to the mines..."*
+- **Friday 5 PM**: *"FREEDOM! Peon free! ...until Monday."* + Payday bonus
+
+### Disabling
+
+Set `"game": {"enabled": false}` in config.json to turn off all game features. Zero performance cost when disabled.
 
 ## Configuration
 

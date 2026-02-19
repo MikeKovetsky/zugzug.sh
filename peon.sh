@@ -1548,6 +1548,296 @@ for i, s in enumerate(sounds):
       curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash
     fi
     exit $? ;;
+  economy)
+    python3 -c "
+import json, os
+state_file = '$STATE'
+config_path = '$CONFIG'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+try:
+    cfg = json.load(open(config_path))
+except Exception:
+    cfg = {}
+econ = state.get('economy', {})
+stats = state.get('stats', {})
+gold = econ.get('gold', 0)
+lumber = econ.get('lumber', 0)
+upkeep = econ.get('upkeep', 'none')
+daily_tasks = econ.get('daily_tasks', 0)
+print(f'Gold: {gold}')
+print(f'Lumber: {lumber}')
+print(f'Upkeep: {upkeep}')
+print(f'Daily tasks: {daily_tasks}/80')
+print(f'Lifetime gold earned: {stats.get(\"total_gold_earned\", 0)}')
+print(f'Lifetime lumber earned: {stats.get(\"total_lumber_earned\", 0)}')
+if gold < 0:
+    print(f'*** IN DEBT: {gold} gold ***')
+"
+    exit 0 ;;
+  achievements)
+    python3 -c "
+import json, os, time
+state_file = '$STATE'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+stats = state.get('stats', {})
+unlocked = stats.get('achievements_unlocked', {})
+defs = [
+    ('first_blood', 'First Blood', 'First task error'),
+    ('zug_zug_veteran', 'Zug Zug Veteran', '100 tasks completed'),
+    ('night_elf', 'Night Elf', 'Code past 2 AM'),
+    ('dawn_patrol', 'Dawn Patrol', 'Session before 6 AM'),
+    ('weekend_warrior', 'Weekend Warrior', '10 weekend sessions'),
+    ('iron_peon', 'Iron Peon', '7-day coding streak'),
+    ('rage_quit', 'Rage Quit', '3+ errors in a session'),
+    ('oops', 'Oops', '50 lifetime errors'),
+    ('the_grind', 'The Grind', '1000 lifetime tasks'),
+    ('permit_patty', 'Permit Patty', '20 permissions in a session'),
+    ('compact_survivor', 'Compact Survivor', '5 context compacts'),
+    ('architect', 'Architect', 'Build all structures'),
+    ('bankrupt', 'Bankrupt', 'Go below -500 gold'),
+    ('mogul', 'Mogul', '5000 lifetime gold earned'),
+]
+print(f'Achievements: {len(unlocked)}/{len(defs)}')
+print()
+for aid, name, desc in defs:
+    if aid in unlocked:
+        ts = unlocked[aid]
+        when = time.strftime('%Y-%m-%d', time.localtime(ts))
+        print(f'  [x] {name:20s} {desc:30s} (unlocked {when})')
+    else:
+        print(f'  [ ] {name:20s} {desc}')
+"
+    exit 0 ;;
+  build)
+    shift
+    python3 -c "
+import json, os, sys, time
+state_file = '$STATE'
+config_path = '$CONFIG'
+arg = '${1:-list}'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+try:
+    cfg = json.load(open(config_path))
+except Exception:
+    cfg = {}
+econ = state.get('economy', {})
+buildings = state.get('buildings', {})
+gold = econ.get('gold', 0)
+lumber = econ.get('lumber', 0)
+today = state.get('goblin_discount_date', '')
+import datetime
+discount = today == datetime.date.today().isoformat()
+BUILDINGS = {
+    'stronghold':    (500, 200, 'Rank upgrade. Unlocks random events.'),
+    'fortress':      (2000, 800, 'Max rank. Unlocks leaderboard title.'),
+    'burrow':        (100, 50, 'peon bunker — suppress roasts for 1 hour.'),
+    'war_mill':      (200, 100, 'Unlocks combo system (multi-kill tracking).'),
+    'watch_tower':   (150, 75, 'Early warning at 80% context.'),
+    'altar':         (300, 150, 'peon resurrect — restore combo once/day.'),
+    'spirit_lodge':  (500, 200, 'Unlocks idle peon wisdom.'),
+    'tavern':        (400, 200, 'peon taunt — play a roast on demand.'),
+}
+if arg == 'list':
+    print(f'Gold: {gold} | Lumber: {lumber}')
+    if discount:
+        print('*** Goblin Merchant discount active! 50% off! ***')
+    print()
+    print('Great Hall (built)')
+    for bname, (gcost, lcost, desc) in BUILDINGS.items():
+        g = gcost // 2 if discount else gcost
+        l = lcost // 2 if discount else lcost
+        built = bname in buildings
+        marker = '[x]' if built else '[ ]'
+        afford = '' if built else (' (can afford)' if gold >= g and lumber >= l else f' (need {g}g/{l}l)')
+        print(f'  {marker} {bname:15s} {g}g/{l}l  {desc}{afford}')
+else:
+    bname = arg.lower().replace('-', '_')
+    if bname not in BUILDINGS:
+        print('Unknown building: ' + arg)
+        print('Available: ' + ', '.join(BUILDINGS.keys()))
+        sys.exit(1)
+    if bname in buildings:
+        print(bname + ' is already built!')
+        sys.exit(0)
+    gcost, lcost, desc = BUILDINGS[bname]
+    if discount:
+        gcost //= 2
+        lcost //= 2
+    if gold < gcost or lumber < lcost:
+        short_g = max(0, gcost - gold)
+        short_l = max(0, lcost - lumber)
+        print(f'Not enough resources! Need {gcost}g/{lcost}l, have {gold}g/{lumber}l')
+        if short_g > 0:
+            print(f'  Short {short_g} gold')
+        if short_l > 0:
+            print(f'  Short {short_l} lumber')
+        sys.exit(1)
+    econ['gold'] = gold - gcost
+    econ['lumber'] = lumber - lcost
+    buildings[bname] = dict(built_at=int(time.time()))
+    state['economy'] = econ
+    state['buildings'] = buildings
+    stats = state.get('stats', {})
+    stats['buildings_built'] = len(buildings)
+    state['stats'] = stats
+    os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+    json.dump(state, open(state_file, 'w'))
+    print(f'Built {bname}! (-{gcost}g/-{lcost}l)')
+    print('  ' + desc)
+    print('  Gold: ' + str(econ['gold']) + ' | Lumber: ' + str(econ['lumber']))
+"
+    exit $? ;;
+  bunker)
+    python3 -c "
+import json, os, time
+state_file = '$STATE'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+buildings = state.get('buildings', {})
+if 'burrow' not in buildings:
+    print('Build a Burrow first! (peon build burrow)')
+    exit(1)
+now = time.time()
+until = state.get('bunker_until', 0)
+if until > now:
+    remaining = int((until - now) / 60)
+    print(f'Already in bunker! {remaining} minutes remaining.')
+    exit(0)
+state['bunker_until'] = now + 3600
+os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+json.dump(state, open(state_file, 'w'))
+print('Peon hiding! Roasts suppressed for 1 hour.')
+"
+    exit $? ;;
+  resurrect)
+    python3 -c "
+import json, os, time, datetime
+state_file = '$STATE'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+buildings = state.get('buildings', {})
+if 'altar' not in buildings:
+    print('Build an Altar of Storms first! (peon build altar)')
+    exit(1)
+today = datetime.date.today().isoformat()
+if state.get('last_resurrect_date') == today:
+    print('Already used resurrect today. Try again tomorrow.')
+    exit(0)
+old_combo = state.get('combo_count', 0)
+best = state.get('stats', {}).get('max_combo', 0)
+state['combo_count'] = max(old_combo, best // 2)
+state['last_resurrect_date'] = today
+os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+json.dump(state, open(state_file, 'w'))
+print(f'Peon call upon ancestors! Combo restored to {state[\"combo_count\"]}x.')
+"
+    exit $? ;;
+  taunt)
+    python3 -c "
+import json, os, random
+state_file = '$STATE'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+buildings = state.get('buildings', {})
+if 'tavern' not in buildings:
+    print('Build a Tavern first! (peon build tavern)')
+    exit(1)
+taunts = [
+    'Human considered different career?',
+    'Peon seen better code from a murloc.',
+    'At this point, Peon writing the code.',
+    'Me going to work for the Night Elves.',
+    'Even peasant code better.',
+    'Peon losing faith in humanity.',
+    'Stop poking me!',
+    'Why you keep asking?!',
+    'Peon file complaint with Warchief.',
+    'Human think code review hard? Try three hundred squats!',
+]
+print(random.choice(taunts))
+"
+    exit 0 ;;
+  dashboard)
+    _port=${PEON_DASHBOARD_PORT:-19997}
+    _pid_file="$PEON_DIR/.dashboard.pid"
+    _running=false
+    if [ -f "$_pid_file" ]; then
+      _dpid=$(cat "$_pid_file" 2>/dev/null)
+      [ -n "$_dpid" ] && kill -0 "$_dpid" 2>/dev/null && _running=true
+    fi
+    if [ "$_running" = false ]; then
+      if [ -f "$PEON_DIR/dashboard.html" ]; then
+        echo "Starting dashboard server on port $_port..."
+        nohup python3 -c "
+import http.server, json, os, socketserver
+PORT = $_port
+PEON_DIR = '$PEON_DIR'
+class H(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *a): pass
+    def do_GET(self):
+        if self.path == '/api/state':
+            self.send_response(200)
+            self.send_header('Content-Type','application/json')
+            self.send_header('Access-Control-Allow-Origin','*')
+            self.end_headers()
+            try: data = open(os.path.join(PEON_DIR,'.state.json')).read()
+            except: data = '{}'
+            self.wfile.write(data.encode())
+        elif self.path == '/api/config':
+            self.send_response(200)
+            self.send_header('Content-Type','application/json')
+            self.send_header('Access-Control-Allow-Origin','*')
+            self.end_headers()
+            try: data = open(os.path.join(PEON_DIR,'config.json')).read()
+            except: data = '{}'
+            self.wfile.write(data.encode())
+        elif self.path in ('/','/dashboard'):
+            self.send_response(200)
+            self.send_header('Content-Type','text/html')
+            self.end_headers()
+            try: data = open(os.path.join(PEON_DIR,'dashboard.html')).read()
+            except: data = '<h1>Not found</h1>'
+            self.wfile.write(data.encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+socketserver.TCPServer.allow_reuse_address = True
+with socketserver.TCPServer(('127.0.0.1',PORT),H) as s:
+    s.serve_forever()
+" >/dev/null 2>&1 &
+        echo $! > "$_pid_file"
+        sleep 0.5
+      else
+        echo "Dashboard HTML not found. Run 'peon update' to install." >&2
+        exit 1
+      fi
+    fi
+    echo "Dashboard running at http://localhost:$_port"
+    case "$(uname -s)" in
+      Darwin) open "http://localhost:$_port" ;;
+      Linux)
+        if command -v xdg-open &>/dev/null; then
+          xdg-open "http://localhost:$_port" &>/dev/null &
+        else
+          echo "Open http://localhost:$_port in your browser"
+        fi ;;
+    esac
+    exit 0 ;;
   help|--help|-h)
     cat <<'HELPEOF'
 Usage: peon <command>
@@ -1570,6 +1860,15 @@ Commands:
                        task.error, input.required, resource.limit, user.spam
   update               Update peon-ping and refresh all sound packs
   help                 Show this help
+
+WC3 Metagame:
+  economy              Show gold, lumber, and upkeep status
+  achievements         Show unlocked and locked achievements
+  build [list|<name>]  List or build structures (costs gold + lumber)
+  bunker               Suppress roasts for 1 hour (requires Burrow)
+  resurrect            Restore combo streak (requires Altar, once/day)
+  taunt                Play a random roast (requires Tavern)
+  dashboard            Open the WC3 base dashboard in your browser
 
 Pack management:
   packs list              List installed sound packs
@@ -2264,6 +2563,326 @@ if category and not paused:
     except Exception:
         pass
 
+# --- WC3 Metagame (stats, economy, buildings, achievements, roasts, combos, time) ---
+game_cfg = cfg.get('game', {})
+game_on = str(game_cfg.get('enabled', True)).lower() != 'false'
+game_notify = ''
+game_subtitle = ''
+
+if game_on:
+    import datetime as _dt
+    _now_dt = _dt.datetime.now()
+    _today = _now_dt.date().isoformat()
+    _hour = _now_dt.hour
+    _minute = _now_dt.minute
+    _weekday = _now_dt.weekday()
+
+    stats = state.setdefault('stats', {})
+    econ = state.setdefault('economy', {})
+    buildings = state.get('buildings', {})
+    combo = state.get('combo_count', 0)
+    sass = state.get('sass_level', 0)
+    s_errors = state.get('session_errors', 0)
+    s_perms = state.get('session_permissions', 0)
+    log = state.get('activity_log', [])
+
+    if econ.get('daily_date') != _today:
+        econ['daily_tasks'] = 0
+        econ['daily_prompts'] = 0
+        econ['daily_date'] = _today
+        econ['debt_interest'] = False
+        sass = 0
+        s_errors = 0
+        s_perms = 0
+        streak = stats.get('current_streak_days', 0)
+        last_date = stats.get('last_active_date', '')
+        if last_date:
+            try:
+                ld = _dt.date.fromisoformat(last_date)
+                delta = (_now_dt.date() - ld).days
+                if delta == 1:
+                    streak += 1
+                elif delta > 1:
+                    streak = 1
+            except Exception:
+                streak = 1
+        else:
+            streak = 1
+        stats['current_streak_days'] = streak
+        if streak > stats.get('longest_streak_days', 0):
+            stats['longest_streak_days'] = streak
+
+    stats['last_active_date'] = _today
+    gold = econ.get('gold', 0)
+    lumber = econ.get('lumber', 0)
+    gold_delta = 0
+    lumber_delta = 0
+    econ_on = str(game_cfg.get('economy', True)).lower() != 'false'
+
+    active_sessions = len(state.get('session_packs', {}))
+    if active_sessions <= 3:
+        upkeep = 'none'
+        upkeep_mult = 1.0
+    elif active_sessions <= 6:
+        upkeep = 'low'
+        upkeep_mult = 0.7
+    else:
+        upkeep = 'high'
+        upkeep_mult = 0.4
+    old_upkeep = econ.get('upkeep', 'none')
+
+    daily_tasks = econ.get('daily_tasks', 0)
+
+    if econ_on:
+        if category == 'task.complete' or event == 'Stop':
+            base_gold = 10
+            if daily_tasks >= 80:
+                base_gold = 0
+            elif daily_tasks >= 50:
+                base_gold = 5
+            gold_delta += int(base_gold * upkeep_mult)
+            daily_tasks += 1
+            econ['daily_tasks'] = daily_tasks
+            stats['tasks_completed'] = stats.get('tasks_completed', 0) + 1
+        elif category == 'task.acknowledge':
+            gold_delta += int(2 * upkeep_mult)
+        elif category == 'task.error' or event == 'PostToolUseFailure':
+            gold_delta -= 5
+            s_errors += 1
+            stats['errors_total'] = stats.get('errors_total', 0) + 1
+        elif category == 'resource.limit':
+            gold_delta -= 20
+            stats['context_limits_hit'] = stats.get('context_limits_hit', 0) + 1
+        elif category == 'session.start':
+            lumber_delta += 5
+            stats['sessions_total'] = stats.get('sessions_total', 0) + 1
+            if _weekday >= 5:
+                stats['weekend_sessions'] = stats.get('weekend_sessions', 0) + 1
+        elif category == 'user.spam' or event == 'UserPromptSubmit':
+            lumber_delta += 1
+            econ['daily_prompts'] = econ.get('daily_prompts', 0) + 1
+            stats['prompts_total'] = stats.get('prompts_total', 0) + 1
+            if econ.get('daily_prompts', 0) > 100:
+                lumber_delta = max(1, lumber_delta // 2)
+
+        if event == 'PermissionRequest':
+            s_perms += 1
+            stats['permissions_total'] = stats.get('permissions_total', 0) + 1
+
+        if econ.get('debt_interest') and gold < 0 and gold_delta > 0:
+            gold_delta = max(0, gold_delta - 1)
+
+        if s_errors >= 5 and s_errors % 5 == 0 and gold > 0:
+            raid_loss = random.randint(50, 200)
+            raid_loss = min(raid_loss, gold + gold_delta)
+            gold_delta -= raid_loss
+            raiders = random.choice(['Murlocs', 'Gnolls', 'Kobolds'])
+            raid_msg = f'{raiders} raided your gold mine! -{raid_loss} gold'
+            if raiders == 'Kobolds':
+                raid_msg += ' (You no take candle!)'
+            game_subtitle = raid_msg
+
+        gold += gold_delta
+        lumber += lumber_delta
+
+        if gold <= -500 and not econ.get('debt_interest'):
+            econ['debt_interest'] = True
+
+        if gold_delta > 0:
+            stats['total_gold_earned'] = stats.get('total_gold_earned', 0) + gold_delta
+        if lumber_delta > 0:
+            stats['total_lumber_earned'] = stats.get('total_lumber_earned', 0) + lumber_delta
+
+        econ['gold'] = gold
+        econ['lumber'] = lumber
+        econ['upkeep'] = upkeep
+
+        if upkeep != old_upkeep and old_upkeep == 'none' and upkeep != 'none':
+            up_msg = 'Low upkeep!' if upkeep == 'low' else 'High upkeep!'
+            game_subtitle = game_subtitle or up_msg
+
+        if daily_tasks == 50 and base_gold == 5:
+            game_subtitle = game_subtitle or 'Gold mine is running low!'
+        elif daily_tasks == 80 and base_gold == 0:
+            game_subtitle = game_subtitle or 'Gold mine has collapsed!'
+
+    # --- Combo system (gated behind War Mill) ---
+    combo_on = str(game_cfg.get('combos', True)).lower() != 'false'
+    has_war_mill = 'war_mill' in buildings
+    combo_text = ''
+    if combo_on and has_war_mill:
+        if category == 'task.complete' and event == 'Stop':
+            combo += 1
+            if combo >= 20:
+                combo_text = 'GODLIKE!'
+            elif combo >= 10:
+                combo_text = 'UNSTOPPABLE!'
+            elif combo >= 5:
+                combo_text = 'Mega kill!'
+            elif combo >= 3:
+                combo_text = 'Triple kill!'
+            elif combo >= 2:
+                combo_text = 'Double kill!'
+            if combo > stats.get('max_combo', 0):
+                stats['max_combo'] = combo
+        elif category in ('task.error', 'resource.limit'):
+            if combo >= 2:
+                combo_text = f'Combo broken at {combo}x.'
+            combo = 0
+    state['combo_count'] = combo
+
+    # --- Roast system (sass levels 0-5) ---
+    roast_on = str(game_cfg.get('roasts', True)).lower() != 'false'
+    roast_text = ''
+    bunker_until = state.get('bunker_until', 0)
+    in_bunker = bunker_until > time.time()
+    if roast_on and not in_bunker:
+        if s_errors > 0 and s_errors % 3 == 0:
+            sass = min(5, sass + 1)
+        if category == 'resource.limit':
+            sass = min(5, sass + 1)
+        if _hour >= 0 and _hour < 5:
+            sass = min(5, sass + 1)
+        if s_perms > 0 and s_perms % 5 == 0:
+            sass = min(5, sass + 1)
+        if category == 'task.complete' and s_errors == 0:
+            sass = max(0, sass - 1)
+
+        _roasts = {
+            1: ['Oh, another error? Shocking.', 'Job done... somehow.', 'Peon raise eyebrow.'],
+            2: ['Maybe read the docs?', 'Peon do better with eyes closed.', 'Human try turning it off and on?'],
+            3: ['Human considered different career?', 'Peon seen better code from murloc.', 'Even peasant code better.'],
+            4: ['At this point, Peon writing the code.', 'Error again? Peon not even surprised.', 'Peon losing faith in humanity.'],
+            5: ['Peon quit. Find another peon.', 'Me going to work for Night Elves.', 'Peon file complaint with Warchief.'],
+        }
+        if sass > 0 and category in ('task.error', 'task.complete', 'resource.limit'):
+            roast_text = random.choice(_roasts.get(sass, []))
+
+    state['sass_level'] = sass
+    state['session_errors'] = s_errors
+    state['session_permissions'] = s_perms
+
+    # --- Time-aware mechanics ---
+    time_on = str(game_cfg.get('time_aware', True)).lower() != 'false'
+    time_text = ''
+    if time_on:
+        if category == 'session.start':
+            if _hour < 5:
+                time_text = random.choice(['WHY ARE YOU STILL HERE?!', 'Human crazy. Peon going to bed.', 'The dead of night... perfect for coding.'])
+            elif _hour < 8:
+                time_text = random.choice(['New day dawns! Ready to work?', 'Early bird gets the worm. Peon gets nothing.'])
+            elif _hour >= 21:
+                time_text = random.choice(['It getting dark... human should sleep.', 'Night shift? Peon charge overtime.'])
+        if _weekday == 0 and _hour == 9 and _minute < 15 and category == 'session.start':
+            time_text = 'Back to the mines...'
+        elif _weekday == 4 and _hour == 17 and _minute < 15 and category == 'task.complete':
+            time_text = 'FREEDOM! Peon free! ...until Monday.'
+        if _hour >= 12 and _hour < 13 and random.random() < 0.15 and category:
+            time_text = time_text or 'Human eat lunch? Or just code? Peon worried.'
+
+    # --- Achievement checks ---
+    achiev_on = str(game_cfg.get('achievements', True)).lower() != 'false'
+    unlocked = stats.get('achievements_unlocked', {})
+    new_achiev = ''
+    _achiev_defs = [
+        ('first_blood',      lambda: stats.get('errors_total', 0) >= 1, 'First Blood', 'Our town is under attack!'),
+        ('zug_zug_veteran',  lambda: stats.get('tasks_completed', 0) >= 100, 'Zug Zug Veteran', 'More work? ...More work.'),
+        ('night_elf',        lambda: _hour >= 2 and _hour < 5, 'Night Elf', 'The shadows hold many secrets...'),
+        ('dawn_patrol',      lambda: _hour >= 4 and _hour < 6 and category == 'session.start', 'Dawn Patrol', 'The horn of Cenarius has sounded!'),
+        ('weekend_warrior',  lambda: stats.get('weekend_sessions', 0) >= 10, 'Weekend Warrior', 'For the Horde! ...on a Saturday?'),
+        ('iron_peon',        lambda: stats.get('current_streak_days', 0) >= 7, 'Iron Peon', 'Peon never stop. Peon strong.'),
+        ('rage_quit',        lambda: s_errors >= 3, 'Rage Quit', 'Our forces are under attack!'),
+        ('oops',             lambda: stats.get('errors_total', 0) >= 50, 'Oops', 'Stop poking me!'),
+        ('the_grind',        lambda: stats.get('tasks_completed', 0) >= 1000, 'The Grind', 'Something need doing? ALWAYS.'),
+        ('permit_patty',     lambda: s_perms >= 20, 'Permit Patty', 'Why you keep asking?!'),
+        ('compact_survivor', lambda: stats.get('context_limits_hit', 0) >= 5, 'Compact Survivor', 'Under attack!'),
+        ('architect',        lambda: len(buildings) >= 7, 'Architect', 'Base complete! Peon... proud.'),
+        ('bankrupt',         lambda: gold <= -500, 'Bankrupt', 'Peon seen better economy from gnolls.'),
+        ('mogul',            lambda: stats.get('total_gold_earned', 0) >= 5000, 'Mogul', 'Human rich! Peon still poor though.'),
+    ]
+    if achiev_on:
+        for aid, check_fn, aname, aflavor in _achiev_defs:
+            if aid not in unlocked:
+                try:
+                    if check_fn():
+                        unlocked[aid] = int(time.time())
+                        new_achiev = f'{aname}: {aflavor}'
+                        break
+                except Exception:
+                    pass
+        stats['achievements_unlocked'] = unlocked
+
+    # --- Random events (gated behind Stronghold) ---
+    evt_on = str(game_cfg.get('random_events', True)).lower() != 'false'
+    evt_chance = float(game_cfg.get('random_event_chance', 0.05))
+    has_stronghold = 'stronghold' in buildings
+    game_event_text = ''
+    if evt_on and has_stronghold and econ_on and random.random() < evt_chance and category:
+        last_evt = state.get('last_random_event_date', '')
+        if last_evt != _today:
+            r = random.random()
+            if r < 0.4:
+                bonus = random.randint(50, 200)
+                econ['gold'] = econ.get('gold', 0) + bonus
+                game_event_text = f'Peon was digging hole and found shiny! +{bonus} gold'
+            elif r < 0.7 and daily_tasks >= 10:
+                game_event_text = 'Gold vein discovered! Bonus gold incoming.'
+                econ['daily_tasks'] = max(0, econ.get('daily_tasks', 0) - 20)
+            else:
+                game_event_text = 'A goblin merchant arrives! Buildings 50% off today.'
+                state['goblin_discount_date'] = _today
+            state['last_random_event_date'] = _today
+            state_dirty = True
+
+    if _weekday == 4 and _hour == 17 and _minute < 5 and econ_on:
+        weekly_gold = stats.get('tasks_completed', 0) % 100
+        if weekly_gold > 0 and state.get('last_payday') != _today:
+            econ['gold'] = econ.get('gold', 0) + weekly_gold
+            state['last_payday'] = _today
+            game_event_text = game_event_text or f'Payday! +{weekly_gold} gold. Peon buy round of grog!'
+
+    _hour_coded = _hour
+    if _hour_coded > stats.get('latest_hour_coded', 0):
+        stats['latest_hour_coded'] = _hour_coded
+    if stats.get('earliest_hour_coded') is None or _hour_coded < stats.get('earliest_hour_coded', 24):
+        stats['earliest_hour_coded'] = _hour_coded
+
+    # --- Build activity log entry ---
+    if category and econ_on:
+        entry = dict(t=int(time.time()), e=category, g=gold_delta, l=lumber_delta)
+        if combo_text:
+            entry['c'] = combo_text
+        if new_achiev:
+            entry['a'] = new_achiev
+        log.append(entry)
+        if len(log) > 50:
+            log = log[-50:]
+        state['activity_log'] = log
+
+    # --- Compose game notification ---
+    parts = []
+    if new_achiev:
+        parts.append(f'Achievement: {new_achiev}')
+    if combo_text:
+        parts.append(combo_text)
+    if game_event_text:
+        parts.append(game_event_text)
+    if game_subtitle:
+        parts.append(game_subtitle)
+    if econ_on and gold_delta != 0:
+        sign = '+' if gold_delta > 0 else ''
+        parts.append(f'{sign}{gold_delta}g')
+    if roast_text:
+        parts.append(roast_text)
+    if time_text:
+        parts.append(time_text)
+    game_notify = ' | '.join(parts) if parts else ''
+
+    state['stats'] = stats
+    state['economy'] = econ
+    state['buildings'] = buildings
+    state_dirty = True
+
 # --- Trainer reminder check ---
 trainer_sound = ''
 trainer_msg = ''
@@ -2368,6 +2987,8 @@ print('ICON_PATH=' + q(icon_path))
 print('TRAINER_SOUND=' + q(trainer_sound))
 print('TRAINER_MSG=' + q(trainer_msg))
 print('TAB_COLOR_RGB=' + q(tab_color_rgb))
+print('GAME_NOTIFY=' + q(game_notify))
+print('GAME_SUBTITLE=' + q(game_subtitle))
 " <<< "$INPUT" 2>/dev/null)"
 
 # If Python signalled early exit (disabled, agent, unknown event), bail out
@@ -2472,7 +3093,9 @@ _run_sound_and_notify() {
   # --- Smart notification: only when terminal is NOT frontmost ---
   if [ -n "$NOTIFY" ] && [ "$PAUSED" != "true" ] && [ "${DESKTOP_NOTIF:-true}" = "true" ]; then
     if ! terminal_is_focused; then
-      send_notification "$MSG" "$TITLE" "${NOTIFY_COLOR:-red}" "${ICON_PATH:-}"
+      local _notif_msg="$MSG"
+      [ -n "${GAME_NOTIFY:-}" ] && _notif_msg="$_notif_msg  —  $GAME_NOTIFY"
+      send_notification "$_notif_msg" "$TITLE" "${NOTIFY_COLOR:-red}" "${ICON_PATH:-}"
     fi
   fi
 
@@ -2481,6 +3104,72 @@ _run_sound_and_notify() {
     send_mobile_notification "$MSG" "$TITLE" "${NOTIFY_COLOR:-red}"
   fi
 }
+
+# --- Dashboard auto-spawn (zero config: starts on first hook, lives until reboot) ---
+_dashboard_port=19997
+_dashboard_pid_file="$PEON_DIR/.dashboard.pid"
+_maybe_spawn_dashboard() {
+  if command -v python3 &>/dev/null && [ -f "$PEON_DIR/dashboard.html" ]; then
+    local running=false
+    if [ -f "$_dashboard_pid_file" ]; then
+      local _dpid
+      _dpid=$(cat "$_dashboard_pid_file" 2>/dev/null)
+      [ -n "$_dpid" ] && kill -0 "$_dpid" 2>/dev/null && running=true
+    fi
+    if [ "$running" = false ]; then
+      nohup python3 -c "
+import http.server, json, os, sys, socketserver
+
+PORT = $_dashboard_port
+PEON_DIR = '$PEON_DIR'
+
+class Handler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *a): pass
+    def do_GET(self):
+        if self.path == '/api/state':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            try:
+                data = open(os.path.join(PEON_DIR, '.state.json')).read()
+            except Exception:
+                data = '{}'
+            self.wfile.write(data.encode())
+        elif self.path == '/api/config':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            try:
+                data = open(os.path.join(PEON_DIR, 'config.json')).read()
+            except Exception:
+                data = '{}'
+            self.wfile.write(data.encode())
+        elif self.path == '/' or self.path == '/dashboard':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            try:
+                data = open(os.path.join(PEON_DIR, 'dashboard.html')).read()
+            except Exception:
+                data = '<h1>Dashboard not found</h1>'
+            self.wfile.write(data.encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+socketserver.TCPServer.allow_reuse_address = True
+with socketserver.TCPServer(('127.0.0.1', PORT), Handler) as httpd:
+    httpd.serve_forever()
+" >/dev/null 2>&1 &
+      echo $! > "$_dashboard_pid_file"
+    fi
+  fi
+}
+if [ "${PEON_TEST:-0}" != "1" ]; then
+  _maybe_spawn_dashboard &>/dev/null &
+fi
 
 # In test mode run synchronously; in production background to avoid blocking the IDE
 if [ "${PEON_TEST:-0}" = "1" ]; then

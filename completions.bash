@@ -45,12 +45,17 @@ _peon_completions() {
           COMPREPLY=( $(compgen -W "ntfy pushover telegram on off status test" -- "$cur") )
         fi
         return 0 ;;
+      build)
+        if [ "$cword" -eq 2 ]; then
+          COMPREPLY=( $(compgen -W "list stronghold fortress burrow war_mill watch_tower altar spirit_lodge tavern" -- "$cur") )
+        fi
+        return 0 ;;
     esac
     return 0
   fi
 
   # Top-level commands
-  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay help" -- "$cur") )
+  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay economy achievements build bunker resurrect taunt dashboard preview update trainer help" -- "$cur") )
   return 0
 }
 

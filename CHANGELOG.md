@@ -1,5 +1,21 @@
 # Changelog
 
+## v3.0.0 (2026-02-19)
+
+### Added
+- **WC3 Metagame**: Full Warcraft III base-building metagame layered on coding sessions
+  - **Economy**: Earn gold (task completions) and lumber (prompts). Gold mine depletion, debt with interest, upkeep based on concurrent sessions, base raids on error streaks
+  - **Buildings**: 8 structures buildable via `peon build` — each unlocks a real perk (combos, roast suppression, combo resurrect, on-demand taunts, random events, idle thoughts)
+  - **Achievements**: 14 achievements with WC3-themed flavor text (First Blood, Night Elf, Iron Peon, Architect, Mogul, etc.)
+  - **Roasts**: Escalating sass levels 0-5 based on errors, context limits, late-night coding. Suppressible via Burrow building
+  - **Combos**: Multi-kill tracking (Double/Triple/Mega/UNSTOPPABLE/GODLIKE) gated behind War Mill building
+  - **Time awareness**: Day/night cycle affects notification text. Special events for Monday morning, Friday evening, lunch hour
+  - **Random events**: Treasure finds, gold veins, goblin merchant discounts (gated behind Stronghold)
+- **Dashboard**: WC3-themed local web dashboard at `localhost:19997` with resource bar, base view, achievements, activity feed. Auto-spawns on first hook event
+- **New CLI commands**: `peon economy`, `peon achievements`, `peon build`, `peon bunker`, `peon resurrect`, `peon taunt`, `peon dashboard`
+- Tab completions for all new commands (bash + fish)
+- 13 new BATS tests for game features
+
 ## v2.4.1 (2026-02-18)
 
 ### Fixed

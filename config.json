@@ -20,6 +20,16 @@
   "session_ttl_days": 7,
   "use_sound_effects_device": true,
   "linux_audio_player": "",
+  "game": {
+    "enabled": true,
+    "economy": true,
+    "achievements": true,
+    "roasts": true,
+    "combos": true,
+    "time_aware": true,
+    "random_events": true,
+    "random_event_chance": 0.05
+  },
   "trainer": {
     "enabled": false,
     "exercises": {

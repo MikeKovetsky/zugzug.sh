@@ -2347,4 +2347,116 @@ SCRIPT
   [ "$ide_pid" = "8000" ]
 }
 
+# ============================================================
+# WC3 Metagame: Economy, Achievements, Combos, Roasts
+# ============================================================
 
+@test "game: SessionStart earns lumber" {
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  lumber=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('lumber',0))")
+  [ "$lumber" = "5" ]
+}
+
+@test "game: Stop earns gold" {
+  # Need a SessionStart first
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  # Stop earns gold
+  /usr/bin/python3 -c "import json,time; s=json.load(open('$TEST_DIR/.state.json')); s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
+  [ "$gold" = "10" ]
+}
+
+@test "game: task.error costs gold" {
+  # Start with some gold
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':100,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"PostToolUseFailure","tool_name":"Bash","error":"Exit code 1","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
+  [ "$gold" = "95" ]
+}
+
+@test "game: stats track tasks_completed" {
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  tasks=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('tasks_completed',0))")
+  [ "$tasks" = "1" ]
+}
+
+@test "game: first_blood achievement unlocks on first error" {
+  run_peon '{"hook_event_name":"PostToolUseFailure","tool_name":"Bash","error":"Exit code 1","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  unlocked=$(/usr/bin/python3 -c "import json; print('first_blood' in json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('achievements_unlocked',{}))")
+  [ "$unlocked" = "True" ]
+}
+
+@test "game: peon economy CLI shows gold and lumber" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':250,'lumber':100,'daily_tasks':5,'daily_prompts':10,'daily_date':'2026-02-18'}; s['stats']={'total_gold_earned':500,'total_lumber_earned':200}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" economy
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Gold: 250"* ]]
+  [[ "$output" == *"Lumber: 100"* ]]
+}
+
+@test "game: peon build list shows buildings" {
+  run bash "$PEON_SH" build list
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Great Hall"* ]]
+  [[ "$output" == *"war_mill"* ]]
+  [[ "$output" == *"burrow"* ]]
+}
+
+@test "game: peon build requires resources" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':10,'lumber':5,'daily_date':'2026-02-18'}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" build war_mill
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Not enough resources"* ]]
+}
+
+@test "game: peon build succeeds with resources" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':500,'lumber':300,'daily_date':'2026-02-18'}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" build burrow
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Built burrow"* ]]
+  built=$(/usr/bin/python3 -c "import json; print('burrow' in json.load(open('$TEST_DIR/.state.json')).get('buildings',{}))")
+  [ "$built" = "True" ]
+}
+
+@test "game: peon achievements shows list" {
+  run bash "$PEON_SH" achievements
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"First Blood"* ]]
+  [[ "$output" == *"Zug Zug Veteran"* ]]
+  [[ "$output" == *"Architect"* ]]
+}
+
+@test "game: peon bunker requires burrow" {
+  run bash "$PEON_SH" bunker
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Build a Burrow"* ]]
+}
+
+@test "game: peon taunt requires tavern" {
+  run bash "$PEON_SH" taunt
+  [[ "$output" == *"Build a Tavern"* ]]
+}
+
+@test "game: game can be disabled via config" {
+  /usr/bin/python3 -c "
+import json
+cfg = json.load(open('$TEST_DIR/config.json'))
+cfg['game'] = {'enabled': False}
+json.dump(cfg, open('$TEST_DIR/config.json', 'w'))
+"
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  has_econ=$(/usr/bin/python3 -c "import json; print('economy' in json.load(open('$TEST_DIR/.state.json')))")
+  [ "$has_econ" = "False" ]
+  # Restore config
+  /usr/bin/python3 -c "
+import json
+cfg = json.load(open('$TEST_DIR/config.json'))
+del cfg['game']
+json.dump(cfg, open('$TEST_DIR/config.json', 'w'))
+"
+}

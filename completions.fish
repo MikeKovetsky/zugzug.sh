@@ -32,6 +32,13 @@ complete -c peon -n __peon_no_subcommand -a packs -d "Manage sound packs"
 complete -c peon -n __peon_no_subcommand -a notifications -d "Control desktop notifications"
 complete -c peon -n __peon_no_subcommand -a mobile -d "Configure mobile push notifications"
 complete -c peon -n __peon_no_subcommand -a relay -d "Start audio relay for devcontainers"
+complete -c peon -n __peon_no_subcommand -a economy -d "Show gold, lumber, and upkeep"
+complete -c peon -n __peon_no_subcommand -a achievements -d "Show unlocked achievements"
+complete -c peon -n __peon_no_subcommand -a build -d "Build WC3 structures"
+complete -c peon -n __peon_no_subcommand -a bunker -d "Suppress roasts for 1 hour"
+complete -c peon -n __peon_no_subcommand -a resurrect -d "Restore combo streak"
+complete -c peon -n __peon_no_subcommand -a taunt -d "Play a random roast"
+complete -c peon -n __peon_no_subcommand -a dashboard -d "Open WC3 base dashboard"
 complete -c peon -n __peon_no_subcommand -a help -d "Show help message"
 
 # packs subcommands
@@ -79,6 +86,17 @@ complete -c peon -n "__peon_using_subcommand mobile" -a on -d "Enable mobile not
 complete -c peon -n "__peon_using_subcommand mobile" -a off -d "Disable mobile notifications"
 complete -c peon -n "__peon_using_subcommand mobile" -a status -d "Show mobile config"
 complete -c peon -n "__peon_using_subcommand mobile" -a test -d "Send test notification"
+
+# build subcommands
+complete -c peon -n "__peon_using_subcommand build" -a list -d "List available buildings"
+complete -c peon -n "__peon_using_subcommand build" -a stronghold -d "Rank upgrade (500g/200l)"
+complete -c peon -n "__peon_using_subcommand build" -a fortress -d "Max rank (2000g/800l)"
+complete -c peon -n "__peon_using_subcommand build" -a burrow -d "Roast suppression (100g/50l)"
+complete -c peon -n "__peon_using_subcommand build" -a war_mill -d "Unlock combos (200g/100l)"
+complete -c peon -n "__peon_using_subcommand build" -a watch_tower -d "Early context warning (150g/75l)"
+complete -c peon -n "__peon_using_subcommand build" -a altar -d "Combo resurrect (300g/150l)"
+complete -c peon -n "__peon_using_subcommand build" -a spirit_lodge -d "Idle thoughts (500g/200l)"
+complete -c peon -n "__peon_using_subcommand build" -a tavern -d "On-demand taunts (400g/200l)"
 
 # rotation subcommands
 complete -c peon -n "__peon_using_subcommand rotation" -a random -d "Pick a random pack each session (default)"
