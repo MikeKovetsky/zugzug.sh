@@ -206,37 +206,149 @@ body {
   padding-bottom: 4px; margin-bottom: 4px;
 }
 
-/* Buildings */
-.bld-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-.bld-card {
-  background: #12121f; border: 2px solid var(--border);
-  border-radius: 4px; padding: 10px; text-align: center;
-  position: relative; transition: all 0.3s; cursor: default;
+/* Base map */
+.base-map {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+  background: #1a2a12; border: 2px solid #2a3a1a; border-radius: 4px;
+  padding: 6px; position: relative;
+  background-image:
+    radial-gradient(ellipse at 50% 50%, #1e2e14 0%, #141e0e 100%);
 }
-.bld-card.built { border-color: var(--gold); box-shadow: 0 0 12px rgba(255,171,1,0.15); }
-.bld-card.afford { cursor: pointer; }
-.bld-card.afford:hover { border-color: var(--gold); transform: scale(1.03); box-shadow: 0 0 16px rgba(255,171,1,0.1); }
-.bld-card.locked { opacity: 0.45; }
-.bld-card.fresh { animation: builtFlash 0.8s; }
-@keyframes builtFlash { 0% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 30px rgba(255,171,1,0.5); } 100% { box-shadow: 0 0 12px rgba(255,171,1,0.15); } }
-.bld-icon { font-size: 28px; margin-bottom: 4px; }
-.bld-name { font-size: 11px; font-weight: 700; }
-.bld-cost { font-size: 10px; color: var(--muted); }
-.bld-cost.poor { color: var(--red); }
-.bld-disc { font-size: 9px; color: var(--green); font-weight: 700; }
-.bld-confirm {
-  margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);
-  display: flex; gap: 4px; justify-content: center;
+.tile {
+  aspect-ratio: 1; border-radius: 3px; display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  position: relative; transition: all 0.2s;
+  background: rgba(34,54,24,0.5);
+  border: 1px solid rgba(60,90,40,0.3);
 }
-.cfm-btn {
-  background: none; border: 1px solid var(--border); color: var(--text);
-  padding: 2px 10px; border-radius: 2px; cursor: pointer;
-  font-family: inherit; font-size: 11px; transition: all 0.2s;
+.tile.deco {
+  background: rgba(20,36,12,0.6); cursor: default;
+  border-color: transparent; opacity: 0.7;
 }
-.cfm-btn.yes:hover { border-color: var(--green); color: var(--green); }
-.cfm-btn.no:hover { border-color: var(--red); color: var(--red); }
+.tile.deco .tile-emoji { font-size: 20px; }
+.tile.open { cursor: pointer; }
+.tile.open:hover {
+  background: rgba(50,80,30,0.6);
+  border: 1px dashed rgba(255,171,1,0.4);
+  box-shadow: inset 0 0 12px rgba(255,171,1,0.05);
+}
+.tile.open:hover::after {
+  content: '+'; position: absolute;
+  font-size: 20px; color: rgba(255,171,1,0.3); font-weight: 700;
+}
+.tile.built {
+  background: rgba(30,30,50,0.8);
+  border: 1px solid var(--dark-gold);
+  box-shadow: 0 0 8px rgba(255,171,1,0.1), inset 0 0 6px rgba(0,0,0,0.4);
+}
+.tile.built .tile-icon { font-size: 24px; line-height: 1; }
+.tile.built .tile-lbl { font-size: 8px; font-weight: 700; color: var(--gold); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; }
+.tile.hall { border-color: var(--gold); box-shadow: 0 0 14px rgba(255,171,1,0.2), inset 0 0 6px rgba(0,0,0,0.4); }
+.tile.fresh { animation: builtFlash 0.8s; }
+@keyframes builtFlash { 0% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 30px rgba(255,171,1,0.5); } 100% { box-shadow: 0 0 8px rgba(255,171,1,0.1); } }
+
+/* Building picker popover */
+.bld-picker {
+  position: absolute; z-index: 100;
+  background: var(--panel); border: 2px solid var(--gold);
+  border-radius: 4px; padding: 6px; min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  animation: pickerIn 0.15s ease-out;
+}
+@keyframes pickerIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.bld-picker-title { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.bld-opt {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 6px; border-radius: 3px; cursor: pointer;
+  transition: background 0.15s; font-size: 11px;
+}
+.bld-opt:hover { background: rgba(255,171,1,0.1); }
+.bld-opt.poor { opacity: 0.35; cursor: not-allowed; }
+.bld-opt-icon { font-size: 18px; flex-shrink: 0; }
+.bld-opt-info { flex: 1; }
+.bld-opt-name { font-weight: 700; font-size: 11px; }
+.bld-opt-cost { font-size: 9px; color: var(--muted); }
+.bld-opt-cost.cant { color: var(--red); }
+.bld-opt-disc { font-size: 8px; color: var(--green); font-weight: 700; }
 
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; }
+
+/* Inventory panel */
+.inv-bar {
+  display: flex; gap: 0;
+  border: 2px solid var(--border); border-top: none;
+}
+.inv-equip, .inv-bag {
+  flex: 1; padding: 10px 16px;
+}
+.inv-equip { border-right: 2px solid var(--border); }
+.inv-slots {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+}
+.inv-slot {
+  aspect-ratio: 1; background: #12121f;
+  border: 2px solid var(--border); border-radius: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; cursor: pointer; transition: all 0.2s;
+  min-height: 54px;
+}
+.inv-slot:hover { border-color: var(--gold); }
+.inv-slot.empty { opacity: 0.3; cursor: default; }
+.inv-slot.empty:hover { border-color: var(--border); }
+.inv-slot .slot-icon { font-size: 20px; }
+.inv-slot .slot-lbl {
+  font-size: 8px; font-weight: 700; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%; padding: 0 2px; text-align: center;
+}
+.inv-slot .slot-rarity {
+  position: absolute; top: 2px; right: 3px;
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.inv-slot:hover .slot-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+.slot-tip {
+  position: absolute; bottom: 100%; left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--panel); border: 1px solid var(--gold);
+  padding: 6px 10px; border-radius: 3px; font-size: 10px;
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: all 0.2s; z-index: 10; min-width: 120px; text-align: center;
+}
+.slot-tip .tip-name { font-weight: 700; }
+.slot-tip .tip-desc { color: var(--muted); margin-top: 2px; }
+.slot-tip .tip-act { color: var(--gold); margin-top: 3px; font-size: 9px; }
+
+.inv-bag-items {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.bag-item {
+  background: #12121f; border: 1px solid var(--border);
+  border-radius: 3px; padding: 4px 8px; font-size: 10px;
+  display: flex; align-items: center; gap: 5px;
+  cursor: pointer; transition: all 0.2s; position: relative;
+}
+.bag-item:hover { border-color: var(--gold); }
+.bag-item .bag-icon { font-size: 14px; }
+.bag-item .bag-name { font-weight: 700; }
+.bag-item:hover .slot-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.r-common { border-color: #888; }
+.r-common .slot-rarity, .r-common.bag-item { border-color: #888; }
+.r-uncommon { border-color: #1eff00; }
+.r-uncommon .slot-rarity { background: #1eff00; }
+.r-uncommon.bag-item { border-color: #1eff00; }
+.r-rare { border-color: #0070dd; }
+.r-rare .slot-rarity { background: #0070dd; }
+.r-rare.bag-item { border-color: #0070dd; }
+.r-epic { border-color: #a335ee; }
+.r-epic .slot-rarity { background: #a335ee; }
+.r-epic.bag-item { border-color: #a335ee; }
+.r-legendary { border-color: #ff8000; }
+.r-legendary .slot-rarity { background: #ff8000; }
+.r-legendary.bag-item { border-color: #ff8000; }
+.inv-empty { font-size: 11px; color: var(--muted); padding: 8px 0; }
+
+.slot-rarity { background: #888; }
 
 /* Bottom grid */
 .bot-grid {
@@ -298,7 +410,7 @@ body {
   .ctrl-bar { padding: 4px 12px; gap: 8px; flex-wrap: wrap; }
   .portrait-panel { padding: 12px; }
   .base-panel { padding: 12px; }
-  .bld-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+  .base-map { gap: 2px; padding: 4px; }
 }
 </style>
 </head>
@@ -362,7 +474,7 @@ body {
 
     <div class="base-panel">
       <div class="sec-title">Base</div>
-      <div class="bld-grid" id="buildings"></div>
+      <div class="base-map" id="basemap"></div>
       <div class="sec-title" style="margin-top:8px">Stats</div>
       <div class="stats-grid">
         <div class="stat-row"><span>Streak</span><span class="sv" id="streak-days">0 days</span></div>
@@ -372,6 +484,17 @@ body {
         <div class="stat-row"><span>Lifetime lumber</span><span class="sv" id="lt-lumber">0</span></div>
         <div class="stat-row"><span>Daily tasks</span><span class="sv" id="daily-tasks">0/80</span></div>
       </div>
+    </div>
+  </div>
+
+  <div class="inv-bar">
+    <div class="inv-equip">
+      <div class="sec-title">Equipment (6 slots)</div>
+      <div class="inv-slots" id="equip-slots"></div>
+    </div>
+    <div class="inv-bag">
+      <div class="sec-title">Backpack</div>
+      <div class="inv-bag-items" id="bag-items"></div>
     </div>
   </div>
 
@@ -437,8 +560,46 @@ var EVT_ICONS = {
   'user.spam': '\u{1F501}',
 };
 
+var ITEMS = {
+  claws_of_attack:     { icon: '\u2694\uFE0F', name: 'Claws of Attack +3', r: 'common', desc: '+3 gold per task' },
+  gauntlets_of_str:    { icon: '\u{1F9E4}', name: 'Gauntlets of Strength', r: 'common', desc: '+2 lumber per prompt' },
+  ring_of_protection:  { icon: '\u{1F48D}', name: 'Ring of Protection +2', r: 'common', desc: 'Max sass capped at 3' },
+  slippers_of_agility: { icon: '\u{1F97F}', name: 'Slippers of Agility', r: 'common', desc: 'Combos count +1' },
+  circlet_of_nobility: { icon: '\u{1F451}', name: 'Circlet of Nobility', r: 'common', desc: '+2 gold per task' },
+  mantle_of_intel:     { icon: '\u{1F9E5}', name: 'Mantle of Intelligence', r: 'common', desc: '+1 lumber per prompt' },
+  scroll_of_tp:        { icon: '\u{1F4DC}', name: 'Scroll of Town Portal', r: 'uncommon', desc: 'Restore combo (use)', cons: true },
+  potion_of_healing:   { icon: '\u{1F9EA}', name: 'Potion of Healing', r: 'uncommon', desc: '+200 gold (use)', cons: true },
+  potion_of_mana:      { icon: '\u{1F9EA}', name: 'Potion of Mana', r: 'uncommon', desc: '+50 lumber (use)', cons: true },
+  boots_of_speed:      { icon: '\u{1F462}', name: 'Boots of Speed', r: 'uncommon', desc: '2x lumber from prompts' },
+  periapt_of_vitality: { icon: '\u{1F49A}', name: 'Periapt of Vitality', r: 'uncommon', desc: 'Gold mine depletion +25' },
+  pendant_of_energy:   { icon: '\u{1F4BF}', name: 'Pendant of Energy', r: 'uncommon', desc: '+5 gold per task' },
+  tome_of_xp:          { icon: '\u{1F4D5}', name: 'Tome of Experience', r: 'uncommon', desc: '+500 gold (use)', cons: true },
+  helm_of_valor:       { icon: '\u{1FA96}', name: 'Helm of Valor', r: 'rare', desc: '3 free errors/day' },
+  cloak_of_shadows:    { icon: '\u{1F576}\uFE0F', name: 'Cloak of Shadows', r: 'rare', desc: 'No roasts' },
+  orb_of_fire:         { icon: '\u{1F525}', name: 'Orb of Fire', r: 'rare', desc: 'Errors give +2g' },
+  gem_of_seeing:       { icon: '\u{1F48E}', name: 'Gem of True Seeing', r: 'rare', desc: '10% crit (3x gold)' },
+  staff_of_negation:   { icon: '\u{1FA84}', name: 'Staff of Negation', r: 'rare', desc: 'No debt interest' },
+  sobi_mask:           { icon: '\u{1F3AD}', name: 'Sobi Mask', r: 'rare', desc: '3x lumber' },
+  inv_potion:          { icon: '\u{1F32B}\uFE0F', name: 'Potion of Invisibility', r: 'rare', desc: '2h no roasts (use)', cons: true },
+  crown_of_kings:      { icon: '\u{1F451}', name: 'Crown of Kings +5', r: 'epic', desc: '2x all gold' },
+  mask_of_death:       { icon: '\u{1F480}', name: 'Mask of Death', r: 'epic', desc: '50% gold lifesteal' },
+  amulet_of_spell:     { icon: '\u{1F6E1}\uFE0F', name: 'Amulet of Spell Shield', r: 'epic', desc: 'Immune to raids' },
+  khadgars_pipe:       { icon: '\u{1F6AC}', name: "Khadgar's Pipe", r: 'epic', desc: 'Sass resets each task' },
+  ankh:                { icon: '\u2625\uFE0F', name: 'Ankh of Reincarnation', r: 'epic', desc: 'Undo raid (use)', cons: true },
+  frostmourne:         { icon: '\u{1F5E1}\uFE0F', name: 'Frostmourne', r: 'legendary', desc: 'Roasts become praise' },
+  wirts_leg:           { icon: '\u{1F9B4}', name: "Wirt's Leg", r: 'legendary', desc: 'Does nothing.' },
+  thunderfury:         { icon: '\u26A1', name: 'Thunderfury', r: 'legendary', desc: '+15 gold per task' },
+  unstoppable_force:   { icon: '\u{1F4A5}', name: 'The Unstoppable Force', r: 'legendary', desc: 'Combos never break' },
+  ashbringer:          { icon: '\u2728', name: 'Ashbringer', r: 'legendary', desc: 'Purge all debt' },
+  cheese:              { icon: '\u{1F9C0}', name: 'Cheese', r: 'legendary', desc: '+1000g +500l (use)', cons: true },
+};
+
 var prev = null, curState = null, cfg = null, packs = [];
-var fails = 0, lastSeenTs = 0, confirmBld = null;
+var fails = 0, lastSeenTs = 0, pickerTile = null;
+
+var MAP_COLS = 7, MAP_ROWS = 5;
+var DECO = { '0,0':'tree','6,0':'tree','0,1':'tree','0,4':'tree','1,4':'tree','6,4':'rock','6,3':'mine' };
+var HALL_POS = '3,2';
 
 function $(id) { return document.getElementById(id); }
 
@@ -550,68 +711,130 @@ function updatePortrait(s) {
   $('daily-tasks').textContent = ((s.economy || {}).daily_tasks || 0) + '/80';
 }
 
-function updateBlds(s) {
-  var built = s.buildings || {}, ec = s.economy || {};
+function posKey(x, y) { return x + ',' + y; }
+
+function buildableSlots() {
+  var slots = [];
+  for (var r = 0; r < MAP_ROWS; r++)
+    for (var c = 0; c < MAP_COLS; c++) {
+      var k = posKey(c, r);
+      if (!DECO[k] && k !== HALL_POS) slots.push(k);
+    }
+  return slots;
+}
+
+function bldPositions(built) {
+  var posMap = {};
+  var usedSlots = {};
+  Object.keys(built).forEach(function(key) {
+    var b = built[key];
+    if (b.pos) {
+      var k = posKey(b.pos[0], b.pos[1]);
+      posMap[key] = k;
+      usedSlots[k] = true;
+    }
+  });
+  var free = buildableSlots().filter(function(k) { return !usedSlots[k]; });
+  var fi = 0;
+  Object.keys(built).forEach(function(key) {
+    if (!posMap[key] && fi < free.length) {
+      posMap[key] = free[fi];
+      usedSlots[free[fi]] = true;
+      fi++;
+    }
+  });
+  return posMap;
+}
+
+function closePicker() { pickerTile = null; var el = document.querySelector('.bld-picker'); if (el) el.remove(); }
+
+function showPicker(tileEl, x, y, s) {
+  closePicker();
+  pickerTile = posKey(x, y);
+  var ec = s.economy || {};
   var g = ec.gold || 0, l = ec.lumber || 0;
   var disc = s.goblin_discount_date === today();
-  var pBuilt = prev ? (prev.buildings || {}) : {};
-  var grid = $('buildings');
-  grid.innerHTML = '';
+  var built = s.buildings || {};
+  var pop = document.createElement('div');
+  pop.className = 'bld-picker';
+  pop.innerHTML = '<div class="bld-picker-title">Build here</div>';
+  var hasBuildable = false;
   Object.keys(BLDS).forEach(function(key) {
     var def = BLDS[key];
-    var isBuilt = key === 'great_hall' || key in built;
-    var fresh = prev && key !== 'great_hall' && (key in built) && !(key in pBuilt);
+    if (def.free || key === 'great_hall' || key in built) return;
+    hasBuildable = true;
     var gc = def.g, lc = def.l;
-    if (disc && !def.free) { gc = Math.floor(gc / 2); lc = Math.floor(lc / 2); }
+    if (disc) { gc = Math.floor(gc / 2); lc = Math.floor(lc / 2); }
     var afford = g >= gc && l >= lc;
-    var card = document.createElement('div');
-    var cls = 'bld-card';
-    if (isBuilt) cls += ' built';
-    else if (afford) cls += ' afford';
-    else cls += ' locked';
-    if (fresh) cls += ' fresh';
-    card.className = cls;
-    var h = '<div class="bld-icon">' + def.icon + '</div>';
-    h += '<div class="bld-name">' + def.name + '</div>';
-    if (!isBuilt && !def.free) {
-      h += '<div class="bld-cost' + (afford ? '' : ' poor') + '">' + gc + 'g / ' + lc + 'l</div>';
-      if (disc) h += '<div class="bld-disc">50% OFF!</div>';
-      if (confirmBld === key) {
-        h += '<div class="bld-confirm"><span style="font-size:10px">Build?</span>';
-        h += '<button class="cfm-btn yes" data-b="' + key + '">\u2713</button>';
-        h += '<button class="cfm-btn no">\u2717</button></div>';
-      }
-    }
-    card.innerHTML = h;
-    if (!isBuilt && afford && !def.free) {
-      card.addEventListener('click', function(e) {
-        if (e.target.closest('.cfm-btn')) return;
-        confirmBld = key;
-        if (curState) updateBlds(curState);
+    var opt = document.createElement('div');
+    opt.className = 'bld-opt' + (afford ? '' : ' poor');
+    var costCls = afford ? 'bld-opt-cost' : 'bld-opt-cost cant';
+    var h = '<span class="bld-opt-icon">' + def.icon + '</span><div class="bld-opt-info"><div class="bld-opt-name">' + def.name + '</div>';
+    h += '<div class="' + costCls + '">' + gc + 'g / ' + lc + 'l</div>';
+    if (disc) h += '<div class="bld-opt-disc">50% OFF!</div>';
+    h += '</div>';
+    opt.innerHTML = h;
+    if (afford) {
+      opt.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closePicker();
+        apiPost('/api/build', { building: key, x: x, y: y }).then(function(res) {
+          if (res.ok) {
+            addToast('', '\u{1F3D7}\uFE0F', 'Construction complete: ' + BLDS[key].name);
+            poll();
+          } else { addToast('err', '\u274C', res.error || 'Build failed'); }
+        }).catch(function() { addToast('err', '\u274C', 'Build failed'); });
       });
     }
-    grid.appendChild(card);
+    pop.appendChild(opt);
   });
-  grid.querySelectorAll('.cfm-btn.yes').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      var bname = btn.dataset.b;
-      confirmBld = null;
-      apiPost('/api/build', { building: bname }).then(function(res) {
-        if (res.ok) {
-          addToast('', '\u{1F3D7}\uFE0F', 'Construction complete: ' + BLDS[bname].name);
-          poll();
-        } else { addToast('err', '\u274C', res.error || 'Build failed'); }
-      }).catch(function() { addToast('err', '\u274C', 'Build failed'); });
-    });
-  });
-  grid.querySelectorAll('.cfm-btn.no').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      confirmBld = null;
-      if (curState) updateBlds(curState);
-    });
-  });
+  if (!hasBuildable) { pop.innerHTML += '<div style="font-size:10px;color:var(--muted);padding:4px">All buildings constructed!</div>'; }
+  tileEl.appendChild(pop);
+  var rect = pop.getBoundingClientRect();
+  var vw = window.innerWidth, vh = window.innerHeight;
+  if (rect.right > vw) pop.style.right = '0';
+  if (rect.bottom > vh) pop.style.bottom = '100%';
+}
+
+var DECO_ICONS = { tree: '\u{1F332}', rock: '\u{1FAA8}', mine: '\u26CF\uFE0F' };
+
+function updateBlds(s) {
+  var built = s.buildings || {};
+  var pBuilt = prev ? (prev.buildings || {}) : {};
+  var posMap = bldPositions(built);
+  var occup = {};
+  Object.keys(posMap).forEach(function(key) { occup[posMap[key]] = key; });
+  var map = $('basemap');
+  map.innerHTML = '';
+  for (var r = 0; r < MAP_ROWS; r++) {
+    for (var c = 0; c < MAP_COLS; c++) {
+      var k = posKey(c, r);
+      var tile = document.createElement('div');
+      if (DECO[k]) {
+        tile.className = 'tile deco';
+        tile.innerHTML = '<span class="tile-emoji">' + DECO_ICONS[DECO[k]] + '</span>';
+      } else if (k === HALL_POS) {
+        tile.className = 'tile built hall';
+        tile.innerHTML = '<span class="tile-icon">' + BLDS.great_hall.icon + '</span><span class="tile-lbl">Great Hall</span>';
+      } else if (occup[k]) {
+        var bKey = occup[k];
+        var def = BLDS[bKey];
+        var fresh = prev && (bKey in built) && !(bKey in pBuilt);
+        tile.className = 'tile built' + (fresh ? ' fresh' : '');
+        tile.innerHTML = '<span class="tile-icon">' + (def ? def.icon : '?') + '</span><span class="tile-lbl">' + (def ? def.name : bKey) + '</span>';
+      } else {
+        tile.className = 'tile open';
+        (function(cx, cy) {
+          tile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (pickerTile === posKey(cx, cy)) { closePicker(); return; }
+            if (curState) showPicker(tile, cx, cy, curState);
+          });
+        })(c, r);
+      }
+      map.appendChild(tile);
+    }
+  }
 }
 
 function updateActions(s) {
@@ -694,8 +917,64 @@ function updateLog(s) {
     var extra = '';
     if (entry.c) extra += ' <b>' + entry.c + '</b>';
     if (entry.a) extra += ' \u{1F3C6} ' + entry.a;
+    if (entry.i) extra += ' \u{1F381} ' + entry.i;
     el.innerHTML = '<span class="log-time">' + time + '</span><span class="log-evt">' + label + extra + '</span><span class="' + gdCls + '">' + gdText + '</span>';
     div.appendChild(el);
+  });
+}
+
+function updateInventory(s) {
+  var equipped = s.equipped || [];
+  var inventory = s.inventory || [];
+  var eqDiv = $('equip-slots');
+  eqDiv.innerHTML = '';
+  for (var i = 0; i < 6; i++) {
+    var slot = document.createElement('div');
+    var iid = equipped[i];
+    var it = iid ? ITEMS[iid] : null;
+    if (it) {
+      slot.className = 'inv-slot r-' + it.r;
+      slot.innerHTML = '<span class="slot-rarity"></span><span class="slot-icon">' + it.icon + '</span><span class="slot-lbl">' + it.name.split(' ')[0] + '</span>';
+      slot.innerHTML += '<span class="slot-tip"><div class="tip-name">' + it.name + '</div><div class="tip-desc">' + it.desc + '</div><div class="tip-act">Click to unequip</div></span>';
+      (function(itemId) {
+        slot.addEventListener('click', function() {
+          apiPost('/api/unequip', { item: itemId }).then(function(res) {
+            if (res.ok) { addToast('', '\u{1F4E4}', 'Unequipped ' + ITEMS[itemId].name); poll(); }
+          });
+        });
+      })(iid);
+    } else {
+      slot.className = 'inv-slot empty';
+      slot.innerHTML = '<span class="slot-icon" style="opacity:0.2">\u2795</span>';
+    }
+    eqDiv.appendChild(slot);
+  }
+
+  var bagDiv = $('bag-items');
+  bagDiv.innerHTML = '';
+  if (inventory.length === 0) {
+    bagDiv.innerHTML = '<div class="inv-empty">No items yet. Complete tasks to find loot!</div>';
+    return;
+  }
+  inventory.forEach(function(iid) {
+    var it = ITEMS[iid];
+    if (!it) return;
+    var el = document.createElement('div');
+    el.className = 'bag-item r-' + it.r;
+    var actText = it.cons ? 'Click to use' : 'Click to equip';
+    el.innerHTML = '<span class="bag-icon">' + it.icon + '</span><span class="bag-name">' + it.name + '</span>';
+    el.innerHTML += '<span class="slot-tip"><div class="tip-name">' + it.name + '</div><div class="tip-desc">' + it.desc + '</div><div class="tip-act">' + actText + '</div></span>';
+    (function(itemId, consumable) {
+      el.addEventListener('click', function() {
+        var endpoint = consumable ? '/api/use' : '/api/equip';
+        var action = consumable ? 'Used' : 'Equipped';
+        apiPost(endpoint, { item: itemId }).then(function(res) {
+          if (res.ok) { addToast('', '\u2728', action + ' ' + ITEMS[itemId].name); poll(); }
+          else { addToast('err', '\u274C', res.error || 'Failed'); }
+        });
+      });
+    })(iid, it.cons);
+    bagDiv.appendChild(el);
   });
 }
 
@@ -714,6 +993,7 @@ function detectToasts(s) {
     var text = label;
     if (entry.c) text += ' \u2014 ' + entry.c;
     if (entry.a) { type = 'ach'; icon = '\u{1F3C6}'; text += ' \u2014 ' + entry.a; }
+    if (entry.i) { type = 'evt'; icon = '\u{1F381}'; text += ' \u2014 ' + entry.i; }
     addToast(type, icon, text, entry.g || null);
   }
   if (maxTs > lastSeenTs) lastSeenTs = maxTs;
@@ -772,9 +1052,8 @@ $('pack-sel').addEventListener('change', function(e) {
 });
 
 document.addEventListener('click', function(e) {
-  if (confirmBld && !e.target.closest('.bld-card')) {
-    confirmBld = null;
-    if (curState) updateBlds(curState);
+  if (pickerTile && !e.target.closest('.tile') && !e.target.closest('.bld-picker')) {
+    closePicker();
   }
 });
 
@@ -787,6 +1066,7 @@ function update(state) {
   updateBlds(state);
   updateActions(state);
   updateAchs(state);
+  updateInventory(state);
   updateLog(state);
   prev = JSON.parse(JSON.stringify(state));
   curState = state;
