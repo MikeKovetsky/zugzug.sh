@@ -2600,3 +2600,57 @@ _start_dash() {
   headers=$(/usr/bin/curl -s -I -X OPTIONS "http://localhost:$_dash_port/api/build")
   [[ "$headers" == *"Access-Control-Allow-Methods"* ]]
 }
+
+# ============================================================
+# Level System
+# ============================================================
+
+@test "game: level starts at 1 Peon" {
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  lvl=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('level',0))")
+  title=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('level_title',''))")
+  [ "$lvl" = "1" ]
+  [ "$title" = "Peon" ]
+}
+
+@test "game: level 2 at 25 tasks Peasant" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'tasks_completed':24,'level':1,'level_title':'Peon'}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  lvl=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('level',0))")
+  title=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('level_title',''))")
+  [ "$lvl" = "2" ]
+  [ "$title" = "Peasant" ]
+}
+
+@test "game: level-up adds lv key to activity log" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'tasks_completed':24,'level':1,'level_title':'Peon'}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  lv_text=$(/usr/bin/python3 -c "
+import json
+log = json.load(open('$TEST_DIR/.state.json')).get('activity_log', [])
+for e in log:
+    if 'lv' in e:
+        print(e['lv'])
+        break
+else:
+    print('')
+")
+  [[ "$lv_text" == *"LEVEL UP"* ]]
+  [[ "$lv_text" == *"Peasant"* ]]
+}
+
+@test "game: level is retroactive from existing tasks" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'tasks_completed':600}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  lvl=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('level',0))")
+  title=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('level_title',''))")
+  [ "$lvl" = "5" ]
+  [ "$title" = "Far Seer" ]
+}
+
+@test "game: no level-up log when level unchanged" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'tasks_completed':30,'level':2,'level_title':'Peasant'}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  has_lv=$(/usr/bin/python3 -c "import json; log=json.load(open('$TEST_DIR/.state.json')).get('activity_log',[]); print(any('lv' in e for e in log))")
+  [ "$has_lv" = "False" ]
+}

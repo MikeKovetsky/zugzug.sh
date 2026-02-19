@@ -33,14 +33,14 @@ body {
   position: fixed; inset: 0;
   display: flex; align-items: center; justify-content: center;
   background: var(--bg); z-index: 2000;
-  font-size: 18px; color: var(--gold);
+  font-size: 20px; color: var(--gold);
   transition: opacity 0.5s;
 }
 #loading.done { opacity: 0; pointer-events: none; }
 #error-banner {
   position: fixed; top: 0; left: 0; right: 0;
-  padding: 8px; background: #3a1a1a; color: var(--red);
-  text-align: center; font-size: 12px; font-weight: 700;
+  padding: 10px; background: #3a1a1a; color: var(--red);
+  text-align: center; font-size: 14px; font-weight: 700;
   z-index: 1500; transform: translateY(-100%); transition: transform 0.3s;
 }
 #error-banner.on { transform: translateY(0); }
@@ -49,14 +49,14 @@ body {
 #toasts {
   position: fixed; top: 12px; right: 12px;
   z-index: 1000; display: flex; flex-direction: column; gap: 8px;
-  pointer-events: none; max-width: 340px;
+  pointer-events: none; max-width: 360px;
 }
 .toast {
   pointer-events: auto;
   background: var(--panel); border: 2px solid var(--border);
   border-left: 4px solid var(--gold);
-  padding: 10px 14px; border-radius: 4px; font-size: 12px;
-  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; border-radius: 4px; font-size: 14px;
+  display: flex; align-items: center; gap: 10px;
   animation: toastIn 0.3s ease-out; cursor: pointer;
 }
 .toast:hover { border-color: var(--gold); }
@@ -64,7 +64,7 @@ body {
 .toast.t-err { border-left-color: var(--red); }
 .toast.t-ach { border-color: var(--gold); }
 .toast.t-evt { border-left-color: var(--green); }
-.toast-icon { font-size: 18px; flex-shrink: 0; }
+.toast-icon { font-size: 20px; flex-shrink: 0; }
 .toast-body { flex: 1; }
 .toast-gd { color: var(--gold); font-weight: 700; white-space: nowrap; }
 .toast-gd.neg { color: var(--red); }
@@ -74,15 +74,15 @@ body {
 /* Control bar */
 .ctrl-bar {
   display: flex; align-items: center; gap: 12px;
-  padding: 6px 20px;
+  padding: 8px 20px;
   background: linear-gradient(180deg, #22223a 0%, #1a1a2e 100%);
   border: 2px solid var(--border); border-bottom: none;
-  border-radius: 4px 4px 0 0; font-size: 12px;
+  border-radius: 4px 4px 0 0; font-size: 14px;
 }
 .ctrl-btn {
   background: none; border: 1px solid var(--border);
-  color: var(--text); padding: 4px 10px; border-radius: 3px;
-  cursor: pointer; font-family: inherit; font-size: 12px;
+  color: var(--text); padding: 5px 12px; border-radius: 3px;
+  cursor: pointer; font-family: inherit; font-size: 14px;
   transition: all 0.2s;
 }
 .ctrl-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -94,60 +94,77 @@ body {
   border-radius: 2px; outline: none; cursor: pointer;
 }
 .vol-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 12px; height: 12px;
+  -webkit-appearance: none; width: 14px; height: 14px;
   background: var(--gold); border-radius: 50%; cursor: pointer;
 }
 .pack-sel {
   background: var(--panel); color: var(--text);
   border: 1px solid var(--border); border-radius: 3px;
-  padding: 3px 6px; font-family: inherit; font-size: 11px;
+  padding: 4px 8px; font-family: inherit; font-size: 13px;
   cursor: pointer; max-width: 140px;
 }
 .pack-sel:focus { border-color: var(--gold); outline: none; }
 .ctrl-r { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.ctrl-lbl { font-size: 11px; color: var(--muted); }
-.day-night { font-size: 16px; }
+.ctrl-lbl { font-size: 13px; color: var(--muted); }
+.day-night { font-size: 18px; }
 
 .frame { max-width: 1100px; margin: 0 auto; padding: 12px; }
 
 /* Resource bar */
 .res-bar {
   display: flex; align-items: center; gap: 24px;
-  padding: 10px 20px;
+  padding: 12px 20px;
   background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 100%);
-  border: 2px solid var(--border); border-bottom: 3px solid var(--gold);
+  border: 2px solid var(--border); border-bottom: none;
   border-top: none; flex-wrap: wrap;
 }
-.res-item { display: flex; align-items: center; gap: 6px; font-size: 18px; font-weight: 700; }
-.res-icon { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.res-item { display: flex; align-items: center; gap: 6px; font-size: 22px; font-weight: 700; }
+.res-icon { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; }
 .res-gold { color: var(--gold); }
 .res-lumber { color: #8B6914; }
-.res-supply { color: var(--green); }
 .res-right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
-.upkeep {
-  font-size: 11px; padding: 2px 8px; border-radius: 3px;
-  text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
-}
-.upkeep-none { background: #2a4a2a; color: #6c6; }
-.upkeep-low { background: #4a4a2a; color: #cc6; }
-.upkeep-high { background: #4a2a2a; color: #c66; }
 .goblin-badge {
-  font-size: 11px; padding: 2px 8px; border-radius: 3px;
+  font-size: 13px; padding: 3px 10px; border-radius: 3px;
   background: #2a4a2a; color: var(--green); font-weight: 700;
   animation: pulse 2s infinite;
 }
-.streak-badge { font-size: 12px; color: var(--gold); }
+.streak-badge { font-size: 14px; color: var(--gold); }
 
-/* Main grid */
-.main-grid {
-  display: grid; grid-template-columns: 240px 1fr;
+/* Tab bar */
+.tab-bar {
+  display: flex; gap: 0;
   border: 2px solid var(--border); border-top: none;
+  border-bottom: 3px solid var(--gold);
+  background: linear-gradient(180deg, #1a1a2e 0%, #12121f 100%);
+}
+.tab {
+  flex: 1; padding: 12px 16px;
+  background: none; border: none; border-bottom: 3px solid transparent;
+  margin-bottom: -3px;
+  color: var(--muted); font-family: inherit; font-size: 14px;
+  font-weight: 700; cursor: pointer; transition: all 0.2s;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.tab:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(255,171,1,0.04); }
+
+/* Pages */
+.page { display: none; border: 2px solid var(--border); border-top: none; padding: 24px; min-height: 400px; }
+.page.active { display: block; }
+.page-head { margin-bottom: 20px; }
+.page-desc { font-size: 14px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+/* Section title */
+.sec-title {
+  font-size: 16px; color: var(--gold); text-transform: uppercase;
+  letter-spacing: 2px; border-bottom: 1px solid var(--border);
+  padding-bottom: 6px; margin-bottom: 6px;
 }
 
 /* Portrait panel */
 .portrait-panel {
   background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
-  padding: 16px; border-right: 2px solid var(--border);
+  padding: 16px; border: 1px solid var(--border); border-radius: 4px;
   display: flex; flex-direction: column; gap: 12px;
 }
 .portrait-frame {
@@ -161,8 +178,8 @@ body {
   border: 1px solid rgba(255,171,1,0.2); border-radius: 2px;
 }
 .stat-row {
-  display: flex; justify-content: space-between; font-size: 13px;
-  padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; justify-content: space-between; font-size: 15px;
+  padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .sv { color: var(--gold); font-weight: 700; transition: color 0.3s; }
 .flash-up { animation: flashG 0.6s; }
@@ -170,17 +187,17 @@ body {
 @keyframes flashG { 0%,100% { color: var(--gold); } 30% { color: #4c8; text-shadow: 0 0 8px rgba(68,204,136,0.6); } }
 @keyframes flashR { 0%,100% { color: var(--gold); } 30% { color: #c44; text-shadow: 0 0 8px rgba(204,68,68,0.6); } }
 
-.sass-meter { display: flex; gap: 3px; height: 8px; }
-.sass-pip { flex: 1; background: #2a2a3e; border-radius: 2px; transition: background 0.3s; }
-.sass-pip.on { background: var(--red); }
-.sass-pip.on:nth-child(-n+2) { background: var(--gold); }
-.combo-val { font-size: 14px; font-weight: 900; color: var(--gold); text-shadow: 0 0 8px rgba(255,171,1,0.5); }
+.roast-meter { display: flex; gap: 3px; height: 10px; }
+.roast-pip { flex: 1; background: #2a2a3e; border-radius: 2px; transition: background 0.3s; }
+.roast-pip.on { background: var(--red); }
+.roast-pip.on:nth-child(-n+2) { background: var(--gold); }
+.combo-val { font-size: 16px; font-weight: 900; color: var(--gold); text-shadow: 0 0 8px rgba(255,171,1,0.5); }
 .combo-bump { animation: bump 0.4s; }
 @keyframes bump { 0%,100% { transform: scale(1); } 50% { transform: scale(1.4); } }
 
 .debt-warn {
-  text-align: center; padding: 6px; background: #3a1a1a; color: var(--red);
-  font-size: 12px; font-weight: 700; border: 1px solid var(--red);
+  text-align: center; padding: 8px; background: #3a1a1a; color: var(--red);
+  font-size: 14px; font-weight: 700; border: 1px solid var(--red);
   border-radius: 3px; animation: pulse 2s infinite;
 }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
@@ -189,8 +206,8 @@ body {
 .act-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .act-btn {
   flex: 1; background: #1a1a2e; border: 1px solid var(--border);
-  color: var(--text); padding: 6px 8px; border-radius: 3px;
-  cursor: pointer; font-family: inherit; font-size: 11px;
+  color: var(--text); padding: 8px 10px; border-radius: 3px;
+  cursor: pointer; font-family: inherit; font-size: 13px;
   transition: all 0.2s; text-align: center;
 }
 .act-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
@@ -198,12 +215,9 @@ body {
 .act-btn.bunkered { border-color: var(--green); color: var(--green); }
 .hidden { display: none !important; }
 
-/* Base panel */
-.base-panel { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.sec-title {
-  font-size: 13px; color: var(--gold); text-transform: uppercase;
-  letter-spacing: 2px; border-bottom: 1px solid var(--border);
-  padding-bottom: 4px; margin-bottom: 4px;
+/* Base page layout */
+.base-grid {
+  display: grid; grid-template-columns: 220px 1fr; gap: 16px;
 }
 
 /* Base map */
@@ -241,94 +255,169 @@ body {
   border: 1px solid var(--dark-gold);
   box-shadow: 0 0 8px rgba(255,171,1,0.1), inset 0 0 6px rgba(0,0,0,0.4);
 }
-.tile.built .tile-icon { font-size: 24px; line-height: 1; }
-.tile.built .tile-lbl { font-size: 8px; font-weight: 700; color: var(--gold); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; }
+.tile.built .tile-icon { font-size: 26px; line-height: 1; }
+.tile.built .tile-lbl { font-size: 10px; font-weight: 700; color: var(--gold); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; }
 .tile.hall { border-color: var(--gold); box-shadow: 0 0 14px rgba(255,171,1,0.2), inset 0 0 6px rgba(0,0,0,0.4); }
 .tile.fresh { animation: builtFlash 0.8s; }
 @keyframes builtFlash { 0% { box-shadow: 0 0 0 transparent; } 50% { box-shadow: 0 0 30px rgba(255,171,1,0.5); } 100% { box-shadow: 0 0 8px rgba(255,171,1,0.1); } }
-
-/* Building picker popover */
-.bld-picker {
-  position: absolute; z-index: 100;
-  background: var(--panel); border: 2px solid var(--gold);
-  border-radius: 4px; padding: 6px; min-width: 160px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-  animation: pickerIn 0.15s ease-out;
+.tile.deco.harvestable {
+  cursor: pointer; opacity: 1;
+  animation: lumberGlow 2s ease-in-out infinite;
 }
-@keyframes pickerIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-.bld-picker-title { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.tile.deco.harvestable.res-tree {
+  border: 1px solid rgba(80,180,40,0.6);
+}
+.tile.deco.harvestable.res-tree:hover {
+  border-color: rgba(120,220,60,0.9);
+  box-shadow: 0 0 16px rgba(80,180,40,0.4);
+}
+.tile.deco.harvestable.res-mine {
+  border: 1px solid rgba(255,171,1,0.6);
+  animation-name: goldGlow;
+}
+.tile.deco.harvestable.res-mine:hover {
+  border-color: rgba(255,200,40,0.9);
+  box-shadow: 0 0 16px rgba(255,171,1,0.4);
+}
+@keyframes lumberGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(80,180,40,0.2); }
+  50% { box-shadow: 0 0 14px rgba(80,180,40,0.5); }
+}
+@keyframes goldGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,171,1,0.2); }
+  50% { box-shadow: 0 0 14px rgba(255,171,1,0.5); }
+}
+.harvest-badge {
+  position: absolute; bottom: 2px; right: 2px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 3px; padding: 0 3px;
+  font-size: 10px; font-weight: 700;
+  line-height: 16px;
+}
+.harvest-badge.badge-lumber { border: 1px solid #8B6914; color: #8B6914; }
+.harvest-badge.badge-gold { border: 1px solid var(--gold); color: var(--gold); }
+
+/* Map + sidebar layout */
+.map-wrap { display: flex; gap: 8px; }
+.map-wrap .base-map { flex: 1; min-width: 0; }
+.bld-sidebar {
+  width: 200px; flex-shrink: 0;
+  background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
+  border: 1px solid var(--border); border-radius: 4px;
+  padding: 10px; overflow-y: auto; max-height: 400px;
+}
+.bld-sidebar-title {
+  font-size: 14px; color: var(--gold); text-transform: uppercase;
+  letter-spacing: 1px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--border); margin-bottom: 6px;
+}
 .bld-opt {
-  display: flex; align-items: center; gap: 6px;
-  padding: 5px 6px; border-radius: 3px; cursor: pointer;
-  transition: background 0.15s; font-size: 11px;
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px; border-radius: 3px; cursor: pointer;
+  transition: all 0.15s; font-size: 15px;
+  border: 1px solid transparent; margin-bottom: 4px;
 }
-.bld-opt:hover { background: rgba(255,171,1,0.1); }
+.bld-opt:hover { background: rgba(255,171,1,0.06); border-color: rgba(255,171,1,0.15); }
+.bld-opt.sel { background: rgba(255,171,1,0.1); border-color: var(--gold); }
 .bld-opt.poor { opacity: 0.35; cursor: not-allowed; }
-.bld-opt-icon { font-size: 18px; flex-shrink: 0; }
-.bld-opt-info { flex: 1; }
-.bld-opt-name { font-weight: 700; font-size: 11px; }
-.bld-opt-cost { font-size: 9px; color: var(--muted); }
+.bld-opt.done { opacity: 0.3; cursor: default; }
+.bld-opt-icon { font-size: 24px; flex-shrink: 0; margin-top: 1px; }
+.bld-opt-info { flex: 1; min-width: 0; }
+.bld-opt-name { font-weight: 700; font-size: 15px; }
+.bld-opt-cost { font-size: 13px; color: var(--muted); }
 .bld-opt-cost.cant { color: var(--red); }
-.bld-opt-disc { font-size: 8px; color: var(--green); font-weight: 700; }
+.bld-opt-disc { font-size: 12px; color: var(--green); font-weight: 700; }
+.bld-opt-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.bld-opt-built { font-size: 13px; color: var(--green); }
 
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; }
+/* Placement mode */
+.tile.open.placing {
+  border: 1px dashed var(--gold);
+  background: rgba(50,80,30,0.5);
+}
+.tile.open.placing:hover {
+  background: rgba(255,171,1,0.15);
+  box-shadow: 0 0 12px rgba(255,171,1,0.15);
+}
+.tile.open.placing:hover::after { color: rgba(255,171,1,0.6); }
 
-/* Inventory panel */
-.inv-bar {
-  display: flex; gap: 0;
-  border: 2px solid var(--border); border-top: none;
+/* Building tooltip */
+.tile-tip {
+  position: absolute; bottom: calc(100% + 4px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel); border: 1px solid var(--gold);
+  padding: 6px 10px; border-radius: 3px; font-size: 12px;
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity 0.15s; z-index: 20; text-align: center;
 }
-.inv-equip, .inv-bag {
-  flex: 1; padding: 10px 16px;
+.tile-tip-name { font-weight: 700; color: var(--gold); }
+.tile-tip-desc { color: var(--muted); margin-top: 1px; }
+.tile.built:hover .tile-tip { opacity: 1; }
+
+/* Stats page */
+.stats-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.stats-col { display: flex; flex-direction: column; gap: 2px; }
+
+/* How It Works page */
+.how-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
 }
-.inv-equip { border-right: 2px solid var(--border); }
+.help-block {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px; padding: 16px 20px;
+}
+.help-heading { font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+.help-text { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* Inventory page */
+.inv-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .inv-slots {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
 }
 .inv-slot {
   aspect-ratio: 1; background: #12121f;
   border: 2px solid var(--border); border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; cursor: pointer; transition: all 0.2s;
-  min-height: 54px;
+  min-height: 80px;
 }
 .inv-slot:hover { border-color: var(--gold); }
 .inv-slot.empty { opacity: 0.3; cursor: default; }
 .inv-slot.empty:hover { border-color: var(--border); }
-.inv-slot .slot-icon { font-size: 20px; }
+.inv-slot .slot-icon { font-size: 32px; }
 .inv-slot .slot-lbl {
-  font-size: 8px; font-weight: 700; margin-top: 2px;
+  font-size: 10px; font-weight: 700; margin-top: 2px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 100%; padding: 0 2px; text-align: center;
 }
 .inv-slot .slot-rarity {
   position: absolute; top: 2px; right: 3px;
-  width: 6px; height: 6px; border-radius: 50%;
+  width: 7px; height: 7px; border-radius: 50%;
 }
 .inv-slot:hover .slot-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
 .slot-tip {
   position: absolute; bottom: 100%; left: 50%;
   transform: translateX(-50%) translateY(4px);
   background: var(--panel); border: 1px solid var(--gold);
-  padding: 6px 10px; border-radius: 3px; font-size: 10px;
+  padding: 8px 12px; border-radius: 3px; font-size: 12px;
   white-space: nowrap; opacity: 0; pointer-events: none;
   transition: all 0.2s; z-index: 10; min-width: 120px; text-align: center;
 }
 .slot-tip .tip-name { font-weight: 700; }
 .slot-tip .tip-desc { color: var(--muted); margin-top: 2px; }
-.slot-tip .tip-act { color: var(--gold); margin-top: 3px; font-size: 9px; }
+.slot-tip .tip-act { color: var(--gold); margin-top: 3px; font-size: 11px; }
 
 .inv-bag-items {
-  display: flex; flex-wrap: wrap; gap: 5px;
+  display: flex; flex-wrap: wrap; gap: 6px;
 }
 .bag-item {
   background: #12121f; border: 1px solid var(--border);
-  border-radius: 3px; padding: 4px 8px; font-size: 10px;
-  display: flex; align-items: center; gap: 5px;
+  border-radius: 3px; padding: 6px 10px; font-size: 13px;
+  display: flex; align-items: center; gap: 6px;
   cursor: pointer; transition: all 0.2s; position: relative;
 }
 .bag-item:hover { border-color: var(--gold); }
-.bag-item .bag-icon { font-size: 14px; }
+.bag-item .bag-icon { font-size: 24px; }
 .bag-item .bag-name { font-weight: 700; }
 .bag-item:hover .slot-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -346,43 +435,47 @@ body {
 .r-legendary { border-color: #ff8000; }
 .r-legendary .slot-rarity { background: #ff8000; }
 .r-legendary.bag-item { border-color: #ff8000; }
-.inv-empty { font-size: 11px; color: var(--muted); padding: 8px 0; }
+.inv-empty { font-size: 14px; color: var(--muted); padding: 8px 0; }
+.inv-hint { margin-top: 20px; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; }
+.inv-hint-rarity { font-size: 13px; letter-spacing: 0.5px; }
+.inv-hint p { font-size: 13px; color: var(--muted); margin: 8px 0 0; line-height: 1.5; }
 
 .slot-rarity { background: #888; }
 
-/* Bottom grid */
-.bot-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  border: 2px solid var(--border); border-top: none;
-}
-.ach-panel, .log-panel { padding: 12px 16px; max-height: 260px; overflow-y: auto; }
-.ach-panel { border-right: 2px solid var(--border); }
-.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+/* Achievements */
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
 .ach-item {
-  font-size: 11px; padding: 6px 8px; background: #12121f;
+  font-size: 14px; padding: 12px 14px; background: #12121f;
   border: 1px solid var(--border); border-radius: 3px;
-  display: flex; align-items: center; gap: 6px;
-  position: relative; transition: all 0.3s;
+  transition: all 0.3s;
 }
 .ach-item.on { border-color: var(--gold); background: #1a1a0a; }
-.ach-item.off { opacity: 0.35; }
-.ach-item:hover .ach-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
-.ach-icon { font-size: 16px; }
-.ach-tip {
-  position: absolute; bottom: 100%; left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: var(--panel); border: 1px solid var(--gold);
-  padding: 4px 8px; border-radius: 3px; font-size: 10px;
-  white-space: nowrap; opacity: 0; pointer-events: none;
-  transition: all 0.2s; z-index: 10;
+.ach-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.ach-icon { font-size: 18px; flex-shrink: 0; }
+.ach-name { flex: 1; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ach-ct { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.ach-item.on .ach-ct { color: var(--gold); }
+.ach-bar {
+  height: 5px; background: rgba(0,0,0,0.4); border-radius: 2px;
+  overflow: hidden; margin-bottom: 6px;
 }
+.ach-fill {
+  height: 100%; background: var(--dark-gold); border-radius: 2px;
+  transition: width 0.6s ease;
+}
+.ach-item.on .ach-fill { background: var(--gold); box-shadow: 0 0 6px rgba(255,171,1,0.4); }
+.ach-item.secret { border-style: dashed; opacity: 0.6; }
+.ach-item.secret .ach-name { font-style: italic; }
+.ach-sub { font-size: 12px; color: var(--muted); }
 
+/* Activity log */
+.log-col { max-height: 500px; overflow-y: auto; }
 .log-item {
-  font-size: 11px; padding: 4px 0;
+  font-size: 14px; padding: 5px 0;
   border-bottom: 1px solid rgba(255,255,255,0.03);
-  display: flex; gap: 8px;
+  display: flex; gap: 10px;
 }
-.log-time { color: var(--muted); min-width: 50px; }
+.log-time { color: var(--muted); min-width: 55px; }
 .log-evt { flex: 1; }
 .log-gd { color: var(--gold); }
 .log-gd.neg { color: var(--red); }
@@ -391,27 +484,180 @@ body {
 ::-webkit-scrollbar-track { background: var(--panel); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+/* Character page */
+.char-layout {
+  display: grid; grid-template-columns: 280px 1fr; gap: 24px;
+}
+.char-showcase {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 16px; background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
+  border: 1px solid var(--border); border-radius: 4px;
+}
+.char-portrait-frame {
+  width: 160px; height: 160px; background: #0a0a14;
+  border: 4px solid var(--dark-gold); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden; transition: all 0.5s;
+}
+.char-portrait-frame .w3i { width: 120px; height: 120px; }
+.char-portrait-frame::after {
+  content: ''; position: absolute; inset: 0;
+  border: 1px solid rgba(255,171,1,0.15); border-radius: 4px;
+}
+.char-info { text-align: center; }
+.char-level {
+  font-size: 22px; font-weight: 900; color: var(--gold);
+  text-shadow: 0 0 10px rgba(255,171,1,0.3);
+}
+.char-title { font-size: 18px; font-weight: 700; margin-top: 2px; }
+.char-faction { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 2px; }
+.char-flavor { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 8px; max-width: 240px; text-align: center; }
+.xp-bar-wrap {
+  width: 100%; height: 10px; background: rgba(0,0,0,0.5);
+  border-radius: 5px; overflow: hidden; border: 1px solid var(--border);
+}
+.xp-bar {
+  height: 100%; width: 0%; border-radius: 5px;
+  background: var(--dark-gold); transition: width 0.8s ease;
+}
+.xp-text { font-size: 11px; color: var(--muted); text-align: center; }
+
+/* Portrait tier glows */
+.char-portrait-frame.tier-worker { border-color: var(--dark-gold); }
+.char-portrait-frame.tier-hero {
+  border-color: var(--gold);
+  box-shadow: 0 0 10px rgba(255,171,1,0.25);
+}
+.char-portrait-frame.tier-legend {
+  border-color: #a335ee;
+  box-shadow: 0 0 16px rgba(163,53,238,0.35);
+}
+.char-portrait-frame.tier-murloc {
+  border: 4px solid transparent;
+  background-origin: border-box; background-clip: padding-box, border-box;
+  background-image:
+    linear-gradient(#0a0a14, #0a0a14),
+    conic-gradient(from var(--murloc-a), #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff, #ff0000);
+  animation: murlocSpin 3s linear infinite, murlocPulse 2s ease-in-out infinite;
+}
+@property --murloc-a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes murlocSpin { to { --murloc-a: 360deg; } }
+@keyframes murlocPulse { 0%,100% { box-shadow: 0 0 15px rgba(0,255,100,0.3); } 50% { box-shadow: 0 0 35px rgba(0,255,100,0.6), 0 0 70px rgba(0,255,100,0.2); } }
+
+/* Base portrait tier glows (smaller) */
+.portrait-frame.tier-hero { border-color: var(--gold); box-shadow: 0 0 8px rgba(255,171,1,0.2); }
+.portrait-frame.tier-legend { border-color: #a335ee; box-shadow: 0 0 10px rgba(163,53,238,0.3); }
+.portrait-frame.tier-murloc {
+  border: 3px solid transparent;
+  background-origin: border-box; background-clip: padding-box, border-box;
+  background-image:
+    linear-gradient(#0a0a14, #0a0a14),
+    conic-gradient(from var(--murloc-a), #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff, #ff0000);
+  animation: murlocSpin 3s linear infinite, murlocPulse 2s ease-in-out infinite;
+}
+
+/* XP bar tier colors */
+.xp-bar.tier-worker { background: var(--dark-gold); }
+.xp-bar.tier-hero { background: var(--gold); box-shadow: 0 0 4px rgba(255,171,1,0.4); }
+.xp-bar.tier-legend { background: #a335ee; box-shadow: 0 0 4px rgba(163,53,238,0.4); }
+.xp-bar.tier-murloc {
+  background: linear-gradient(90deg, #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff);
+  box-shadow: 0 0 6px rgba(0,255,100,0.4);
+}
+
+/* Level ladder */
+.char-ladder { display: flex; flex-direction: column; gap: 8px; }
+.lvl-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.lvl-tile {
+  background: #12121f; border: 2px solid var(--border); border-radius: 4px;
+  padding: 10px 8px; text-align: center; transition: all 0.3s;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  position: relative;
+}
+.lvl-tile-icon { font-size: 28px; }
+.lvl-tile-icon .w3i { width: 36px; height: 36px; }
+.lvl-tile-num { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.lvl-tile-name { font-size: 12px; font-weight: 700; }
+.lvl-tile-req { font-size: 10px; color: var(--muted); }
+.lvl-tile.completed {
+  border-color: var(--dark-gold); background: #1a1a0a;
+}
+.lvl-tile.completed .lvl-tile-num { color: var(--gold); }
+.lvl-tile.current {
+  border-color: var(--gold); background: #1a1a0a;
+  box-shadow: 0 0 14px rgba(255,171,1,0.3);
+  animation: currentPulse 2.5s ease-in-out infinite;
+}
+@keyframes currentPulse { 0%,100% { box-shadow: 0 0 10px rgba(255,171,1,0.2); } 50% { box-shadow: 0 0 20px rgba(255,171,1,0.45); } }
+.lvl-tile.current .lvl-tile-num { color: var(--gold); font-weight: 900; }
+.lvl-tile.current::after {
+  content: 'CURRENT'; position: absolute; top: -8px; right: -4px;
+  background: var(--gold); color: #0a0a14; font-size: 8px; font-weight: 900;
+  padding: 1px 5px; border-radius: 3px; letter-spacing: 1px;
+}
+.lvl-tile.locked { opacity: 0.35; filter: grayscale(0.7); }
+.lvl-tile.locked .lvl-tile-req { color: var(--red); }
+.lvl-tile.murloc-tile.locked {
+  opacity: 0.5; filter: none;
+  border-color: #333; border-style: dashed;
+}
+.lvl-tile.murloc-tile.locked .lvl-tile-name { color: var(--muted); }
+.lvl-tile.murloc-tile.current,
+.lvl-tile.murloc-tile.completed {
+  border: 2px solid transparent;
+  background-origin: border-box; background-clip: padding-box, border-box;
+  background-image:
+    linear-gradient(#12121f, #12121f),
+    conic-gradient(from var(--murloc-a), #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff, #ff0000);
+  animation: murlocSpin 3s linear infinite, murlocPulse 2s ease-in-out infinite;
+}
+.lvl-tile.murloc-tile.current::after { background: #00cc55; }
+
+/* Level-up toast */
+.toast.t-lvl {
+  border-color: var(--gold); border-width: 2px;
+  border-left: 4px solid var(--gold);
+  background: linear-gradient(135deg, #1a1a0a 0%, var(--panel) 100%);
+  box-shadow: 0 0 20px rgba(255,171,1,0.2);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-  .main-grid { grid-template-columns: 1fr; }
+  .base-grid { grid-template-columns: 1fr; }
   .portrait-panel {
-    border-right: none; border-bottom: 2px solid var(--border);
     flex-direction: row; flex-wrap: wrap; gap: 16px;
   }
   .portrait-frame { width: 120px; height: 120px; flex-shrink: 0; aspect-ratio: auto; }
-  .p-stats { flex: 1; min-width: 150px; }
-  .bot-grid { grid-template-columns: 1fr; }
-  .ach-panel { border-right: none; border-bottom: 2px solid var(--border); }
+  .stats-layout { grid-template-columns: 1fr; }
+  .inv-layout { grid-template-columns: 1fr; }
+  .how-body { grid-template-columns: 1fr; }
+  .char-layout { grid-template-columns: 1fr; }
+  .lvl-grid { grid-template-columns: repeat(5, 1fr); }
+  .tab { font-size: 11px; padding: 10px 8px; letter-spacing: 0; }
 }
 @media (max-width: 480px) {
   .frame { padding: 6px; }
   .res-bar { gap: 12px; padding: 8px 12px; }
-  .res-item { font-size: 14px; }
+  .res-item { font-size: 18px; }
   .ctrl-bar { padding: 4px 12px; gap: 8px; flex-wrap: wrap; }
   .portrait-panel { padding: 12px; }
-  .base-panel { padding: 12px; }
+  .page { padding: 14px; }
+  .map-wrap { flex-direction: column; }
+  .bld-sidebar { width: 100%; max-height: 200px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .bld-sidebar .bld-opt { flex: 1 1 140px; margin-bottom: 0; }
   .base-map { gap: 2px; padding: 4px; }
+  .lvl-grid { grid-template-columns: repeat(3, 1fr); }
+  .char-portrait-frame { width: 120px; height: 120px; }
+  .char-portrait-frame .w3i { width: 90px; height: 90px; }
+  .tab { font-size: 10px; padding: 8px 4px; }
 }
+.w3i { image-rendering: pixelated; vertical-align: middle; width: 1em; height: 1em; border-radius: 2px; }
+.res-icon .w3i { width: 26px; height: 26px; }
+.portrait-frame .w3i { width: 80px; height: 80px; }
+.tile-icon .w3i { width: 32px; height: 32px; }
+.tile-emoji .w3i { width: 28px; height: 28px; }
+.act-btn .w3i { width: 14px; height: 14px; }
+.help-heading .w3i { width: 20px; height: 20px; }
 </style>
 </head>
 <body>
@@ -435,48 +681,158 @@ body {
 
   <div class="res-bar">
     <div class="res-item res-gold">
-      <span class="res-icon">&#x1F4B0;</span>
+      <span class="res-icon"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/common/icongold.gif" class="w3i" alt=""></span>
       <span class="sv" id="gold">0</span>
     </div>
     <div class="res-item res-lumber">
-      <span class="res-icon">&#x1FAB5;</span>
+      <span class="res-icon"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/common/iconlumber.gif" class="w3i" alt=""></span>
       <span class="sv" id="lumber">0</span>
     </div>
-    <div class="res-item res-supply">
-      <span class="res-icon">&#x1F3E0;</span>
-      <span id="supply">0</span>
-    </div>
     <div class="res-right">
-      <span class="goblin-badge hidden" id="goblin-badge">&#x1F9CC; 50% OFF</span>
-      <span id="upkeep" class="upkeep upkeep-none">NO UPKEEP</span>
+      <span class="goblin-badge hidden" id="goblin-badge"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/neutral/goblinmerchant.png" class="w3i" style="width:14px;height:14px" alt=""> 50% OFF</span>
       <span id="streak" class="streak-badge"></span>
     </div>
   </div>
 
-  <div class="main-grid">
-    <div class="portrait-panel">
-      <div class="portrait-frame" id="portrait">&#x1F9CC;</div>
-      <div class="p-stats">
+  <div class="tab-bar" id="tab-bar">
+    <button class="tab" data-page="how">How It Works</button>
+    <button class="tab active" data-page="character">Character</button>
+    <button class="tab" data-page="base">Base</button>
+    <button class="tab" data-page="inventory">Inventory</button>
+    <button class="tab" data-page="achievements">Achievements</button>
+    <button class="tab" data-page="stats">Stats</button>
+  </div>
+
+  <!-- Page: How It Works -->
+  <div class="page" id="page-how">
+    <div class="page-head">
+      <div class="sec-title">How It Works</div>
+      <div class="page-desc">Learn how the Peon economy, buildings, and progression work.</div>
+    </div>
+    <div class="how-body">
+      <div class="help-block">
+        <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/common/icongold.gif" class="w3i" alt=""> Gold</div>
+        <div class="help-text">+10g per completed task. Errors cost -5g. Daily cap at 80 tasks (gold mine depletes). Payday bonus every Friday at 5 PM.</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/common/iconlumber.gif" class="w3i" alt=""> Lumber</div>
+        <div class="help-text">+5 lumber per session start (each prompt/session contributes lumber).</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/greathall.png" class="w3i" alt=""> Buildings</div>
+        <div class="help-text">Spend gold and lumber to construct buildings on the map. Each unlocks a perk. Click any empty tile to build.</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/warmill.png" class="w3i" alt=""> Combos</div>
+        <div class="help-text">Consecutive task completions without errors (requires War Mill). Higher combos = better item drops.</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading">&#x1F525; Roast</div>
+        <div class="help-text">Roast level 0-5. Increases with errors, context limits, and late-night coding. Build a Burrow to suppress.</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading">&#x1F3C6; Achievements</div>
+        <div class="help-text">Hover any achievement to see how to unlock it. Tracked automatically as you code.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page: Character -->
+  <div class="page active" id="page-character">
+    <div class="char-layout">
+      <div class="char-showcase">
+        <div class="char-portrait-frame" id="char-portrait">
+          <img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/peon.png" class="w3i" alt="Peon">
+        </div>
+        <div class="char-info">
+          <div class="char-level" id="char-level">Lvl 1</div>
+          <div class="char-title" id="char-title">Peon</div>
+          <div class="char-faction" id="char-faction">Orc</div>
+          <div class="char-flavor" id="char-flavor">Ready to work!</div>
+        </div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar" id="xp-bar"></div>
+        </div>
+        <div class="xp-text" id="xp-text">0 / 25 tasks</div>
+      </div>
+      <div class="char-ladder">
+        <div class="sec-title">Progression</div>
+        <div class="lvl-grid" id="lvl-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page: Base -->
+  <div class="page" id="page-base">
+    <div class="page-head">
+      <div class="sec-title">Base</div>
+      <div class="page-desc">Your base of operations. Build structures to unlock perks and abilities.</div>
+    </div>
+    <div class="base-grid">
+      <div class="portrait-panel">
+        <div class="portrait-frame" id="portrait" onclick="switchPage('character')" style="cursor:pointer" title="View Character"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/peon.png" class="w3i" alt="Peon"></div>
+        <div id="debt-box"></div>
+        <div class="act-btns" id="actions"></div>
+      </div>
+      <div>
+        <div class="map-wrap">
+          <div class="base-map" id="basemap"></div>
+          <div class="bld-sidebar" id="bld-sidebar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page: Inventory -->
+  <div class="page" id="page-inventory">
+    <div class="page-head">
+      <div class="sec-title">Inventory</div>
+      <div class="page-desc">Equip items to boost your gold, lumber, and combat stats.</div>
+    </div>
+    <div class="inv-layout">
+      <div>
+        <div class="sec-title" style="margin-bottom:12px">Equipment (6 slots)</div>
+        <div class="inv-slots" id="equip-slots"></div>
+      </div>
+      <div>
+        <div class="sec-title" style="margin-bottom:12px">Backpack</div>
+        <div class="inv-bag-items" id="bag-items"></div>
+      </div>
+    </div>
+    <div class="inv-hint">
+      <span class="inv-hint-rarity"><span style="color:#888">Common</span> · <span style="color:#1eff00">Uncommon</span> · <span style="color:#0070dd">Rare</span> · <span style="color:#a335ee">Epic</span> · <span style="color:#ff8000">Legendary</span></span>
+      <p>Items drop randomly from completed tasks. Legendary items are extraordinarily rare (~0.01% drop rate) — some players never see one. Rumor has it a few secret items exist that aren't in any loot table… they can only be found through hidden achievements or once-in-a-lifetime random events.</p>
+    </div>
+  </div>
+
+  <!-- Page: Achievements -->
+  <div class="page" id="page-achievements">
+    <div class="page-head">
+      <div class="sec-title">Peon Honors</div>
+      <div class="page-desc">Track your coding milestones and earn honors.</div>
+    </div>
+    <div class="ach-grid" id="achievements"></div>
+  </div>
+
+  <!-- Page: Stats -->
+  <div class="page" id="page-stats">
+    <div class="page-head">
+      <div class="sec-title">Stats</div>
+      <div class="page-desc">Your lifetime stats and recent activity.</div>
+    </div>
+    <div class="stats-layout">
+      <div class="stats-col">
         <div class="stat-row"><span>Pack</span><span class="sv" id="pack-name">peon</span></div>
         <div class="stat-row"><span>Tasks</span><span class="sv" id="tasks">0</span></div>
         <div class="stat-row"><span>Errors</span><span class="sv" id="errors">0</span></div>
         <div class="stat-row"><span>Sessions</span><span class="sv" id="sessions">0</span></div>
         <div class="stat-row"><span>Combo</span><span class="combo-val" id="combo">&mdash;</span></div>
-        <div class="stat-row"><span>Sass</span><span id="sass-val">0</span></div>
-        <div class="sass-meter" id="sass-meter">
-          <div class="sass-pip"></div><div class="sass-pip"></div><div class="sass-pip"></div>
-          <div class="sass-pip"></div><div class="sass-pip"></div>
+        <div class="stat-row"><span>Roast</span><span id="roast-val">0</span></div>
+        <div class="roast-meter" id="roast-meter">
+          <div class="roast-pip"></div><div class="roast-pip"></div><div class="roast-pip"></div>
+          <div class="roast-pip"></div><div class="roast-pip"></div>
         </div>
-        <div id="debt-box"></div>
-        <div class="act-btns" id="actions"></div>
-      </div>
-    </div>
-
-    <div class="base-panel">
-      <div class="sec-title">Base</div>
-      <div class="base-map" id="basemap"></div>
-      <div class="sec-title" style="margin-top:8px">Stats</div>
-      <div class="stats-grid">
+        <div style="height:8px"></div>
         <div class="stat-row"><span>Streak</span><span class="sv" id="streak-days">0 days</span></div>
         <div class="stat-row"><span>Best streak</span><span class="sv" id="best-streak">0 days</span></div>
         <div class="stat-row"><span>Max combo</span><span class="sv" id="max-combo">0x</span></div>
@@ -484,60 +840,48 @@ body {
         <div class="stat-row"><span>Lifetime lumber</span><span class="sv" id="lt-lumber">0</span></div>
         <div class="stat-row"><span>Daily tasks</span><span class="sv" id="daily-tasks">0/80</span></div>
       </div>
-    </div>
-  </div>
-
-  <div class="inv-bar">
-    <div class="inv-equip">
-      <div class="sec-title">Equipment (6 slots)</div>
-      <div class="inv-slots" id="equip-slots"></div>
-    </div>
-    <div class="inv-bag">
-      <div class="sec-title">Backpack</div>
-      <div class="inv-bag-items" id="bag-items"></div>
-    </div>
-  </div>
-
-  <div class="bot-grid">
-    <div class="ach-panel">
-      <div class="sec-title">Peon Honors</div>
-      <div class="ach-grid" id="achievements"></div>
-    </div>
-    <div class="log-panel">
-      <div class="sec-title">Activity</div>
-      <div id="activity"></div>
+      <div class="log-col">
+        <div class="sec-title">Activity</div>
+        <div id="activity"></div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
+function w3i(p) { return '<img src="' + W3 + p + '" class="w3i">'; }
+
 var BLDS = {
-  great_hall:   { icon: '\u{1F3F0}', name: 'Great Hall', g: 0, l: 0, free: true },
-  stronghold:   { icon: '\u{1F3F0}', name: 'Stronghold', g: 500, l: 200 },
-  fortress:     { icon: '\u{1F451}', name: 'Fortress', g: 2000, l: 800 },
-  burrow:       { icon: '\u{1F573}\uFE0F', name: 'Burrow', g: 100, l: 50 },
-  war_mill:     { icon: '\u2694\uFE0F', name: 'War Mill', g: 200, l: 100 },
-  watch_tower:  { icon: '\u{1F5FC}', name: 'Watch Tower', g: 150, l: 75 },
-  altar:        { icon: '\u26A1', name: 'Altar of Storms', g: 300, l: 150 },
-  spirit_lodge: { icon: '\u{1F47B}', name: 'Spirit Lodge', g: 500, l: 200 },
-  tavern:       { icon: '\u{1F37A}', name: 'Tavern', g: 400, l: 200 },
+  great_hall:   { icon: w3i('orc/greathall.png'), name: 'Great Hall', g: 0, l: 0, free: true, desc: 'Your base of operations.' },
+  stronghold:   { icon: w3i('orc/stronghold.png'), name: 'Stronghold', g: 500, l: 200, desc: 'Rank upgrade. Unlocks random events.' },
+  fortress:     { icon: w3i('orc/fortress.png'), name: 'Fortress', g: 2000, l: 800, desc: 'Max rank. Unlocks leaderboard title.' },
+  burrow:       { icon: w3i('orc/orcburrow.png'), name: 'Burrow', g: 100, l: 50, desc: 'Enables Bunker \u2014 suppress roasts for 1 hour.' },
+  war_mill:     { icon: w3i('orc/warmill.png'), name: 'War Mill', g: 200, l: 100, desc: 'Unlocks combo system (multi-kill tracking).' },
+  watch_tower:  { icon: w3i('orc/watchtower.png'), name: 'Watch Tower', g: 150, l: 75, desc: 'Early warning at 80% context usage.' },
+  altar:        { icon: w3i('orc/altarofstorms.png'), name: 'Altar of Storms', g: 300, l: 150, desc: 'Enables Resurrect \u2014 restore combo once/day.' },
+  spirit_lodge: { icon: w3i('orc/spiritlodge.png'), name: 'Spirit Lodge', g: 500, l: 200, desc: 'Unlocks idle peon wisdom notifications.' },
+  tavern:       { icon: w3i('neutral/tavern.png'), name: 'Tavern', g: 400, l: 200, desc: 'Enables Taunt \u2014 play a roast on demand.' },
 };
 
 var ACHS = [
-  { id: 'first_blood', icon: '\u{1FA78}', name: 'First Blood' },
-  { id: 'zug_zug_veteran', icon: '\u2692\uFE0F', name: 'Zug Zug Veteran' },
-  { id: 'night_elf', icon: '\u{1F319}', name: 'Night Elf' },
-  { id: 'dawn_patrol', icon: '\u{1F305}', name: 'Dawn Patrol' },
-  { id: 'weekend_warrior', icon: '\u{1F5E1}\uFE0F', name: 'Weekend Warrior' },
-  { id: 'iron_peon', icon: '\u{1F4AA}', name: 'Iron Peon' },
-  { id: 'rage_quit', icon: '\u{1F4A2}', name: 'Rage Quit' },
-  { id: 'oops', icon: '\u{1F92D}', name: 'Oops' },
-  { id: 'the_grind', icon: '\u26CF\uFE0F', name: 'The Grind' },
-  { id: 'permit_patty', icon: '\u{1F6D1}', name: 'Permit Patty' },
-  { id: 'compact_survivor', icon: '\u{1F6E1}\uFE0F', name: 'Compact Survivor' },
-  { id: 'architect', icon: '\u{1F3D7}\uFE0F', name: 'Architect' },
-  { id: 'bankrupt', icon: '\u{1F4B8}', name: 'Bankrupt' },
-  { id: 'mogul', icon: '\u{1F4B0}', name: 'Mogul' },
+  { id: 'first_blood', icon: '\u{1FA78}', name: 'First Blood', how: 'First task error', tgt: 1 },
+  { id: 'zug_zug_veteran', icon: '\u2692\uFE0F', name: 'Zug Zug Veteran', how: 'Complete 100 tasks', tgt: 100 },
+  { id: 'night_elf', icon: '\u{1F319}', name: 'Night Elf', how: 'Code past 2 AM', tgt: 1 },
+  { id: 'dawn_patrol', icon: '\u{1F305}', name: 'Dawn Patrol', how: 'Start a session before 6 AM', tgt: 1 },
+  { id: 'weekend_warrior', icon: '\u{1F5E1}\uFE0F', name: 'Weekend Warrior', how: '10 weekend sessions', tgt: 10 },
+  { id: 'iron_peon', icon: '\u{1F4AA}', name: 'Iron Peon', how: '7-day coding streak', tgt: 7 },
+  { id: 'rage_quit', icon: '\u{1F4A2}', name: 'Rage Quit', how: '3+ errors in one session', tgt: 3 },
+  { id: 'oops', icon: '\u{1F92D}', name: 'Oops', how: '50 lifetime errors', tgt: 50 },
+  { id: 'the_grind', icon: '\u26CF\uFE0F', name: 'The Grind', how: '1,000 lifetime tasks', tgt: 1000 },
+  { id: 'permit_patty', icon: '\u{1F6D1}', name: 'Permit Patty', how: '20 permissions in one session', tgt: 20 },
+  { id: 'compact_survivor', icon: '\u{1F6E1}\uFE0F', name: 'Compact Survivor', how: '5 context compacts', tgt: 5 },
+  { id: 'architect', icon: '\u{1F3D7}\uFE0F', name: 'Architect', how: 'Build all structures', tgt: 7 },
+  { id: 'bankrupt', icon: '\u{1F4B8}', name: 'Bankrupt', how: 'Go below -500 gold', tgt: 500 },
+  { id: 'mogul', icon: '\u{1F4B0}', name: 'Mogul', how: 'Earn 5,000 lifetime gold', tgt: 5000 },
+  { id: 'stop_clicking', icon: '\u{1F5B1}\uFE0F', name: 'Stop Clicking Me!', how: '500 lifetime prompts', tgt: 500, secret: true },
+  { id: 'peon_union_rep', icon: '\u{1F4CB}', name: 'Peon Union Rep', how: '10 errors in one session', tgt: 10, secret: true },
+  { id: 'touch_grass', icon: '\u{1F33F}', name: 'Touch Grass', how: 'Code past 3 AM on a weekend', tgt: 1, secret: true },
 ];
 
 var EVT_LABELS = {
@@ -560,48 +904,114 @@ var EVT_ICONS = {
   'user.spam': '\u{1F501}',
 };
 
+var WP = 'https://static.wikia.nocookie.net/wowpedia/images/';
+var LEVELS = [
+  { lvl:1,  thresh:0,       title:'Peon',          faction:'Orc',       icon: W3+'orc/peon.png',            flavor:'Ready to work!' },
+  { lvl:2,  thresh:25,      title:'Peasant',        faction:'Human',     icon: WP+'b/bc/BTNPeasant.png',     flavor:'More work? I just got promoted from the other side!' },
+  { lvl:3,  thresh:100,     title:'Grunt',           faction:'Orc',       icon: W3+'orc/grunt.png',           flavor:'My blade is yours! Zug zug.' },
+  { lvl:4,  thresh:250,     title:'Knight',          faction:'Human',     icon: WP+'9/97/BTNKnight.png',      flavor:'For Lordaeron! ...and clean code.' },
+  { lvl:5,  thresh:500,     title:'Far Seer',        faction:'Orc',       icon: W3+'orc/farseer.png',         flavor:'The spirits reveal the code ahead.' },
+  { lvl:6,  thresh:1000,    title:'Jaina',           faction:'Human',     icon: WP+'0/04/BTNJaina.png',       flavor:'I hate resorting to violence. But 1000 tasks...' },
+  { lvl:7,  thresh:2500,    title:'Witch Doctor',    faction:'Troll',     icon: W3+'orc/witchdoctor.png', flavor:'Look at me. Hee hee! I am da witch doctor.' },
+  { lvl:8,  thresh:5000,    title:'Arthas',          faction:'Undead',    icon: WP+'d/db/BTNHeroDeathKnight.png', flavor:'Glad you could make it. Now serve the code.' },
+  { lvl:9,  thresh:10000,   title:'Brewmaster',      faction:'Neutral',   icon: W3+'neutral/pandarenbrewmaster.gif', flavor:'Another round? Peon buy drinks!' },
+  { lvl:10, thresh:1000000, title:'Murloc',          faction:'???',       icon: WP+'9/97/BTNMurloc.png',      flavor:'MRGLGLGLGL! You have transcended all factions. The swamp welcomes you.' },
+];
+
+function getLevelInfo(tasks) {
+  var info = LEVELS[0];
+  for (var i = 0; i < LEVELS.length; i++) {
+    if (tasks >= LEVELS[i].thresh) info = LEVELS[i];
+  }
+  var next = info.lvl < 10 ? LEVELS[info.lvl] : null;
+  return { cur: info, next: next };
+}
+
+function tierClass(lvl) {
+  if (lvl >= 10) return 'tier-murloc';
+  if (lvl >= 7) return 'tier-legend';
+  if (lvl >= 4) return 'tier-hero';
+  return 'tier-worker';
+}
+
 var ITEMS = {
-  claws_of_attack:     { icon: '\u2694\uFE0F', name: 'Claws of Attack +3', r: 'common', desc: '+3 gold per task' },
-  gauntlets_of_str:    { icon: '\u{1F9E4}', name: 'Gauntlets of Strength', r: 'common', desc: '+2 lumber per prompt' },
-  ring_of_protection:  { icon: '\u{1F48D}', name: 'Ring of Protection +2', r: 'common', desc: 'Max sass capped at 3' },
-  slippers_of_agility: { icon: '\u{1F97F}', name: 'Slippers of Agility', r: 'common', desc: 'Combos count +1' },
-  circlet_of_nobility: { icon: '\u{1F451}', name: 'Circlet of Nobility', r: 'common', desc: '+2 gold per task' },
-  mantle_of_intel:     { icon: '\u{1F9E5}', name: 'Mantle of Intelligence', r: 'common', desc: '+1 lumber per prompt' },
-  scroll_of_tp:        { icon: '\u{1F4DC}', name: 'Scroll of Town Portal', r: 'uncommon', desc: 'Restore combo (use)', cons: true },
-  potion_of_healing:   { icon: '\u{1F9EA}', name: 'Potion of Healing', r: 'uncommon', desc: '+200 gold (use)', cons: true },
-  potion_of_mana:      { icon: '\u{1F9EA}', name: 'Potion of Mana', r: 'uncommon', desc: '+50 lumber (use)', cons: true },
-  boots_of_speed:      { icon: '\u{1F462}', name: 'Boots of Speed', r: 'uncommon', desc: '2x lumber from prompts' },
-  periapt_of_vitality: { icon: '\u{1F49A}', name: 'Periapt of Vitality', r: 'uncommon', desc: 'Gold mine depletion +25' },
-  pendant_of_energy:   { icon: '\u{1F4BF}', name: 'Pendant of Energy', r: 'uncommon', desc: '+5 gold per task' },
-  tome_of_xp:          { icon: '\u{1F4D5}', name: 'Tome of Experience', r: 'uncommon', desc: '+500 gold (use)', cons: true },
-  helm_of_valor:       { icon: '\u{1FA96}', name: 'Helm of Valor', r: 'rare', desc: '3 free errors/day' },
-  cloak_of_shadows:    { icon: '\u{1F576}\uFE0F', name: 'Cloak of Shadows', r: 'rare', desc: 'No roasts' },
-  orb_of_fire:         { icon: '\u{1F525}', name: 'Orb of Fire', r: 'rare', desc: 'Errors give +2g' },
-  gem_of_seeing:       { icon: '\u{1F48E}', name: 'Gem of True Seeing', r: 'rare', desc: '10% crit (3x gold)' },
-  staff_of_negation:   { icon: '\u{1FA84}', name: 'Staff of Negation', r: 'rare', desc: 'No debt interest' },
-  sobi_mask:           { icon: '\u{1F3AD}', name: 'Sobi Mask', r: 'rare', desc: '3x lumber' },
-  inv_potion:          { icon: '\u{1F32B}\uFE0F', name: 'Potion of Invisibility', r: 'rare', desc: '2h no roasts (use)', cons: true },
-  crown_of_kings:      { icon: '\u{1F451}', name: 'Crown of Kings +5', r: 'epic', desc: '2x all gold' },
-  mask_of_death:       { icon: '\u{1F480}', name: 'Mask of Death', r: 'epic', desc: '50% gold lifesteal' },
-  amulet_of_spell:     { icon: '\u{1F6E1}\uFE0F', name: 'Amulet of Spell Shield', r: 'epic', desc: 'Immune to raids' },
-  khadgars_pipe:       { icon: '\u{1F6AC}', name: "Khadgar's Pipe", r: 'epic', desc: 'Sass resets each task' },
-  ankh:                { icon: '\u2625\uFE0F', name: 'Ankh of Reincarnation', r: 'epic', desc: 'Undo raid (use)', cons: true },
-  frostmourne:         { icon: '\u{1F5E1}\uFE0F', name: 'Frostmourne', r: 'legendary', desc: 'Roasts become praise' },
-  wirts_leg:           { icon: '\u{1F9B4}', name: "Wirt's Leg", r: 'legendary', desc: 'Does nothing.' },
-  thunderfury:         { icon: '\u26A1', name: 'Thunderfury', r: 'legendary', desc: '+15 gold per task' },
-  unstoppable_force:   { icon: '\u{1F4A5}', name: 'The Unstoppable Force', r: 'legendary', desc: 'Combos never break' },
-  ashbringer:          { icon: '\u2728', name: 'Ashbringer', r: 'legendary', desc: 'Purge all debt' },
-  cheese:              { icon: '\u{1F9C0}', name: 'Cheese', r: 'legendary', desc: '+1000g +500l (use)', cons: true },
+  claws_of_attack:     { icon: w3i('orc/steelmeleeweapons.png'), name: 'Claws of Attack +3', r: 'common', desc: '+3 gold per task' },
+  gauntlets_of_str:    { icon: w3i('orc/brutestrength.png'), name: 'Gauntlets of Strength', r: 'common', desc: '+2 lumber per prompt' },
+  ring_of_protection:  { icon: w3i('orc/reinforceddefenses.png'), name: 'Ring of Protection +2', r: 'common', desc: 'Max roast capped at 3' },
+  slippers_of_agility: { icon: w3i('orc/scrollofspeed.png'), name: 'Slippers of Agility', r: 'common', desc: 'Combos count +1' },
+  circlet_of_nobility: { icon: w3i('neutral/circletofnobility.gif'), name: 'Circlet of Nobility', r: 'common', desc: '+2 gold per task' },
+  mantle_of_intel:     { icon: w3i('orc/shamanadepttraining.png'), name: 'Mantle of Intelligence', r: 'common', desc: '+1 lumber per prompt' },
+  healing_ward:        { icon: w3i('orc/witchdoctoradepttraining.png'), name: 'Healing Ward', r: 'common', desc: '-1 max roast level' },
+  steel_armor:         { icon: w3i('orc/steelarmor.png'), name: 'Steel Armor', r: 'common', desc: '+1 free error/day' },
+  scroll_of_tp:        { icon: w3i('orc/scrolloftownportal.png'), name: 'Scroll of Town Portal', r: 'uncommon', desc: 'Restore combo (use)', cons: true },
+  potion_of_healing:   { icon: w3i('orc/potionofhealing.png'), name: 'Potion of Healing', r: 'uncommon', desc: '+200 gold (use)', cons: true },
+  potion_of_mana:      { icon: w3i('orc/potionofmana.png'), name: 'Potion of Mana', r: 'uncommon', desc: '+50 lumber (use)', cons: true },
+  boots_of_speed:      { icon: w3i('neutral/bootsofspeed.gif'), name: 'Boots of Speed', r: 'uncommon', desc: '2x lumber from prompts' },
+  periapt_of_vitality: { icon: w3i('neutral/periaptofvitality.gif'), name: 'Periapt of Vitality', r: 'uncommon', desc: 'Gold mine depletion +25' },
+  pendant_of_energy:   { icon: w3i('orc/lesserclaritypotion.png'), name: 'Pendant of Energy', r: 'uncommon', desc: '+5 gold per task' },
+  tome_of_xp:          { icon: w3i('neutral/tomeofretraining.gif'), name: 'Tome of Experience', r: 'uncommon', desc: '+500 gold (use)', cons: true },
+  war_drums:           { icon: w3i('orc/wardrumsdamageincrease.png'), name: 'War Drums', r: 'uncommon', desc: 'Combo milestones give 2x gold' },
+  troll_regen:         { icon: w3i('orc/trollregeneration.png'), name: 'Scroll of Regeneration', r: 'uncommon', desc: 'Roast decays 2x faster' },
+  sentry_ward:         { icon: w3i('orc/improvedspikedbarricades.png'), name: 'Sentry Ward', r: 'uncommon', desc: 'Warns at 60% context usage' },
+  liquid_fire:         { icon: w3i('orc/liquidfire.gif'), name: 'Liquid Fire', r: 'uncommon', desc: '+150 gold (use)', cons: true },
+  helm_of_valor:       { icon: w3i('orc/arcanitearmor.png'), name: 'Helm of Valor', r: 'rare', desc: '3 free errors/day' },
+  cloak_of_shadows:    { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Cloak of Shadows', r: 'rare', desc: 'No roasts' },
+  orb_of_fire:         { icon: w3i('orc/orboflightning.png'), name: 'Orb of Fire', r: 'rare', desc: 'Errors give +2g' },
+  gem_of_seeing:       { icon: w3i('neutral/dustofappearance.gif'), name: 'Gem of True Seeing', r: 'rare', desc: '10% crit (3x gold)' },
+  staff_of_negation:   { icon: w3i('neutral/staffofteleportation.gif'), name: 'Staff of Negation', r: 'rare', desc: 'No debt interest' },
+  sobi_mask:           { icon: w3i('orc/shamanmastertraining.png'), name: 'Sobi Mask', r: 'rare', desc: '3x lumber' },
+  inv_potion:          { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Potion of Invisibility', r: 'rare', desc: '2h no roasts (use)', cons: true },
+  thorium_armor:       { icon: w3i('orc/thoriumarmor.png'), name: 'Thorium Armor', r: 'rare', desc: '5 free errors/day' },
+  envenomed_spears:    { icon: w3i('orc/envenomedspears.gif'), name: 'Envenomed Spears', r: 'rare', desc: 'Errors refund 50% gold' },
+  ensnare_trap:        { icon: w3i('orc/ensnare.gif'), name: 'Ensnare', r: 'rare', desc: 'Prevent next raid (use)', cons: true },
+  crown_of_kings:      { icon: w3i('neutral/circletofnobility.gif'), name: 'Crown of Kings +5', r: 'epic', desc: '2x all gold' },
+  mask_of_death:       { icon: w3i('orc/berserkerupgrade.png'), name: 'Mask of Death', r: 'epic', desc: '50% gold lifesteal' },
+  amulet_of_spell:     { icon: w3i('neutral/scrollofprotection.gif'), name: 'Amulet of Spell Shield', r: 'epic', desc: 'Immune to raids' },
+  khadgars_pipe:       { icon: w3i('orc/spiritwalkeradepttraining.png'), name: "Khadgar's Pipe", r: 'epic', desc: 'Roast resets each task' },
+  ankh:                { icon: w3i('neutral/scrollofhealing.gif'), name: 'Ankh of Reincarnation', r: 'epic', desc: 'Undo raid (use)', cons: true },
+  pillage_banner:      { icon: w3i('orc/pillage.gif'), name: 'Banner of Pillage', r: 'epic', desc: '2x event gold' },
+  spirit_link:         { icon: w3i('orc/spiritwalkermastertraining.png'), name: 'Spirit Link', r: 'epic', desc: 'Combo persists across sessions' },
+  invuln_potion:       { icon: w3i('neutral/potionoflesserinvulnerability.gif'), name: 'Potion of Invulnerability', r: 'epic', desc: '4h no gold loss (use)', cons: true },
+  frostmourne:         { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Frostmourne', r: 'legendary', desc: 'Roasts become praise' },
+  wirts_leg:           { icon: w3i('orc/spikedbarricades.png'), name: "Wirt's Leg", r: 'legendary', desc: 'Does nothing.' },
+  thunderfury:         { icon: w3i('orc/orboflightning.png'), name: 'Thunderfury', r: 'legendary', desc: '+15 gold per task' },
+  unstoppable_force:   { icon: w3i('orc/pulverizedamageincrease.png'), name: 'The Unstoppable Force', r: 'legendary', desc: 'Combos never break' },
+  ashbringer:          { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Ashbringer', r: 'legendary', desc: 'Purge all debt' },
+  cheese:              { icon: w3i('orc/healingsalve.png'), name: 'Cheese', r: 'legendary', desc: '+1000g +500l (use)', cons: true },
+  thorium_blade:       { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Thorium Blade', r: 'legendary', desc: '+20 gold per task' },
+  goblin_rocket:       { icon: w3i('neutral/goblinlaboratory.png'), name: 'Goblin Rocket Launcher', r: 'legendary', desc: 'Ignore gold mine depletion' },
 };
 
 var prev = null, curState = null, cfg = null, packs = [];
-var fails = 0, lastSeenTs = 0, pickerTile = null;
+var fails = 0, lastSeenTs = 0, selectedBld = null;
 
 var MAP_COLS = 7, MAP_ROWS = 5;
-var DECO = { '0,0':'tree','6,0':'tree','0,1':'tree','0,4':'tree','1,4':'tree','6,4':'rock','6,3':'mine' };
+var DECO = { '0,0':'tree','6,0':'tree','0,1':'tree','0,4':'tree','1,4':'tree','6,4':'mine','6,3':'mine' };
 var HALL_POS = '3,2';
 
 function $(id) { return document.getElementById(id); }
+
+/* --- Tab switching --- */
+
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  var page = document.getElementById('page-' + id);
+  var tab = document.querySelector('.tab[data-page="' + id + '"]');
+  if (page) page.classList.add('active');
+  if (tab) tab.classList.add('active');
+  try { localStorage.setItem('peon-dash-tab', id); } catch(e) {}
+}
+
+document.querySelectorAll('.tab').forEach(function(t) {
+  t.addEventListener('click', function() { switchPage(this.dataset.page); });
+});
+
+var savedTab = null;
+try { savedTab = localStorage.getItem('peon-dash-tab'); } catch(e) {}
+if (savedTab) switchPage(savedTab);
+
+/* --- Helpers --- */
 
 function animVal(el, from, to, dur) {
   if (from === to) return;
@@ -668,18 +1078,13 @@ function updateRes(s) {
   var l = ec.lumber || 0, pl = pe.lumber || 0;
   if (g !== pg) { animVal($('gold'), pg, g); flash($('gold'), g - pg); }
   if (l !== pl) { animVal($('lumber'), pl, l); flash($('lumber'), l - pl); }
-  $('supply').textContent = Object.keys(s.session_packs || {}).length + '/12';
-  var uk = ec.upkeep || 'none';
-  var ub = $('upkeep');
-  ub.textContent = uk === 'none' ? 'NO UPKEEP' : uk.toUpperCase() + ' UPKEEP';
-  ub.className = 'upkeep upkeep-' + uk;
   var streak = (s.stats || {}).current_streak_days || 0;
   $('streak').textContent = streak > 0 ? streak + ' day streak' : '';
   var gb = $('goblin-badge');
   gb.classList.toggle('hidden', s.goblin_discount_date !== today());
 }
 
-function updatePortrait(s) {
+function updateStats(s) {
   var st = s.stats || {}, ps = prev ? (prev.stats || {}) : {};
   $('pack-name').textContent = (s.last_active || {}).pack || 'peon';
   var tasks = st.tasks_completed || 0, pt = ps.tasks_completed || 0;
@@ -695,10 +1100,10 @@ function updatePortrait(s) {
     void cel.offsetWidth;
     cel.classList.add('combo-bump');
   }
-  var sass = s.sass_level || 0;
-  $('sass-val').textContent = sass;
-  var pips = document.querySelectorAll('.sass-pip');
-  for (var i = 0; i < pips.length; i++) pips[i].classList.toggle('on', i < sass);
+  var rl = s.roast_level || 0;
+  $('roast-val').textContent = rl;
+  var pips = document.querySelectorAll('.roast-pip');
+  for (var i = 0; i < pips.length; i++) pips[i].classList.toggle('on', i < rl);
   var debt = $('debt-box');
   if ((s.economy || {}).gold < 0) {
     debt.innerHTML = '<div class="debt-warn">IN DEBT: ' + s.economy.gold + ' gold</div>';
@@ -746,64 +1151,62 @@ function bldPositions(built) {
   return posMap;
 }
 
-function closePicker() { pickerTile = null; var el = document.querySelector('.bld-picker'); if (el) el.remove(); }
+var DECO_ICONS = { tree: w3i('common/lumber.png'), rock: '\u{1FAA8}', mine: w3i('common/chestofgold.png') };
 
-function showPicker(tileEl, x, y, s) {
-  closePicker();
-  pickerTile = posKey(x, y);
+function updateSidebar(s) {
+  var built = s.buildings || {};
   var ec = s.economy || {};
   var g = ec.gold || 0, l = ec.lumber || 0;
   var disc = s.goblin_discount_date === today();
-  var built = s.buildings || {};
-  var pop = document.createElement('div');
-  pop.className = 'bld-picker';
-  pop.innerHTML = '<div class="bld-picker-title">Build here</div>';
-  var hasBuildable = false;
+  var sb = $('bld-sidebar');
+  sb.innerHTML = '<div class="bld-sidebar-title">Buildings</div>';
   Object.keys(BLDS).forEach(function(key) {
     var def = BLDS[key];
-    if (def.free || key === 'great_hall' || key in built) return;
-    hasBuildable = true;
+    if (def.free || key === 'great_hall') return;
+    var isBuilt = key in built;
     var gc = def.g, lc = def.l;
-    if (disc) { gc = Math.floor(gc / 2); lc = Math.floor(lc / 2); }
+    if (disc && !isBuilt) { gc = Math.floor(gc / 2); lc = Math.floor(lc / 2); }
     var afford = g >= gc && l >= lc;
     var opt = document.createElement('div');
-    opt.className = 'bld-opt' + (afford ? '' : ' poor');
-    var costCls = afford ? 'bld-opt-cost' : 'bld-opt-cost cant';
+    var cls = 'bld-opt';
+    if (isBuilt) cls += ' done';
+    else if (selectedBld === key) cls += ' sel';
+    else if (!afford) cls += ' poor';
+    opt.className = cls;
     var h = '<span class="bld-opt-icon">' + def.icon + '</span><div class="bld-opt-info"><div class="bld-opt-name">' + def.name + '</div>';
-    h += '<div class="' + costCls + '">' + gc + 'g / ' + lc + 'l</div>';
-    if (disc) h += '<div class="bld-opt-disc">50% OFF!</div>';
-    h += '</div>';
+    if (isBuilt) {
+      h += '<div class="bld-opt-built">\u2713 Built</div>';
+    } else {
+      var costCls = afford ? 'bld-opt-cost' : 'bld-opt-cost cant';
+      h += '<div class="' + costCls + '">' + gc + 'g / ' + lc + 'l</div>';
+      if (disc) h += '<div class="bld-opt-disc">50% OFF!</div>';
+    }
+    h += '<div class="bld-opt-desc">' + def.desc + '</div></div>';
     opt.innerHTML = h;
-    if (afford) {
+    if (!isBuilt && afford) {
       opt.addEventListener('click', function(e) {
         e.stopPropagation();
-        closePicker();
-        apiPost('/api/build', { building: key, x: x, y: y }).then(function(res) {
-          if (res.ok) {
-            addToast('', '\u{1F3D7}\uFE0F', 'Construction complete: ' + BLDS[key].name);
-            poll();
-          } else { addToast('err', '\u274C', res.error || 'Build failed'); }
-        }).catch(function() { addToast('err', '\u274C', 'Build failed'); });
+        selectedBld = selectedBld === key ? null : key;
+        if (curState) { updateSidebar(curState); updateMap(curState); }
       });
     }
-    pop.appendChild(opt);
+    sb.appendChild(opt);
   });
-  if (!hasBuildable) { pop.innerHTML += '<div style="font-size:10px;color:var(--muted);padding:4px">All buildings constructed!</div>'; }
-  tileEl.appendChild(pop);
-  var rect = pop.getBoundingClientRect();
-  var vw = window.innerWidth, vh = window.innerHeight;
-  if (rect.right > vw) pop.style.right = '0';
-  if (rect.bottom > vh) pop.style.bottom = '100%';
 }
 
-var DECO_ICONS = { tree: '\u{1F332}', rock: '\u{1FAA8}', mine: '\u26CF\uFE0F' };
-
-function updateBlds(s) {
+function harvestNodeMap(s) {
+  var m = {};
+  (s.lumber_nodes || []).forEach(function(n) { m[n.pos] = {amt: n.amt, res: 'lumber'}; });
+  (s.gold_nodes || []).forEach(function(n) { m[n.pos] = {amt: n.amt, res: 'gold'}; });
+  return m;
+}
+function updateMap(s) {
   var built = s.buildings || {};
   var pBuilt = prev ? (prev.buildings || {}) : {};
   var posMap = bldPositions(built);
   var occup = {};
   Object.keys(posMap).forEach(function(key) { occup[posMap[key]] = key; });
+  var hNodes = harvestNodeMap(s);
   var map = $('basemap');
   map.innerHTML = '';
   for (var r = 0; r < MAP_ROWS; r++) {
@@ -811,30 +1214,60 @@ function updateBlds(s) {
       var k = posKey(c, r);
       var tile = document.createElement('div');
       if (DECO[k]) {
-        tile.className = 'tile deco';
+        var node = hNodes[k];
+        var resClass = DECO[k] === 'tree' ? 'res-tree' : (DECO[k] === 'mine' ? 'res-mine' : '');
+        tile.className = 'tile deco' + (node ? ' harvestable ' + resClass : '');
         tile.innerHTML = '<span class="tile-emoji">' + DECO_ICONS[DECO[k]] + '</span>';
+        if (node) {
+          var badgeClass = node.res === 'gold' ? 'badge-gold' : 'badge-lumber';
+          tile.innerHTML += '<span class="harvest-badge ' + badgeClass + '">+' + node.amt + '</span>';
+          (function(pos, res) {
+            tile.addEventListener('click', function() {
+              apiPost('/api/harvest', { pos: pos }).then(function(r) {
+                if (r.ok) {
+                  var icon = res === 'gold' ? DECO_ICONS.mine : DECO_ICONS.tree;
+                  addToast('', icon, '+' + r.amount + ' ' + res);
+                  poll();
+                }
+              });
+            });
+          })(k, node.res);
+        }
       } else if (k === HALL_POS) {
         tile.className = 'tile built hall';
-        tile.innerHTML = '<span class="tile-icon">' + BLDS.great_hall.icon + '</span><span class="tile-lbl">Great Hall</span>';
+        tile.innerHTML = '<span class="tile-icon">' + BLDS.great_hall.icon + '</span><span class="tile-lbl">Great Hall</span><span class="tile-tip"><div class="tile-tip-name">Great Hall</div><div class="tile-tip-desc">' + BLDS.great_hall.desc + '</div></span>';
       } else if (occup[k]) {
         var bKey = occup[k];
         var def = BLDS[bKey];
         var fresh = prev && (bKey in built) && !(bKey in pBuilt);
         tile.className = 'tile built' + (fresh ? ' fresh' : '');
-        tile.innerHTML = '<span class="tile-icon">' + (def ? def.icon : '?') + '</span><span class="tile-lbl">' + (def ? def.name : bKey) + '</span>';
+        var tipHtml = def ? '<span class="tile-tip"><div class="tile-tip-name">' + def.name + '</div><div class="tile-tip-desc">' + def.desc + '</div></span>' : '';
+        tile.innerHTML = '<span class="tile-icon">' + (def ? def.icon : '?') + '</span><span class="tile-lbl">' + (def ? def.name : bKey) + '</span>' + tipHtml;
       } else {
-        tile.className = 'tile open';
+        tile.className = 'tile open' + (selectedBld ? ' placing' : '');
         (function(cx, cy) {
           tile.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (pickerTile === posKey(cx, cy)) { closePicker(); return; }
-            if (curState) showPicker(tile, cx, cy, curState);
+            if (!selectedBld) return;
+            var bname = selectedBld;
+            selectedBld = null;
+            apiPost('/api/build', { building: bname, x: cx, y: cy }).then(function(res) {
+              if (res.ok) {
+                addToast('', '\u{1F3D7}\uFE0F', 'Construction complete: ' + BLDS[bname].name);
+                poll();
+              } else { addToast('err', '\u274C', res.error || 'Build failed'); }
+            }).catch(function() { addToast('err', '\u274C', 'Build failed'); });
           });
         })(c, r);
       }
       map.appendChild(tile);
     }
   }
+}
+
+function updateBlds(s) {
+  updateSidebar(s);
+  updateMap(s);
 }
 
 function updateActions(s) {
@@ -846,11 +1279,11 @@ function updateActions(s) {
     btn.className = 'act-btn';
     var now = Date.now() / 1000, until = s.bunker_until || 0;
     if (until > now) {
-      btn.textContent = '\u{1F573}\uFE0F Bunker: ' + Math.ceil((until - now) / 60) + 'm';
+      btn.innerHTML = w3i('orc/orcburrow.png') + ' Bunker: ' + Math.ceil((until - now) / 60) + 'm';
       btn.className += ' bunkered';
       btn.disabled = true;
     } else {
-      btn.textContent = '\u{1F573}\uFE0F Bunker';
+      btn.innerHTML = w3i('orc/orcburrow.png') + ' Bunker';
       btn.addEventListener('click', function() {
         apiPost('/api/bunker').then(function(res) {
           if (res.ok) { addToast('', '\u{1F573}\uFE0F', 'Peon hiding! Roasts suppressed for 1 hour.'); poll(); }
@@ -863,10 +1296,10 @@ function updateActions(s) {
     var btn2 = document.createElement('button');
     btn2.className = 'act-btn';
     if (s.last_resurrect_date === today()) {
-      btn2.textContent = '\u26A1 Resurrected';
+      btn2.innerHTML = w3i('orc/altarofstorms.png') + ' Resurrected';
       btn2.disabled = true;
     } else {
-      btn2.textContent = '\u26A1 Resurrect';
+      btn2.innerHTML = w3i('orc/altarofstorms.png') + ' Resurrect';
       btn2.addEventListener('click', function() {
         apiPost('/api/resurrect').then(function(res) {
           if (res.ok) {
@@ -880,20 +1313,36 @@ function updateActions(s) {
   }
 }
 
+function fmtN(n) { return n.toLocaleString(); }
 function updateAchs(s) {
   var unlocked = (s.stats || {}).achievements_unlocked || {};
+  var progress = (s.stats || {}).achievements_progress || {};
   var pUnlocked = prev ? ((prev.stats || {}).achievements_unlocked || {}) : {};
   var grid = $('achievements');
   grid.innerHTML = '';
   ACHS.forEach(function(a) {
     var u = a.id in unlocked;
     var justGot = prev && u && !(a.id in pUnlocked);
+    var secret = a.secret && !u;
+    var p = progress[a.id] || [0, a.tgt];
+    var cur = u ? p[1] : p[0];
+    var tgt = p[1] || a.tgt;
+    var pct = secret ? 0 : (tgt > 0 ? Math.min(100, (cur / tgt) * 100) : 0);
     var el = document.createElement('div');
-    el.className = 'ach-item ' + (u ? 'on' : 'off');
-    var h = '<span class="ach-icon">' + a.icon + '</span><span>' + a.name + '</span>';
+    el.className = 'ach-item' + (u ? ' on' : '') + (secret ? ' secret' : '');
+    var h = '<div class="ach-head">';
+    h += '<span class="ach-icon">' + (secret ? '\u{1F512}' : a.icon) + '</span>';
+    h += '<span class="ach-name">' + (secret ? '???' : a.name) + '</span>';
+    h += '<span class="ach-ct">' + (secret ? '?' : fmtN(cur) + '/' + fmtN(tgt)) + '</span>';
+    h += '</div>';
+    h += '<div class="ach-bar"><div class="ach-fill" style="width:' + pct + '%"></div></div>';
     if (u) {
       var d = new Date(unlocked[a.id] * 1000);
-      h += '<span class="ach-tip">Unlocked ' + d.toLocaleDateString() + '</span>';
+      h += '<div class="ach-sub">' + a.how + ' \u2014 \u2713 ' + d.toLocaleDateString() + '</div>';
+    } else if (secret) {
+      h += '<div class="ach-sub">Secret achievement</div>';
+    } else {
+      h += '<div class="ach-sub">' + a.how + '</div>';
     }
     el.innerHTML = h;
     if (justGot) addToast('ach', '\u{1F3C6}', 'Achievement unlocked: ' + a.name);
@@ -915,6 +1364,7 @@ function updateLog(s) {
     var gdCls = gd < 0 ? 'log-gd neg' : 'log-gd';
     var gdText = gd !== 0 ? (gd > 0 ? '+' : '') + gd + 'g' : '';
     var extra = '';
+    if (entry.lv) extra += ' \u2B50 ' + entry.lv;
     if (entry.c) extra += ' <b>' + entry.c + '</b>';
     if (entry.a) extra += ' \u{1F3C6} ' + entry.a;
     if (entry.i) extra += ' \u{1F381} ' + entry.i;
@@ -978,6 +1428,68 @@ function updateInventory(s) {
   });
 }
 
+function updateCharacter(s) {
+  var st = s.stats || {};
+  var tasks = st.tasks_completed || 0;
+  var info = getLevelInfo(tasks);
+  var cur = info.cur, next = info.next;
+  var tier = tierClass(cur.lvl);
+
+  var cpf = $('char-portrait');
+  cpf.querySelector('.w3i').src = cur.icon;
+  cpf.querySelector('.w3i').alt = cur.title;
+  cpf.className = 'char-portrait-frame ' + tier;
+
+  $('char-level').textContent = 'Lvl ' + cur.lvl;
+  $('char-title').textContent = cur.title;
+  $('char-faction').textContent = cur.faction;
+  $('char-flavor').textContent = cur.flavor;
+
+  var xpBar = $('xp-bar');
+  var xpText = $('xp-text');
+  if (!next) {
+    xpBar.style.width = '100%';
+    xpBar.className = 'xp-bar ' + tier;
+    xpText.textContent = 'MAX \u2014 ' + tasks.toLocaleString() + ' tasks';
+  } else {
+    var progress = (tasks - cur.thresh) / (next.thresh - cur.thresh);
+    xpBar.style.width = Math.min(100, Math.max(0, progress * 100)).toFixed(1) + '%';
+    xpBar.className = 'xp-bar ' + tier;
+    xpText.textContent = tasks.toLocaleString() + ' / ' + next.thresh.toLocaleString() + ' tasks';
+  }
+
+  var bp = $('portrait');
+  bp.querySelector('.w3i').src = cur.icon;
+  bp.querySelector('.w3i').alt = cur.title;
+  bp.className = 'portrait-frame ' + tier;
+
+  var grid = $('lvl-grid');
+  grid.innerHTML = '';
+  for (var i = 0; i < LEVELS.length; i++) {
+    var L = LEVELS[i];
+    var tile = document.createElement('div');
+    var state_cls = '';
+    if (L.lvl < cur.lvl) state_cls = 'completed';
+    else if (L.lvl === cur.lvl) state_cls = 'current';
+    else state_cls = 'locked';
+    var murloc_cls = L.lvl === 10 ? ' murloc-tile' : '';
+    tile.className = 'lvl-tile ' + state_cls + murloc_cls;
+    var reqText = L.thresh === 0 ? 'Start' : L.thresh.toLocaleString() + ' tasks';
+    if (L.lvl === 10 && state_cls === 'locked') {
+      tile.innerHTML = '<div class="lvl-tile-icon">\u2753</div>' +
+        '<div class="lvl-tile-num">Lvl ' + L.lvl + '</div>' +
+        '<div class="lvl-tile-name">???</div>' +
+        '<div class="lvl-tile-req">' + reqText + '</div>';
+    } else {
+      tile.innerHTML = '<div class="lvl-tile-icon"><img src="' + L.icon + '" class="w3i" alt="' + L.title + '"></div>' +
+        '<div class="lvl-tile-num">Lvl ' + L.lvl + '</div>' +
+        '<div class="lvl-tile-name">' + L.title + '</div>' +
+        '<div class="lvl-tile-req">' + reqText + '</div>';
+    }
+    grid.appendChild(tile);
+  }
+}
+
 function detectToasts(s) {
   var log = s.activity_log || [];
   var maxTs = 0;
@@ -991,6 +1503,7 @@ function detectToasts(s) {
     var type = '';
     if (entry.e === 'task.error' || entry.e === 'resource.limit') type = 'err';
     var text = label;
+    if (entry.lv) { type = 'lvl'; icon = '\u2B50'; text = entry.lv; }
     if (entry.c) text += ' \u2014 ' + entry.c;
     if (entry.a) { type = 'ach'; icon = '\u{1F3C6}'; text += ' \u2014 ' + entry.a; }
     if (entry.i) { type = 'evt'; icon = '\u{1F381}'; text += ' \u2014 ' + entry.i; }
@@ -1052,8 +1565,9 @@ $('pack-sel').addEventListener('change', function(e) {
 });
 
 document.addEventListener('click', function(e) {
-  if (pickerTile && !e.target.closest('.tile') && !e.target.closest('.bld-picker')) {
-    closePicker();
+  if (selectedBld && !e.target.closest('.tile') && !e.target.closest('.bld-sidebar')) {
+    selectedBld = null;
+    if (curState) { updateSidebar(curState); updateMap(curState); }
   }
 });
 
@@ -1062,7 +1576,8 @@ document.addEventListener('click', function(e) {
 function update(state) {
   detectToasts(state);
   updateRes(state);
-  updatePortrait(state);
+  updateCharacter(state);
+  updateStats(state);
   updateBlds(state);
   updateActions(state);
   updateAchs(state);

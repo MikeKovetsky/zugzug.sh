@@ -146,7 +146,7 @@ peon relay --daemon       # Start audio relay (for SSH/devcontainer)
 peon relay --stop         # Stop background relay
 
 # WC3 Metagame
-peon economy              # Show gold, lumber, upkeep status
+peon economy              # Show gold, lumber, daily task status
 peon achievements         # View unlocked/locked achievements
 peon build list           # List buildings with costs
 peon build <name>         # Build a structure (costs gold + lumber)
@@ -179,7 +179,7 @@ Every hook event affects your resources:
 | Error | -5 | — |
 | Context limit hit | -20 | — |
 
-Gold income scales with **upkeep** (concurrent sessions: 0-3 = full, 4-6 = 70%, 7+ = 40%) and **depletion** (gold mine runs low after 50 tasks/day, collapses at 80). Go into debt and peon starts charging interest.
+Gold mine **depletes** over the day (runs low after 50 tasks/day, collapses at 80). Go into debt and peon starts charging interest.
 
 ### Buildings
 
@@ -202,9 +202,9 @@ Spend gold and lumber to build structures that unlock real perks:
 
 *First Blood* · *Zug Zug Veteran* (100 tasks) · *Night Elf* (code past 2 AM) · *Dawn Patrol* (session before 6 AM) · *Weekend Warrior* · *Iron Peon* (7-day streak) · *Rage Quit* (3+ errors) · *Oops* (50 errors) · *The Grind* (1000 tasks) · *Architect* (all buildings) · *Bankrupt* (-500 gold) · *Mogul* (5000 lifetime gold) · and more.
 
-### Roasts (Sass Levels 0-5)
+### Roasts (Levels 0-5)
 
-The worse you code, the more savage peon gets. Sass escalates on errors, context limits, and midnight coding. Cools down on clean completions. Resets daily.
+The worse you code, the more savage peon gets. Roast level escalates on errors, context limits, and midnight coding. Cools down on clean completions. Resets daily.
 
 - **Level 0**: Normal. *"Job done."*
 - **Level 3**: *"Human considered different career?"*

@@ -2058,6 +2058,76 @@ class H(http.server.BaseHTTPRequestHandler):
             st['last_resurrect_date'] = today
             self._save('.state.json', st)
             self._json(200, {'ok': True, 'combo': st['combo_count']})
+        elif self.path == '/api/harvest':
+            pos = body.get('pos', '')
+            st = self._load('.state.json')
+            ec = st.setdefault('economy', {})
+            found = False
+            for key in ('lumber_nodes', 'gold_nodes'):
+                nodes = st.get(key, [])
+                for i, n in enumerate(nodes):
+                    if n.get('pos') == pos:
+                        res = 'lumber' if 'lumber' in key else 'gold'
+                        ec[res] = ec.get(res, 0) + n['amt']
+                        nodes.pop(i)
+                        st[key] = nodes
+                        self._save('.state.json', st)
+                        return self._json(200, {'ok': True, 'resource': res, 'amount': n['amt']})
+            self._json(400, {'error': 'No harvestable node at that position'})
+        elif self.path == '/api/equip':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid not in inv:
+                return self._json(400, {'error': 'Item not in backpack'})
+            if len(eq) >= 6:
+                return self._json(400, {'error': 'Equipment full (6/6)'})
+            inv.remove(iid)
+            eq.append(iid)
+            st['inventory'] = inv; st['equipped'] = eq
+            self._save('.state.json', st)
+            self._json(200, {'ok': True})
+        elif self.path == '/api/unequip':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid not in eq:
+                return self._json(400, {'error': 'Item not equipped'})
+            eq.remove(iid)
+            inv.append(iid)
+            st['inventory'] = inv; st['equipped'] = eq
+            self._save('.state.json', st)
+            self._json(200, {'ok': True})
+        elif self.path == '/api/use':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid not in inv and iid not in eq:
+                return self._json(400, {'error': 'Item not found'})
+            ec = st.setdefault('economy', {})
+            cons = {
+                'scroll_of_tp':      lambda: st.update(combo_count=max(st.get('combo_count',0), st.get('stats',{}).get('max_combo',0)//2)),
+                'potion_of_healing':  lambda: ec.update(gold=ec.get('gold',0)+200),
+                'potion_of_mana':     lambda: ec.update(lumber=ec.get('lumber',0)+50),
+                'tome_of_xp':        lambda: ec.update(gold=ec.get('gold',0)+500),
+                'liquid_fire':        lambda: ec.update(gold=ec.get('gold',0)+150),
+                'inv_potion':         lambda: st.update(bunker_until=time.time()+7200),
+                'invuln_potion':      lambda: st.update(gold_shield_until=time.time()+14400),
+                'ankh':               lambda: ec.update(gold=ec.get('gold',0)+200),
+                'ensnare_trap':       lambda: st.update(raid_shield=True),
+                'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+1000), ec.update(lumber=ec.get('lumber',0)+500)),
+            }
+            if iid not in cons:
+                return self._json(400, {'error': 'Not consumable'})
+            cons[iid]()
+            if iid in inv: inv.remove(iid)
+            elif iid in eq: eq.remove(iid)
+            st['inventory'] = inv; st['equipped'] = eq
+            self._save('.state.json', st)
+            self._json(200, {'ok': True})
         else:
             self._json(404, {'error': 'Not found'})
 socketserver.TCPServer.allow_reuse_address = True
@@ -2816,6 +2886,7 @@ game_cfg = cfg.get('game', {})
 game_on = str(game_cfg.get('enabled', True)).lower() != 'false'
 game_notify = ''
 game_subtitle = ''
+levelup_sound = ''
 
 if game_on:
     import datetime as _dt
@@ -3047,6 +3118,76 @@ if game_on:
                     pass
         stats['achievements_unlocked'] = unlocked
 
+    # --- Level system (cross-faction progression) ---
+    _LEVELS = [
+        (0,       1,  'Peon',          'peon'),
+        (25,      2,  'Peasant',       'peasant'),
+        (100,     3,  'Grunt',         'peon'),
+        (250,     4,  'Knight',        'peasant'),
+        (500,     5,  'Far Seer',      'peon'),
+        (1000,    6,  'Jaina',         'wc3_jaina'),
+        (2500,    7,  'Witch Doctor',  'dota2_witch_doctor'),
+        (5000,    8,  'Arthas',        'wc3_corrupted_arthas'),
+        (10000,   9,  'Brewmaster',    ''),
+        (1000000, 10, 'Murloc',        'murloc'),
+    ]
+    _LEVEL_FLAVORS = {
+        1:  'Ready to work!',
+        2:  'More work? I just got promoted from the other side!',
+        3:  'My blade is yours! Zug zug.',
+        4:  'For Lordaeron! ...and clean code.',
+        5:  'The spirits reveal the code ahead.',
+        6:  'I hate resorting to violence. But 1000 tasks...',
+        7:  'Look at me. Hee hee! I am da witch doctor.',
+        8:  'Glad you could make it. Now serve the code.',
+        9:  'Another round? Peon buy drinks!',
+        10: 'MRGLGLGLGL! You have transcended all factions. The swamp welcomes you.',
+    }
+    tc = stats.get('tasks_completed', 0)
+    cur_lvl = 1
+    cur_title = 'Peon'
+    lvl_pack = ''
+    for thresh, lvl, title, lpack in _LEVELS:
+        if tc >= thresh:
+            cur_lvl = lvl
+            cur_title = title
+            lvl_pack = lpack
+    prev_lvl = stats.get('level', 0)
+    level_up_text = ''
+    if prev_lvl and cur_lvl > prev_lvl:
+        flavor = _LEVEL_FLAVORS.get(cur_lvl, '')
+        level_up_text = f'LEVEL UP! Lvl {cur_lvl} \u2014 {cur_title}: {flavor}'
+        if lvl_pack:
+            lp_dir = os.path.join(peon_dir, 'packs', lvl_pack)
+            lp_manifest = os.path.join(lp_dir, 'openpeon.json')
+            if not os.path.isfile(lp_manifest):
+                lp_manifest = os.path.join(lp_dir, 'manifest.json')
+            if os.path.isfile(lp_manifest):
+                try:
+                    lm = json.load(open(lp_manifest))
+                    lp_cats = lm.get('categories', lm)
+                    lp_sounds = []
+                    for lk in ('session.start', 'task.complete'):
+                        lp_cat = lp_cats.get(lk, {})
+                        if isinstance(lp_cat, dict):
+                            lp_sounds.extend(lp_cat.get('sounds', []))
+                        elif isinstance(lp_cat, list):
+                            lp_sounds.extend(lp_cat)
+                    if lp_sounds:
+                        lp_pick = random.choice(lp_sounds)
+                        lp_file = lp_pick.get('file', '') if isinstance(lp_pick, dict) else str(lp_pick)
+                        if lp_file:
+                            if '/' in lp_file:
+                                lp_path = os.path.join(lp_dir, lp_file)
+                            else:
+                                lp_path = os.path.join(lp_dir, 'sounds', lp_file)
+                            if os.path.isfile(lp_path):
+                                levelup_sound = lp_path
+                except Exception:
+                    pass
+    stats['level'] = cur_lvl
+    stats['level_title'] = cur_title
+
     # --- Random events (gated behind Stronghold) ---
     evt_on = str(game_cfg.get('random_events', True)).lower() != 'false'
     evt_chance = float(game_cfg.get('random_event_chance', 0.05))
@@ -3266,6 +3407,8 @@ if game_on:
             entry['a'] = new_achiev
         if item_drop:
             entry['i'] = item_drop
+        if level_up_text:
+            entry['lv'] = level_up_text
         log.append(entry)
         if len(log) > 50:
             log = log[-50:]
@@ -3273,6 +3416,8 @@ if game_on:
 
     # --- Compose game notification ---
     parts = []
+    if level_up_text:
+        parts.append(level_up_text)
     if item_drop:
         parts.append(item_drop)
     if new_achiev:
@@ -3403,6 +3548,7 @@ print('TRAINER_MSG=' + q(trainer_msg))
 print('TAB_COLOR_RGB=' + q(tab_color_rgb))
 print('GAME_NOTIFY=' + q(game_notify))
 print('GAME_SUBTITLE=' + q(game_subtitle))
+print('LEVELUP_SOUND=' + q(levelup_sound if game_on else ''))
 " <<< "$INPUT" 2>/dev/null)"
 
 # If Python signalled early exit (disabled, agent, unknown event), bail out
@@ -3638,6 +3784,75 @@ class Handler(http.server.BaseHTTPRequestHandler):
             st['last_resurrect_date'] = today
             self._save('.state.json', st)
             self._json(200, {'ok': True, 'combo': st['combo_count']})
+        elif self.path == '/api/harvest':
+            pos = body.get('pos', '')
+            st = self._load('.state.json')
+            ec = st.setdefault('economy', {})
+            for key in ('lumber_nodes', 'gold_nodes'):
+                nodes = st.get(key, [])
+                for i, n in enumerate(nodes):
+                    if n.get('pos') == pos:
+                        res = 'lumber' if 'lumber' in key else 'gold'
+                        ec[res] = ec.get(res, 0) + n['amt']
+                        nodes.pop(i)
+                        st[key] = nodes
+                        self._save('.state.json', st)
+                        return self._json(200, {'ok': True, 'resource': res, 'amount': n['amt']})
+            self._json(400, {'error': 'No harvestable node at that position'})
+        elif self.path == '/api/equip':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid not in inv:
+                return self._json(400, {'error': 'Item not in backpack'})
+            if len(eq) >= 6:
+                return self._json(400, {'error': 'Equipment full (6/6)'})
+            inv.remove(iid)
+            eq.append(iid)
+            st['inventory'] = inv; st['equipped'] = eq
+            self._save('.state.json', st)
+            self._json(200, {'ok': True})
+        elif self.path == '/api/unequip':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid not in eq:
+                return self._json(400, {'error': 'Item not equipped'})
+            eq.remove(iid)
+            inv.append(iid)
+            st['inventory'] = inv; st['equipped'] = eq
+            self._save('.state.json', st)
+            self._json(200, {'ok': True})
+        elif self.path == '/api/use':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid not in inv and iid not in eq:
+                return self._json(400, {'error': 'Item not found'})
+            ec = st.setdefault('economy', {})
+            cons = {
+                'scroll_of_tp':      lambda: st.update(combo_count=max(st.get('combo_count',0), st.get('stats',{}).get('max_combo',0)//2)),
+                'potion_of_healing':  lambda: ec.update(gold=ec.get('gold',0)+200),
+                'potion_of_mana':     lambda: ec.update(lumber=ec.get('lumber',0)+50),
+                'tome_of_xp':        lambda: ec.update(gold=ec.get('gold',0)+500),
+                'liquid_fire':        lambda: ec.update(gold=ec.get('gold',0)+150),
+                'inv_potion':         lambda: st.update(bunker_until=time.time()+7200),
+                'invuln_potion':      lambda: st.update(gold_shield_until=time.time()+14400),
+                'ankh':               lambda: ec.update(gold=ec.get('gold',0)+200),
+                'ensnare_trap':       lambda: st.update(raid_shield=True),
+                'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+1000), ec.update(lumber=ec.get('lumber',0)+500)),
+            }
+            if iid not in cons:
+                return self._json(400, {'error': 'Not consumable'})
+            cons[iid]()
+            if iid in inv: inv.remove(iid)
+            elif iid in eq: eq.remove(iid)
+            st['inventory'] = inv; st['equipped'] = eq
+            self._save('.state.json', st)
+            self._json(200, {'ok': True})
         else:
             self._json(404, {'error': 'Not found'})
 
@@ -3646,6 +3861,11 @@ with socketserver.TCPServer(('127.0.0.1', PORT), Handler) as httpd:
     httpd.serve_forever()
 " >/dev/null 2>&1 &
       echo $! > "$_dashboard_pid_file"
+      sleep 0.5
+      case "$(uname -s)" in
+        Darwin) open "http://localhost:$_dashboard_port" 2>/dev/null ;;
+        Linux) command -v xdg-open &>/dev/null && xdg-open "http://localhost:$_dashboard_port" &>/dev/null ;;
+      esac
     fi
   fi
 }
@@ -3687,6 +3907,29 @@ if [ -n "${TRAINER_SOUND:-}" ] && [ -f "$TRAINER_SOUND" ]; then
           send_notification "Peon Trainer" "${TRAINER_MSG:-Time for reps!}" "blue"
         fi
       fi
+    ) & disown 2>/dev/null
+  fi
+fi
+
+# --- Level-up sound (from matching pack) ---
+if [ -n "${LEVELUP_SOUND:-}" ] && [ -f "$LEVELUP_SOUND" ]; then
+  if [ "${PEON_TEST:-0}" = "1" ]; then
+    play_sound "$LEVELUP_SOUND" "$VOLUME"
+  else
+    (
+      _pidfile="$PEON_DIR/.sound.pid"
+      if [ -f "$_pidfile" ]; then
+        _main_pid=$(cat "$_pidfile" 2>/dev/null)
+        if [ -n "$_main_pid" ] && kill -0 "$_main_pid" 2>/dev/null; then
+          _waited=0
+          while kill -0 "$_main_pid" 2>/dev/null && [ "$_waited" -lt 100 ]; do
+            sleep 0.1
+            _waited=$((_waited + 1))
+          done
+        fi
+      fi
+      sleep 0.3
+      play_sound "$LEVELUP_SOUND" "$VOLUME"
     ) & disown 2>/dev/null
   fi
 fi

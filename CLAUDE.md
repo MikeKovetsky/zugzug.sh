@@ -65,16 +65,16 @@ peon-ping is part of the [PeonPing](https://github.com/PeonPing) org:
 
 The Python block in `peon.sh` includes a gamification layer:
 
-- **Economy:** Earn gold (task completions) and lumber (prompts). Gold mine depletion after 50-80 daily tasks. Debt system with interest. Upkeep mechanic based on concurrent sessions.
+- **Economy:** Earn gold (task completions) and lumber (prompts). Gold mine depletion after 50-80 daily tasks. Debt system with interest.
 - **Buildings:** Spend gold/lumber via `peon build <name>` to construct structures that unlock perks (combos, roast suppression, idle thoughts, on-demand taunts).
 - **Achievements:** ~14 achievements tracked in `.state.json`, checked after every event. CLI: `peon achievements`.
-- **Roasts:** Escalating sass levels 0-5 based on error frequency, context limits, late-night coding. Notification text roasts piggyback on existing sound events.
+- **Roasts:** Escalating roast levels 0-5 based on error frequency, context limits, late-night coding. Notification text roasts piggyback on existing sound events.
 - **Combos:** Consecutive task completions without errors (gated behind War Mill building). Multi-kill style notifications.
 - **Time-awareness:** Day/night cycle affects notification flavor text. Special events for Monday morning, Friday evening, lunch hour.
 - **Random events:** Gated behind Stronghold. Treasure finds, gold veins, goblin merchant discounts, base raids on error streaks.
 - **Dashboard:** Auto-spawns a local HTTP server on first hook event. `peon dashboard` opens `localhost:19997` in browser. WC3-themed UI with resource bar, base view, achievements, activity log.
 
-All game state lives in `.state.json` under `stats`, `economy`, `buildings`, `combo_count`, `sass_level`, `activity_log`. Config under `game` key in `config.json`.
+All game state lives in `.state.json` under `stats`, `economy`, `buildings`, `combo_count`, `roast_level`, `activity_log`. Config under `game` key in `config.json`.
 
 ### Event Flow
 

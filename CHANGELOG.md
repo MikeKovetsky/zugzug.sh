@@ -1,5 +1,20 @@
 # Changelog
 
+## v3.2.0 (2026-02-19)
+
+### Added
+- **Level system**: Cross-faction progression from Peon (Lvl 1) to Murloc (Lvl 10) based on lifetime tasks completed, with level-up notifications and sounds from matching packs
+- **Dashboard API endpoints**: `/api/harvest`, `/api/equip`, `/api/unequip`, `/api/use` — inventory and harvest node interactions now work from the dashboard UI
+- **Dashboard auto-open**: Auto-spawn server now opens the browser on first launch (previously only via `peon dashboard` CLI)
+
+### Changed
+- **Mac overlay redesign**: WC3-themed Cocoa overlay with category-aware styling
+- **Dashboard restructured**: Moved from `dashboard.html` to `dashboard/index.html`
+- Removed upkeep mechanic references from docs; simplified economy description
+
+### Fixed
+- Dashboard equip/unequip/use/harvest buttons now work (were returning 404)
+
 ## v3.1.0 (2026-02-19)
 
 ### Added
