@@ -1772,6 +1772,178 @@ taunts = [
 print(random.choice(taunts))
 "
     exit 0 ;;
+  inventory)
+    python3 -c "
+import json, os
+state_file = '$STATE'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+inventory = state.get('inventory', [])
+equipped = state.get('equipped', [])
+ITEMS = {
+    'claws_of_attack':     ('Claws of Attack +3',     'common',    '+3 bonus gold per task'),
+    'gauntlets_of_str':    ('Gauntlets of Strength',  'common',    '+2 bonus lumber per prompt'),
+    'ring_of_protection':  ('Ring of Protection +2',  'common',    'Max sass capped at 3'),
+    'slippers_of_agility': ('Slippers of Agility',   'common',    'Combos count +1 extra'),
+    'circlet_of_nobility': ('Circlet of Nobility',    'common',    '+2 bonus gold per task'),
+    'mantle_of_intel':     ('Mantle of Intelligence', 'common',    '+1 bonus lumber per prompt'),
+    'scroll_of_tp':        ('Scroll of Town Portal',  'uncommon',  'Restore combo streak (consumable)'),
+    'potion_of_healing':   ('Potion of Healing',      'uncommon',  'Restore 200 gold (consumable)'),
+    'potion_of_mana':      ('Potion of Mana',         'uncommon',  'Gain 50 lumber (consumable)'),
+    'boots_of_speed':      ('Boots of Speed',         'uncommon',  '2x lumber from prompts'),
+    'periapt_of_vitality': ('Periapt of Vitality',    'uncommon',  'Gold mine depletion +25 tasks later'),
+    'pendant_of_energy':   ('Pendant of Energy',      'uncommon',  '+5 bonus gold per task'),
+    'tome_of_xp':          ('Tome of Experience',     'uncommon',  'Gain 500 gold (consumable)'),
+    'helm_of_valor':       ('Helm of Valor',          'rare',      'First 3 errors per day cost 0 gold'),
+    'cloak_of_shadows':    ('Cloak of Shadows',       'rare',      'Roasts suppressed while equipped'),
+    'orb_of_fire':         ('Orb of Fire',            'rare',      'Errors grant +2g instead of -5g'),
+    'gem_of_seeing':       ('Gem of True Seeing',     'rare',      '10% chance of 3x gold on task complete'),
+    'staff_of_negation':   ('Staff of Negation',      'rare',      'Immune to debt interest'),
+    'sobi_mask':           ('Sobi Mask',              'rare',      '3x lumber from prompts'),
+    'inv_potion':          ('Potion of Invisibility',  'rare',     'Suppress roasts for 2 hours (consumable)'),
+    'crown_of_kings':      ('Crown of Kings +5',      'epic',      '2x all gold income'),
+    'mask_of_death':       ('Mask of Death',          'epic',      'Recover 50% of gold lost to errors'),
+    'amulet_of_spell':     ('Amulet of Spell Shield', 'epic',      'Immune to base raids'),
+    'khadgars_pipe':       ('Khadgar\\'s Pipe',       'epic',      'Sass resets to 0 after every task'),
+    'ankh':                ('Ankh of Reincarnation',  'epic',      'Undo last base raid (consumable)'),
+    'frostmourne':         ('Frostmourne',            'legendary', 'All roasts become compliments'),
+    'wirts_leg':           ('Wirt\\'s Leg',           'legendary', 'Does absolutely nothing. Peon confused.'),
+    'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', '+15 gold per task'),
+    'unstoppable_force':   ('The Unstoppable Force',  'legendary', 'Combos never break from errors'),
+    'ashbringer':          ('Ashbringer',             'legendary', 'Debt is forgiven. Slate wiped clean.'),
+    'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
+}
+rcolors = dict(common='', uncommon='\033[32m', rare='\033[34m', epic='\033[35m', legendary='\033[33m')
+reset = '\033[0m'
+if not inventory and not equipped:
+    print('Inventory empty. Complete tasks to find items!')
+    exit(0)
+print(f'Inventory: {len(inventory)} items | Equipped: {len(equipped)}/6')
+print()
+if equipped:
+    print('Equipped:')
+    for eid in equipped:
+        if eid in ITEMS:
+            n, r, d = ITEMS[eid]
+            c = rcolors.get(r, '')
+            print(f'  [{r[0].upper()}] {c}{n}{reset}  {d}')
+    print()
+if inventory:
+    print('Backpack:')
+    for iid in inventory:
+        if iid in ITEMS:
+            n, r, d = ITEMS[iid]
+            c = rcolors.get(r, '')
+            print(f'  [{r[0].upper()}] {c}{n}{reset}  {d}  ({iid})')
+"
+    exit 0 ;;
+  equip)
+    shift
+    python3 -c "
+import json, os, sys
+state_file = '$STATE'
+item_id = '${1:-}'
+if not item_id:
+    print('Usage: peon equip <item_id>')
+    print('Run peon inventory to see item IDs')
+    sys.exit(1)
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+inventory = state.get('inventory', [])
+equipped = state.get('equipped', [])
+if item_id not in inventory:
+    print('Item not in backpack: ' + item_id)
+    sys.exit(1)
+if len(equipped) >= 6:
+    print('Equipment full! Unequip something first (6/6 slots)')
+    sys.exit(1)
+if item_id in equipped:
+    print('Already equipped!')
+    sys.exit(0)
+inventory.remove(item_id)
+equipped.append(item_id)
+state['inventory'] = inventory
+state['equipped'] = equipped
+os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+json.dump(state, open(state_file, 'w'))
+print('Equipped: ' + item_id)
+"
+    exit $? ;;
+  unequip)
+    shift
+    python3 -c "
+import json, os, sys
+state_file = '$STATE'
+item_id = '${1:-}'
+if not item_id:
+    print('Usage: peon unequip <item_id>')
+    sys.exit(1)
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+inventory = state.get('inventory', [])
+equipped = state.get('equipped', [])
+if item_id not in equipped:
+    print('Item not equipped: ' + item_id)
+    sys.exit(1)
+equipped.remove(item_id)
+inventory.append(item_id)
+state['inventory'] = inventory
+state['equipped'] = equipped
+os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+json.dump(state, open(state_file, 'w'))
+print('Unequipped: ' + item_id)
+"
+    exit $? ;;
+  use)
+    shift
+    python3 -c "
+import json, os, sys, time
+state_file = '$STATE'
+item_id = '${1:-}'
+if not item_id:
+    print('Usage: peon use <item_id>')
+    sys.exit(1)
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+inventory = state.get('inventory', [])
+equipped = state.get('equipped', [])
+all_items = inventory + equipped
+if item_id not in all_items:
+    print('Item not found: ' + item_id)
+    sys.exit(1)
+consumables = {
+    'scroll_of_tp':     ('Combo restored!', lambda s: s.update(combo_count=max(s.get('combo_count',0), s.get('stats',{}).get('max_combo',0)//2))),
+    'potion_of_healing': ('Restored 200 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
+    'potion_of_mana':   ('Gained 50 lumber!', lambda s: s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+50)),
+    'tome_of_xp':       ('Gained 500 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+500)),
+    'inv_potion':       ('Roasts suppressed for 2 hours!', lambda s: s.update(bunker_until=time.time()+7200)),
+    'ankh':             ('Base raid undone! Gold restored.', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
+    'cheese':           ('Mmm. +1000g +500l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+1000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+500))),
+}
+if item_id not in consumables:
+    print('That item is not consumable. Equip it instead: peon equip ' + item_id)
+    sys.exit(1)
+msg, effect = consumables[item_id]
+effect(state)
+if item_id in inventory:
+    inventory.remove(item_id)
+elif item_id in equipped:
+    equipped.remove(item_id)
+state['inventory'] = inventory
+state['equipped'] = equipped
+os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+json.dump(state, open(state_file, 'w'))
+print(msg)
+"
+    exit $? ;;
   dashboard)
     _port=${PEON_DASHBOARD_PORT:-19997}
     _pid_file="$PEON_DIR/.dashboard.pid"
@@ -1784,28 +1956,39 @@ print(random.choice(taunts))
       if [ -f "$PEON_DIR/dashboard.html" ]; then
         echo "Starting dashboard server on port $_port..."
         nohup python3 -c "
-import http.server, json, os, socketserver
+import http.server, json, os, socketserver, time, datetime
 PORT = $_port
 PEON_DIR = '$PEON_DIR'
+BCOSTS = {'stronghold':(500,200),'fortress':(2000,800),'burrow':(100,50),'war_mill':(200,100),'watch_tower':(150,75),'altar':(300,150),'spirit_lodge':(500,200),'tavern':(400,200)}
 class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
+    def _json(self, code, data):
+        self.send_response(code)
+        self.send_header('Content-Type','application/json')
+        self.send_header('Access-Control-Allow-Origin','*')
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
+    def _load(self, f):
+        try: return json.load(open(os.path.join(PEON_DIR, f)))
+        except: return {}
+    def _save(self, f, d):
+        p = os.path.join(PEON_DIR, f)
+        os.makedirs(os.path.dirname(p) or '.', exist_ok=True)
+        json.dump(d, open(p, 'w'), indent=2)
     def do_GET(self):
         if self.path == '/api/state':
-            self.send_response(200)
-            self.send_header('Content-Type','application/json')
-            self.send_header('Access-Control-Allow-Origin','*')
-            self.end_headers()
-            try: data = open(os.path.join(PEON_DIR,'.state.json')).read()
-            except: data = '{}'
-            self.wfile.write(data.encode())
+            self._json(200, self._load('.state.json'))
         elif self.path == '/api/config':
-            self.send_response(200)
-            self.send_header('Content-Type','application/json')
-            self.send_header('Access-Control-Allow-Origin','*')
-            self.end_headers()
-            try: data = open(os.path.join(PEON_DIR,'config.json')).read()
-            except: data = '{}'
-            self.wfile.write(data.encode())
+            self._json(200, self._load('config.json'))
+        elif self.path == '/api/packs':
+            pdir = os.path.join(PEON_DIR, 'packs')
+            packs = []
+            if os.path.isdir(pdir):
+                for d in sorted(os.listdir(pdir)):
+                    dp = os.path.join(pdir, d)
+                    if os.path.isdir(dp) and (os.path.exists(os.path.join(dp,'openpeon.json')) or os.path.exists(os.path.join(dp,'manifest.json'))):
+                        packs.append(d)
+            self._json(200, packs)
         elif self.path in ('/','/dashboard'):
             self.send_response(200)
             self.send_header('Content-Type','text/html')
@@ -1816,6 +1999,67 @@ class H(http.server.BaseHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header('Access-Control-Allow-Origin','*')
+        self.send_header('Access-Control-Allow-Methods','GET,POST,OPTIONS')
+        self.send_header('Access-Control-Allow-Headers','Content-Type')
+        self.end_headers()
+    def do_POST(self):
+        n = int(self.headers.get('Content-Length', 0))
+        body = json.loads(self.rfile.read(n)) if n else {}
+        if self.path == '/api/build':
+            bname = body.get('building', '')
+            if bname not in BCOSTS:
+                return self._json(400, {'error': 'Unknown building'})
+            st = self._load('.state.json')
+            if bname in st.get('buildings', {}):
+                return self._json(400, {'error': 'Already built'})
+            ec = st.get('economy', {})
+            g, l = ec.get('gold', 0), ec.get('lumber', 0)
+            gc, lc = BCOSTS[bname]
+            if st.get('goblin_discount_date', '') == datetime.date.today().isoformat():
+                gc //= 2; lc //= 2
+            if g < gc or l < lc:
+                return self._json(400, {'error': 'Insufficient resources', 'need_gold': gc, 'need_lumber': lc})
+            ec['gold'] = g - gc; ec['lumber'] = l - lc
+            bld = {'built_at': int(time.time())}
+            if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
+            st.setdefault('buildings', {})[bname] = bld
+            st['economy'] = ec
+            st.setdefault('stats', {})['buildings_built'] = len(st['buildings'])
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'building': bname, 'gold': ec['gold'], 'lumber': ec['lumber']})
+        elif self.path == '/api/bunker':
+            st = self._load('.state.json')
+            if 'burrow' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build a Burrow first'})
+            now = time.time()
+            if st.get('bunker_until', 0) > now:
+                return self._json(200, {'active': True, 'minutes_left': int((st['bunker_until'] - now) / 60)})
+            st['bunker_until'] = now + 3600
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'bunker_until': st['bunker_until']})
+        elif self.path == '/api/config':
+            cfg = self._load('config.json')
+            for k in ('enabled','volume','active_pack','desktop_notifications'):
+                if k in body: cfg[k] = body[k]
+            self._save('config.json', cfg)
+            self._json(200, {'ok': True})
+        elif self.path == '/api/resurrect':
+            st = self._load('.state.json')
+            if 'altar' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build an Altar first'})
+            today = datetime.date.today().isoformat()
+            if st.get('last_resurrect_date') == today:
+                return self._json(400, {'error': 'Already used today'})
+            best = st.get('stats', {}).get('max_combo', 0)
+            st['combo_count'] = max(st.get('combo_count', 0), best // 2)
+            st['last_resurrect_date'] = today
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'combo': st['combo_count']})
+        else:
+            self._json(404, {'error': 'Not found'})
 socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(('127.0.0.1',PORT),H) as s:
     s.serve_forever()
@@ -1865,6 +2109,10 @@ WC3 Metagame:
   economy              Show gold, lumber, and upkeep status
   achievements         Show unlocked and locked achievements
   build [list|<name>]  List or build structures (costs gold + lumber)
+  inventory            View items in backpack and equipped slots
+  equip <item>         Equip an item from backpack (6 slots max)
+  unequip <item>       Move equipped item back to backpack
+  use <item>           Use a consumable item (scrolls, potions, tomes)
   bunker               Suppress roasts for 1 hour (requires Burrow)
   resurrect            Restore combo streak (requires Altar, once/day)
   taunt                Play a random roast (requires Tavern)
@@ -2682,19 +2930,6 @@ if game_on:
                 raid_msg += ' (You no take candle!)'
             game_subtitle = raid_msg
 
-        gold += gold_delta
-        lumber += lumber_delta
-
-        if gold <= -500 and not econ.get('debt_interest'):
-            econ['debt_interest'] = True
-
-        if gold_delta > 0:
-            stats['total_gold_earned'] = stats.get('total_gold_earned', 0) + gold_delta
-        if lumber_delta > 0:
-            stats['total_lumber_earned'] = stats.get('total_lumber_earned', 0) + lumber_delta
-
-        econ['gold'] = gold
-        econ['lumber'] = lumber
         econ['upkeep'] = upkeep
 
         if upkeep != old_upkeep and old_upkeep == 'none' and upkeep != 'none':
@@ -2847,6 +3082,181 @@ if game_on:
     if stats.get('earliest_hour_coded') is None or _hour_coded < stats.get('earliest_hour_coded', 24):
         stats['earliest_hour_coded'] = _hour_coded
 
+    # --- Item system (drops, inventory, equipped effects) ---
+    _ITEMS = {
+        'claws_of_attack':     dict(name='Claws of Attack +3',     r='common',    e='gold_bonus',      v=3,    desc='+3 bonus gold per task'),
+        'gauntlets_of_str':    dict(name='Gauntlets of Strength',  r='common',    e='lumber_bonus',    v=2,    desc='+2 bonus lumber per prompt'),
+        'ring_of_protection':  dict(name='Ring of Protection +2',  r='common',    e='sass_cap',        v=2,    desc='Max sass capped at 3'),
+        'slippers_of_agility': dict(name='Slippers of Agility',   r='common',    e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
+        'circlet_of_nobility': dict(name='Circlet of Nobility',    r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
+        'mantle_of_intel':     dict(name='Mantle of Intelligence', r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
+        'scroll_of_tp':        dict(name='Scroll of Town Portal',  r='uncommon',  e='consumable',      v='resurrect', desc='Restore combo streak (consumable)'),
+        'potion_of_healing':   dict(name='Potion of Healing',      r='uncommon',  e='consumable',      v='heal',      desc='Restore 200 gold (consumable)'),
+        'potion_of_mana':      dict(name='Potion of Mana',         r='uncommon',  e='consumable',      v='lumber50',  desc='Gain 50 lumber (consumable)'),
+        'boots_of_speed':      dict(name='Boots of Speed',         r='uncommon',  e='lumber_mult',     v=2,    desc='2x lumber from prompts'),
+        'periapt_of_vitality': dict(name='Periapt of Vitality',    r='uncommon',  e='depletion_ext',   v=25,   desc='Gold mine depletion +25 tasks later'),
+        'pendant_of_energy':   dict(name='Pendant of Energy',      r='uncommon',  e='gold_bonus',      v=5,    desc='+5 bonus gold per task'),
+        'tome_of_xp':          dict(name='Tome of Experience',     r='uncommon',  e='consumable',      v='gold500',   desc='Gain 500 gold (consumable)'),
+        'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='error_shield',    v=3,    desc='First 3 errors per day cost 0 gold'),
+        'cloak_of_shadows':    dict(name='Cloak of Shadows',       r='rare',      e='roast_immune',    v=1,    desc='Roasts suppressed while equipped'),
+        'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='error_to_gold',   v=2,    desc='Errors grant +2g instead of -5g'),
+        'gem_of_seeing':       dict(name='Gem of True Seeing',     r='rare',      e='crit_chance',     v=10,   desc='10% chance of 3x gold on task complete'),
+        'staff_of_negation':   dict(name='Staff of Negation',      r='rare',      e='debt_immune',     v=1,    desc='Immune to debt interest'),
+        'sobi_mask':           dict(name='Sobi Mask',              r='rare',      e='lumber_mult',     v=3,    desc='3x lumber from prompts'),
+        'crown_of_kings':      dict(name='Crown of Kings +5',      r='epic',      e='gold_mult',       v=2,    desc='2x all gold income'),
+        'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='lifesteal',       v=50,   desc='Recover 50% of gold lost to errors'),
+        'amulet_of_spell':     dict(name='Amulet of Spell Shield', r='epic',      e='raid_immune',     v=1,    desc='Immune to base raids'),
+        'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='sass_reset',      v=1,    desc='Sass resets to 0 after every task'),
+        'frostmourne':         dict(name='Frostmourne',            r='legendary', e='roast_to_praise',  v=1,    desc='All roasts become compliments'),
+        'wirts_leg':           dict(name='Wirt\'s Leg',            r='legendary', e='none',             v=0,    desc='Does absolutely nothing. Peon confused.'),
+        'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='gold_bonus', v=15, desc='+15 gold per task. Did someone say Thunderfury?'),
+        'unstoppable_force':   dict(name='The Unstoppable Force',  r='legendary', e='combo_persist',    v=1,    desc='Combos never break from errors'),
+        'ashbringer':          dict(name='Ashbringer',             r='legendary', e='purge_debt',       v=1,    desc='Debt is forgiven. Slate wiped clean.'),
+        'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Suppress roasts for 2 hours (consumable)'),
+        'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='revive',   desc='Undo last base raid (consumable)'),
+        'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 1000 gold + 500 lumber. Mmm.'),
+    }
+
+    _DROP_TABLE = {
+        'common':    dict(weight=60,  chance=0.05),
+        'uncommon':  dict(weight=25,  chance=0.03),
+        'rare':      dict(weight=10,  chance=0.015),
+        'epic':      dict(weight=4,   chance=0.008),
+        'legendary': dict(weight=1,   chance=0.0001),
+    }
+
+    inventory = state.get('inventory', [])
+    equipped = state.get('equipped', [])
+    item_drop = ''
+
+    def _has_effect(eff):
+        for eid in equipped:
+            it = _ITEMS.get(eid)
+            if it and it['e'] == eff:
+                return it['v']
+        return 0
+
+    def _roll_drop(force_rarity=None):
+        if force_rarity:
+            pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity and k not in inventory and k not in equipped]
+        else:
+            total_w = sum(d['weight'] for d in _DROP_TABLE.values())
+            r = random.random() * total_w
+            cumul = 0
+            picked_rarity = 'common'
+            for rarity, d in _DROP_TABLE.items():
+                cumul += d['weight']
+                if r <= cumul:
+                    picked_rarity = rarity
+                    break
+            pool = [k for k, v in _ITEMS.items() if v['r'] == picked_rarity and k not in inventory and k not in equipped]
+        if not pool:
+            pool = [k for k, v in _ITEMS.items() if k not in inventory and k not in equipped]
+        if pool:
+            return random.choice(pool)
+        return None
+
+    # Apply equipped item effects
+    if econ_on and equipped:
+        gb = _has_effect('gold_bonus')
+        if gb and gold_delta > 0:
+            gold_delta += gb
+        gm = _has_effect('gold_mult')
+        if gm and gold_delta > 0:
+            gold_delta = int(gold_delta * gm)
+        lb = _has_effect('lumber_bonus')
+        if lb and lumber_delta > 0:
+            lumber_delta += lb
+        lm = _has_effect('lumber_mult')
+        if lm and lumber_delta > 0:
+            lumber_delta = int(lumber_delta * lm)
+        if _has_effect('error_to_gold') and (category == 'task.error' or event == 'PostToolUseFailure'):
+            gold_delta = _has_effect('error_to_gold')
+        es = _has_effect('error_shield')
+        if es and gold_delta < 0:
+            shielded = state.get('error_shield_used', 0)
+            if shielded < es:
+                gold_delta = 0
+                state['error_shield_used'] = shielded + 1
+        if _has_effect('lifesteal') and gold_delta < 0:
+            recover = int(abs(gold_delta) * _has_effect('lifesteal') / 100)
+            gold_delta += recover
+        if _has_effect('debt_immune'):
+            econ['debt_interest'] = False
+        if _has_effect('raid_immune') and game_subtitle and 'raided' in game_subtitle:
+            game_subtitle = ''
+            gold_delta = max(0, gold_delta)
+        if _has_effect('crit_chance') and gold_delta > 0 and category == 'task.complete':
+            if random.random() < _has_effect('crit_chance') / 100.0:
+                gold_delta *= 3
+                game_subtitle = (game_subtitle + ' CRITICAL STRIKE! 3x gold!' if game_subtitle else 'CRITICAL STRIKE! 3x gold!')
+        if _has_effect('purge_debt') and gold < 0:
+            gold_delta += abs(gold)
+            econ['debt_interest'] = False
+
+    # Apply roast/combo item effects
+    if equipped:
+        if _has_effect('roast_immune'):
+            roast_text = ''
+        if _has_effect('roast_to_praise') and roast_text:
+            _praises = ['Peon actually impressed.', 'Not bad, human. Not bad at all.', 'Peon... respects that.', 'Human coding like an orc today.', 'Frostmourne hungers... for more code like this.']
+            roast_text = random.choice(_praises)
+        if _has_effect('sass_reset') and category == 'task.complete':
+            sass = 0
+            state['sass_level'] = 0
+        sc = _has_effect('sass_cap')
+        if sc and sass > sc:
+            sass = sc
+            state['sass_level'] = sass
+        if _has_effect('combo_persist') and combo_text and 'broken' in combo_text:
+            combo_text = ''
+            combo = state.get('combo_count', 0)
+        cb = _has_effect('combo_bonus')
+        if cb and combo > 0:
+            combo += cb
+            state['combo_count'] = combo
+
+    # --- Finalize gold/lumber (after item effects) ---
+    if econ_on:
+        gold += gold_delta
+        lumber += lumber_delta
+        if gold <= -500 and not econ.get('debt_interest'):
+            econ['debt_interest'] = True
+        if gold_delta > 0:
+            stats['total_gold_earned'] = stats.get('total_gold_earned', 0) + gold_delta
+        if lumber_delta > 0:
+            stats['total_lumber_earned'] = stats.get('total_lumber_earned', 0) + lumber_delta
+        econ['gold'] = gold
+        econ['lumber'] = lumber
+
+    # Drop check
+    drop_chance = 0
+    if category == 'task.complete':
+        drop_chance = 0.05
+    elif new_achiev:
+        drop_chance = 0.5
+    elif combo >= 5 and combo_text and 'kill' in combo_text.lower():
+        drop_chance = 0.2
+    elif combo >= 10:
+        drop_chance = 0.4
+
+    if drop_chance > 0 and random.random() < drop_chance:
+        dropped = _roll_drop()
+        if dropped:
+            inventory.append(dropped)
+            it = _ITEMS[dropped]
+            rarity_names = dict(common='Common', uncommon='Uncommon', rare='Rare', epic='Epic', legendary='LEGENDARY')
+            item_drop = 'ITEM DROP: ' + it['name'] + ' (' + rarity_names.get(it['r'], it['r']) + ') - ' + it['desc']
+            state['inventory'] = inventory
+
+    # Reset daily error shield
+    if econ.get('daily_date') == _today and state.get('error_shield_date') != _today:
+        state['error_shield_used'] = 0
+        state['error_shield_date'] = _today
+
+    state['inventory'] = inventory
+    state['equipped'] = equipped
+
     # --- Build activity log entry ---
     if category and econ_on:
         entry = dict(t=int(time.time()), e=category, g=gold_delta, l=lumber_delta)
@@ -2854,6 +3264,8 @@ if game_on:
             entry['c'] = combo_text
         if new_achiev:
             entry['a'] = new_achiev
+        if item_drop:
+            entry['i'] = item_drop
         log.append(entry)
         if len(log) > 50:
             log = log[-50:]
@@ -2861,6 +3273,8 @@ if game_on:
 
     # --- Compose game notification ---
     parts = []
+    if item_drop:
+        parts.append(item_drop)
     if new_achiev:
         parts.append(f'Achievement: {new_achiev}')
     if combo_text:
@@ -3118,34 +3532,41 @@ _maybe_spawn_dashboard() {
     fi
     if [ "$running" = false ]; then
       nohup python3 -c "
-import http.server, json, os, sys, socketserver
+import http.server, json, os, sys, socketserver, time, datetime
 
 PORT = $_dashboard_port
 PEON_DIR = '$PEON_DIR'
+BCOSTS = {'stronghold':(500,200),'fortress':(2000,800),'burrow':(100,50),'war_mill':(200,100),'watch_tower':(150,75),'altar':(300,150),'spirit_lodge':(500,200),'tavern':(400,200)}
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
+    def _json(self, code, data):
+        self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
+    def _load(self, f):
+        try: return json.load(open(os.path.join(PEON_DIR, f)))
+        except: return {}
+    def _save(self, f, d):
+        p = os.path.join(PEON_DIR, f)
+        os.makedirs(os.path.dirname(p) or '.', exist_ok=True)
+        json.dump(d, open(p, 'w'), indent=2)
     def do_GET(self):
         if self.path == '/api/state':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            try:
-                data = open(os.path.join(PEON_DIR, '.state.json')).read()
-            except Exception:
-                data = '{}'
-            self.wfile.write(data.encode())
+            self._json(200, self._load('.state.json'))
         elif self.path == '/api/config':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            try:
-                data = open(os.path.join(PEON_DIR, 'config.json')).read()
-            except Exception:
-                data = '{}'
-            self.wfile.write(data.encode())
+            self._json(200, self._load('config.json'))
+        elif self.path == '/api/packs':
+            pdir = os.path.join(PEON_DIR, 'packs')
+            packs = []
+            if os.path.isdir(pdir):
+                for d in sorted(os.listdir(pdir)):
+                    dp = os.path.join(pdir, d)
+                    if os.path.isdir(dp) and (os.path.exists(os.path.join(dp, 'openpeon.json')) or os.path.exists(os.path.join(dp, 'manifest.json'))):
+                        packs.append(d)
+            self._json(200, packs)
         elif self.path == '/' or self.path == '/dashboard':
             self.send_response(200)
             self.send_header('Content-Type', 'text/html')
@@ -3158,6 +3579,67 @@ class Handler(http.server.BaseHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+    def do_POST(self):
+        n = int(self.headers.get('Content-Length', 0))
+        body = json.loads(self.rfile.read(n)) if n else {}
+        if self.path == '/api/build':
+            bname = body.get('building', '')
+            if bname not in BCOSTS:
+                return self._json(400, {'error': 'Unknown building'})
+            st = self._load('.state.json')
+            if bname in st.get('buildings', {}):
+                return self._json(400, {'error': 'Already built'})
+            ec = st.get('economy', {})
+            g, l = ec.get('gold', 0), ec.get('lumber', 0)
+            gc, lc = BCOSTS[bname]
+            if st.get('goblin_discount_date', '') == datetime.date.today().isoformat():
+                gc //= 2; lc //= 2
+            if g < gc or l < lc:
+                return self._json(400, {'error': 'Insufficient resources', 'need_gold': gc, 'need_lumber': lc})
+            ec['gold'] = g - gc; ec['lumber'] = l - lc
+            bld = {'built_at': int(time.time())}
+            if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
+            st.setdefault('buildings', {})[bname] = bld
+            st['economy'] = ec
+            st.setdefault('stats', {})['buildings_built'] = len(st['buildings'])
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'building': bname, 'gold': ec['gold'], 'lumber': ec['lumber']})
+        elif self.path == '/api/bunker':
+            st = self._load('.state.json')
+            if 'burrow' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build a Burrow first'})
+            now = time.time()
+            if st.get('bunker_until', 0) > now:
+                return self._json(200, {'active': True, 'minutes_left': int((st['bunker_until'] - now) / 60)})
+            st['bunker_until'] = now + 3600
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'bunker_until': st['bunker_until']})
+        elif self.path == '/api/config':
+            cfg = self._load('config.json')
+            for k in ('enabled', 'volume', 'active_pack', 'desktop_notifications'):
+                if k in body: cfg[k] = body[k]
+            self._save('config.json', cfg)
+            self._json(200, {'ok': True})
+        elif self.path == '/api/resurrect':
+            st = self._load('.state.json')
+            if 'altar' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build an Altar first'})
+            today = datetime.date.today().isoformat()
+            if st.get('last_resurrect_date') == today:
+                return self._json(400, {'error': 'Already used today'})
+            best = st.get('stats', {}).get('max_combo', 0)
+            st['combo_count'] = max(st.get('combo_count', 0), best // 2)
+            st['last_resurrect_date'] = today
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'combo': st['combo_count']})
+        else:
+            self._json(404, {'error': 'Not found'})
 
 socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(('127.0.0.1', PORT), Handler) as httpd:

@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.1.0 (2026-02-19)
+
+### Added
+- **Item system**: 31 items across 5 rarity tiers (Common/Uncommon/Rare/Epic/Legendary) with drop rates from 5% down to 0.01%
+  - Items drop on task completions, achievement unlocks, and combo milestones
+  - 6 equipment slots with equip/unequip management
+  - Equipped items modify game behavior: gold/lumber bonuses, roast immunity, combo persistence, error shields, crit strikes, lifesteal, debt immunity
+  - Consumable items: potions, scrolls, tomes, the legendary Cheese (+1000g/+500l)
+  - Named legendaries: Frostmourne (roasts become compliments), Thunderfury (+15g/task), The Unstoppable Force (combos never break), Ashbringer (purge all debt), Wirt's Leg (does nothing)
+- **New CLI commands**: `peon inventory`, `peon equip <item>`, `peon unequip <item>`, `peon use <item>`
+- Tab completions updated for all new commands
+- 7 new BATS tests for item system
+
 ## v3.0.0 (2026-02-19)
 
 ### Added

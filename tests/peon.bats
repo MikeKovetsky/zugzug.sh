@@ -2441,6 +2441,58 @@ SCRIPT
   [[ "$output" == *"Build a Tavern"* ]]
 }
 
+@test "game: peon inventory shows empty backpack" {
+  run bash "$PEON_SH" inventory
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"empty"* ]]
+}
+
+@test "game: peon equip fails without item" {
+  run bash "$PEON_SH" equip claws_of_attack
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"not in backpack"* ]]
+}
+
+@test "game: peon equip works with item in inventory" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=['claws_of_attack']; s['equipped']=[]; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" equip claws_of_attack
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Equipped"* ]]
+  equipped=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('equipped',[]))")
+  [[ "$equipped" == *"claws_of_attack"* ]]
+}
+
+@test "game: peon unequip moves item to backpack" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['claws_of_attack']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" unequip claws_of_attack
+  [ "$status" -eq 0 ]
+  inv=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('inventory',[]))")
+  [[ "$inv" == *"claws_of_attack"* ]]
+}
+
+@test "game: peon use consumable works" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=['potion_of_healing']; s['economy']={'gold':50,'lumber':0,'daily_date':'2026-02-18'}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" use potion_of_healing
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"200 gold"* ]]
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
+  [ "$gold" = "250" ]
+}
+
+@test "game: peon use non-consumable fails" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=['claws_of_attack']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" use claws_of_attack
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"not consumable"* ]]
+}
+
+@test "game: equipped items give gold bonus" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['claws_of_attack']; s['economy']={'gold':0,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
+  [ "$gold" = "13" ]
+}
+
 @test "game: game can be disabled via config" {
   /usr/bin/python3 -c "
 import json
@@ -2459,4 +2511,92 @@ cfg = json.load(open('$TEST_DIR/config.json'))
 del cfg['game']
 json.dump(cfg, open('$TEST_DIR/config.json', 'w'))
 "
+}
+
+# ============================================================
+# Dashboard API
+# ============================================================
+
+_dash_port=19987
+
+_start_dash() {
+  echo "<html></html>" > "$TEST_DIR/dashboard.html"
+  PEON_DASHBOARD_PORT=$_dash_port bash "$PEON_SH" dashboard >/dev/null 2>&1
+  for i in $(seq 1 30); do
+    /usr/bin/curl -s "http://localhost:$_dash_port/api/state" >/dev/null 2>&1 && return 0
+    sleep 0.1
+  done
+  return 1
+}
+
+@test "dashboard API: GET /api/packs returns installed packs" {
+  _start_dash
+  resp=$(/usr/bin/curl -s "http://localhost:$_dash_port/api/packs")
+  [[ "$resp" == *"peon"* ]]
+  [[ "$resp" == *"sc_kerrigan"* ]]
+}
+
+@test "dashboard API: POST /api/build creates building with resources" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':500,'lumber':300}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  _start_dash
+  resp=$(/usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/build" \
+    -H "Content-Type: application/json" -d '{"building":"burrow"}')
+  [[ "$resp" == *'"ok"'* ]]
+  built=$(/usr/bin/python3 -c "import json; print('burrow' in json.load(open('$TEST_DIR/.state.json')).get('buildings',{}))")
+  [ "$built" = "True" ]
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
+  [ "$gold" = "400" ]
+}
+
+@test "dashboard API: POST /api/build rejects insufficient resources" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':10,'lumber':5}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  _start_dash
+  resp=$(/usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/build" \
+    -H "Content-Type: application/json" -d '{"building":"war_mill"}')
+  [[ "$resp" == *"Insufficient"* ]]
+}
+
+@test "dashboard API: POST /api/build rejects unknown building" {
+  _start_dash
+  resp=$(/usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/build" \
+    -H "Content-Type: application/json" -d '{"building":"zigzag"}')
+  [[ "$resp" == *"Unknown"* ]]
+}
+
+@test "dashboard API: POST /api/bunker requires burrow" {
+  _start_dash
+  resp=$(/usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/bunker" \
+    -H "Content-Type: application/json" -d '{}')
+  [[ "$resp" == *"Burrow"* ]]
+}
+
+@test "dashboard API: POST /api/bunker activates with burrow built" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['buildings']={'burrow':{'built_at':1}}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  _start_dash
+  resp=$(/usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/bunker" \
+    -H "Content-Type: application/json" -d '{}')
+  [[ "$resp" == *'"ok"'* ]]
+  has_bunker=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('bunker_until',0) > 0)")
+  [ "$has_bunker" = "True" ]
+}
+
+@test "dashboard API: POST /api/config updates settings" {
+  _start_dash
+  /usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/config" \
+    -H "Content-Type: application/json" -d '{"volume":0.8,"enabled":false}'
+  cfg=$(/usr/bin/python3 -c "import json; c=json.load(open('$TEST_DIR/config.json')); print(c['volume'], c['enabled'])")
+  [ "$cfg" = "0.8 False" ]
+}
+
+@test "dashboard API: POST /api/resurrect requires altar" {
+  _start_dash
+  resp=$(/usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/resurrect" \
+    -H "Content-Type: application/json" -d '{}')
+  [[ "$resp" == *"Altar"* ]]
+}
+
+@test "dashboard API: OPTIONS returns CORS headers" {
+  _start_dash
+  headers=$(/usr/bin/curl -s -I -X OPTIONS "http://localhost:$_dash_port/api/build")
+  [[ "$headers" == *"Access-Control-Allow-Methods"* ]]
 }

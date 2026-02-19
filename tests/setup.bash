@@ -245,6 +245,14 @@ fi
 SCRIPT
   chmod +x "$MOCK_BIN/curl"
 
+  # Mock open / xdg-open — prevent browser launches in tests
+  cat > "$MOCK_BIN/open" <<'SCRIPT'
+#!/bin/bash
+exit 0
+SCRIPT
+  chmod +x "$MOCK_BIN/open"
+  cp "$MOCK_BIN/open" "$MOCK_BIN/xdg-open"
+
   export PATH="$MOCK_BIN:$PATH"
 
   # Mock relay as available for devcontainer/SSH tests
@@ -256,6 +264,10 @@ SCRIPT
 }
 
 teardown_test_env() {
+  # Kill any dashboard server started during this test
+  if [ -f "$TEST_DIR/.dashboard.pid" ]; then
+    kill "$(cat "$TEST_DIR/.dashboard.pid" 2>/dev/null)" 2>/dev/null || true
+  fi
   # Clean up relay mock
   rm -f "$TEST_DIR/.relay_available" 2>/dev/null || true
   rm -rf "$TEST_DIR" 2>/dev/null || true
