@@ -183,7 +183,7 @@ Every task you complete earns XP. As you level up, your character evolves throug
 | 7 | Witch Doctor | Troll | 2,500 | `dota2_witch_doctor` |
 | 8 | Arthas | Undead | 5,000 | `wc3_corrupted_arthas` |
 | 9 | Brewmaster | Neutral | 10,000 | — |
-| 10 | ??? | ??? | ??? | ??? |
+| 10 | ??? | ??? | 1,000,000 | ??? |
 
 Your level drives everything: the voice lines you hear, the portrait in your overlay notifications, and the character shown in the dashboard. There are rumors of a secret Level 10. Nobody has reached it yet.
 
