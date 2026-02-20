@@ -1,4 +1,4 @@
-# peon-ping
+# zugzug.sh
 <div align="center">
 
 **English** | [中文](README_zh.md)
@@ -8,11 +8,11 @@
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro](https://img.shields.io/badge/Kiro-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01)
 
-**Game character voice lines + visual overlay notifications when your AI coding agent needs attention — or let the agent pick its own sound via MCP.**
+**Turn your IDE into Warcraft III. Earn gold, level up, build your base, farm achievements, and collect legendary loot — all while shipping code.**
 
-AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro**, **Windsurf**, **Google Antigravity**, and any MCP client.
+AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. ZugZug fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — plus a full WC3 metagame with economy, buildings, loot, and achievements. Works with **Claude Code**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro**, **Windsurf**, **Google Antigravity**, and any MCP client.
 
-**See it in action** &rarr; [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) | [peonping.com](https://peonping.com/)
+**See it in action** &rarr; [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/)
 
 </div>
 
@@ -38,27 +38,19 @@ AI coding agents don't notify you when they finish or need permission. You tab a
 
 ## Install
 
-### Option 1: Homebrew (recommended)
+### Option 1: Installer script (macOS, Linux, WSL2)
 
 ```bash
-brew install PeonPing/tap/peon-ping
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash
 ```
 
-Then run `peon-ping-setup` to register hooks and download sound packs. macOS and Linux.
-
-### Option 2: Installer script (macOS, Linux, WSL2)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash
-```
-
-### Option 3: Installer for Windows
+### Option 2: Installer for Windows
 
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.ps1" -UseBasicParsing | Invoke-Expression
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.ps1" -UseBasicParsing | Invoke-Expression
 ```
 
-Installs 9 curated packs by default (Warcraft, StarCraft, Portal, Dota 2) to support the level system out of the box. Re-run to update while preserving config/state. Or **[pick your packs interactively at peonping.com](https://peonping.com/#picker)** and get a custom install command.
+Installs 9 curated packs by default (Warcraft, StarCraft, Portal, Dota 2) to support the level system out of the box. Re-run to update while preserving config/state.
 
 Useful installer flags:
 
@@ -73,18 +65,18 @@ Useful installer flags:
 Examples:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --all
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --packs=peon,sc_kerrigan
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --local
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash -s -- --all
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash -s -- --packs=peon,sc_kerrigan
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash -s -- --local
 ```
 
 If a global install exists and you install local (or vice versa), the installer prompts you to remove the existing one to avoid conflicts.
 
-### Option 4: Clone and inspect first
+### Option 3: Clone and inspect first
 
 ```bash
-git clone https://github.com/PeonPing/peon-ping.git
-cd peon-ping
+git clone https://github.com/MikeKovetsky/zugzug.sh.git
+cd zugzug.sh
 ./install.sh
 ```
 
@@ -102,7 +94,7 @@ cd peon-ping
 
 Plus **large overlay banners** on every screen (macOS/WSL) and terminal tab titles (`● project: done`) — you'll know something happened even if you're in another app.
 
-peon-ping implements the [Coding Event Sound Pack Specification (CESP)](https://github.com/PeonPing/openpeon) — an open standard for coding event sounds that any agentic IDE can adopt.
+ZugZug implements the [Coding Event Sound Pack Specification (CESP)](https://github.com/PeonPing/openpeon) — an open standard for coding event sounds that any agentic IDE can adopt.
 
 ## Quick controls
 
@@ -164,7 +156,7 @@ Pausing mutes sounds and desktop notifications instantly. Persists across sessio
 
 ## WC3 Metagame
 
-peon-ping includes a full Warcraft III base-building metagame layered on top of your coding sessions. Earn gold and lumber, level up your character, build structures, unlock achievements, collect loot, and get roasted by your peon.
+ZugZug includes a full Warcraft III base-building metagame layered on top of your coding sessions. Earn gold and lumber, level up your character, build structures, unlock achievements, collect loot, and get roasted by your peon.
 
 The dashboard auto-opens in your browser on the first hook event. Or run `peon dashboard` anytime.
 
@@ -269,7 +261,7 @@ The WC3-themed dashboard at `localhost:19997` auto-opens on first hook event. Sh
 
 ### Time Awareness
 
-peon-ping knows what time it is and adjusts notifications accordingly:
+ZugZug knows what time it is and adjusts notifications accordingly:
 
 - **Dawn** (5-8 AM): *"New day dawns! Ready to work?"*
 - **Night** (9 PM-12 AM): *"It getting dark... human should sleep."*
@@ -283,7 +275,7 @@ Set `"game": {"enabled": false}` in config.json to turn off all game features. Z
 
 ## Configuration
 
-peon-ping installs two slash commands in Claude Code:
+ZugZug installs two slash commands in Claude Code:
 
 - `/peon-ping-toggle` — mute/unmute sounds
 - `/peon-ping-config` — change any setting (volume, packs, categories, etc.)
@@ -377,7 +369,7 @@ Update `trainer/manifest.json` to register your sound files.
 
 ## MCP server
 
-peon-ping includes an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server so any MCP-compatible AI agent can play sounds directly via tool calls — no hooks required.
+ZugZug includes an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server so any MCP-compatible AI agent can play sounds directly via tool calls — no hooks required.
 
 The key difference: **the agent chooses the sound**. Instead of automatically playing a fixed sound on every event, the agent calls `play_sound` with exactly what it wants — `duke_nukem/SonOfABitch` when a build fails, `sc_kerrigan/IReadYou` when reading files.
 
@@ -396,7 +388,7 @@ Add to your MCP client config (Claude Desktop, Cursor, etc.):
 }
 ```
 
-If installed via Homebrew: `$(brew --prefix peon-ping)/libexec/mcp/peon-mcp.js`. See [`mcp/README.md`](mcp/README.md) for full setup instructions.
+See [`mcp/README.md`](mcp/README.md) for full setup instructions.
 
 ### What the agent can do
 
@@ -410,7 +402,7 @@ Requires Node.js 18+. Contributed by [@tag-assistant](https://github.com/tag-ass
 
 ## Multi-IDE Support
 
-peon-ping works with any agentic IDE that supports hooks. Adapters translate IDE-specific events to the [CESP standard](https://github.com/PeonPing/openpeon).
+ZugZug works with any agentic IDE that supports hooks. Adapters translate IDE-specific events to the [CESP standard](https://github.com/PeonPing/openpeon).
 
 | IDE | Status | Setup |
 |---|---|---|
@@ -418,8 +410,8 @@ peon-ping works with any agentic IDE that supports hooks. Adapters translate IDE
 | **GitHub Copilot** | Adapter | Add hooks to `.github/hooks/hooks.json` pointing to `adapters/copilot.sh` ([setup](#github-copilot-setup)) |
 | **OpenAI Codex** | Adapter | Add `notify = ["bash", "/absolute/path/to/.claude/hooks/peon-ping/adapters/codex.sh"]` to `~/.codex/config.toml` |
 | **Cursor** | Built-in | `curl \| bash` or `peon-ping-setup` auto-detects and registers Cursor hooks |
-| **OpenCode** | Adapter | `curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode.sh \| bash` ([setup](#opencode-setup)) |
-| **Kilo CLI** | Adapter | `curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/kilo.sh \| bash` ([setup](#kilo-cli-setup)) |
+| **OpenCode** | Adapter | `curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/opencode.sh \| bash` ([setup](#opencode-setup)) |
+| **Kilo CLI** | Adapter | `curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/kilo.sh \| bash` ([setup](#kilo-cli-setup)) |
 | **Kiro** | Adapter | Add hook entries to `~/.kiro/agents/peon-ping.json` pointing to `adapters/kiro.sh` ([setup](#kiro-setup)) |
 | **Windsurf** | Adapter | Add hook entries to `~/.codeium/windsurf/hooks.json` pointing to `adapters/windsurf.sh` ([setup](#windsurf-setup)) |
 | **Google Antigravity** | Adapter | `bash ~/.claude/hooks/peon-ping/adapters/antigravity.sh` (requires `fswatch`: `brew install fswatch`) |
@@ -431,7 +423,7 @@ A shell adapter for [GitHub Copilot](https://github.com/features/copilot) with f
 
 **Setup:**
 
-1. Ensure peon-ping is installed (`curl -fsSL https://peonping.com/install | bash`)
+1. Ensure ZugZug is installed (see [Install](#install))
 
 2. Create `.github/hooks/hooks.json` in your repository (on the default branch):
 
@@ -493,7 +485,7 @@ A native TypeScript plugin for [OpenCode](https://opencode.ai/) with full [CESP 
 **Quick install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/opencode.sh | bash
 ```
 
 The installer copies `peon-ping.ts` to `~/.config/opencode/plugins/` and creates a config at `~/.config/opencode/peon-ping/config.json`. Packs are stored at the shared CESP path (`~/.openpeon/packs/`).
@@ -524,7 +516,7 @@ The installer copies `peon-ping.ts` to `~/.config/opencode/plugins/` and creates
 By default, `terminal-notifier` shows a generic Terminal icon. The included script replaces it with the peon icon using built-in macOS tools (`sips` + `iconutil`) — no extra dependencies.
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode/setup-icon.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/opencode/setup-icon.sh)
 ```
 
 Or if installed locally (Homebrew / git clone):
@@ -546,7 +538,7 @@ A native TypeScript plugin for [Kilo CLI](https://github.com/kilocode/cli) with 
 **Quick install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/kilo.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/kilo.sh | bash
 ```
 
 The installer copies `peon-ping.ts` to `~/.config/kilo/plugins/` and creates a config at `~/.config/kilo/peon-ping/config.json`. Packs are stored at the shared CESP path (`~/.openpeon/packs/`).
@@ -600,7 +592,7 @@ Create `~/.kiro/agents/peon-ping.json`:
 
 ## Remote development (SSH / Devcontainers / Codespaces)
 
-Coding on a remote server or inside a container? peon-ping auto-detects SSH sessions, devcontainers, and Codespaces, then routes audio and notifications through a lightweight relay running on your local machine.
+Coding on a remote server or inside a container? ZugZug auto-detects SSH sessions, devcontainers, and Codespaces, then routes audio and notifications through a lightweight relay running on your local machine.
 
 ### SSH setup
 
@@ -614,13 +606,13 @@ Coding on a remote server or inside a container? peon-ping auto-detects SSH sess
    ssh -R 19998:localhost:19998 your-server
    ```
 
-3. **Install peon-ping on the remote** — it auto-detects the SSH session and sends audio requests back through the forwarded port to your local relay.
+3. **Install ZugZug on the remote** — it auto-detects the SSH session and sends audio requests back through the forwarded port to your local relay.
 
 That's it. Sounds play on your laptop, not the remote server.
 
 ### Devcontainers / Codespaces
 
-No port forwarding needed — peon-ping auto-detects `REMOTE_CONTAINERS` and `CODESPACES` environment variables and routes audio to `host.docker.internal:19998`. Just run `peon relay --daemon` on your host machine.
+No port forwarding needed — ZugZug auto-detects `REMOTE_CONTAINERS` and `CODESPACES` environment variables and routes audio to `host.docker.internal:19998`. Just run `peon relay --daemon` on your host machine.
 
 ### Relay commands
 
@@ -635,11 +627,11 @@ peon relay --bind=0.0.0.0 # Listen on all interfaces (less secure)
 
 Environment variables: `PEON_RELAY_PORT`, `PEON_RELAY_HOST`, `PEON_RELAY_BIND`.
 
-If peon-ping detects an SSH or container session but can't reach the relay, it prints setup instructions on `SessionStart`.
+If ZugZug detects an SSH or container session but can't reach the relay, it prints setup instructions on `SessionStart`.
 
 ### Category-based API (for lightweight remote hooks)
 
-The relay supports a category-based endpoint that handles sound selection server-side. This is useful for remote machines where peon-ping isn't installed — the remote hook only needs to send a category name, and the relay picks a random sound from the active pack.
+The relay supports a category-based endpoint that handles sound selection server-side. This is useful for remote machines where ZugZug isn't installed — the remote hook only needs to send a category name, and the relay picks a random sound from the active pack.
 
 **Endpoints:**
 
@@ -780,16 +772,9 @@ Sound packs are downloaded from the [OpenPeon registry](https://github.com/PeonP
 
 ## Links
 
-- [@peonping on X](https://x.com/peonping) — updates and announcements
-- [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) — ZugZug landing page
-- [peonping.com](https://peonping.com/) — peon-ping landing page
+- [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) — landing page
 - [openpeon.com](https://openpeon.com/) — CESP spec, pack browser, creation guide
 - [OpenPeon registry](https://github.com/PeonPing/registry) — pack registry (GitHub Pages)
 - [og-packs](https://github.com/PeonPing/og-packs) — official sound packs
 - [License (MIT)](LICENSE)
-
-## Support the project
-
-- Venmo: [@garysheng](https://venmo.com/garysheng)
-- Community Token (DYOR / have fun): Someone created a $PEON token on Base — we receive TX fees which help fund development. [`0xf4ba744229afb64e2571eef89aacec2f524e8ba3`](https://dexscreener.com/base/0xf4bA744229aFB64E2571eef89AaceC2F524e8bA3)
 

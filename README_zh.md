@@ -1,4 +1,4 @@
-# peon-ping
+# zugzug.sh
 <div align="center">
 
 [English](README.md) | **中文**
@@ -8,11 +8,11 @@
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-hook-ffab01) ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-adapter-ffab01) ![Codex](https://img.shields.io/badge/Codex-adapter-ffab01) ![Cursor](https://img.shields.io/badge/Cursor-adapter-ffab01) ![OpenCode](https://img.shields.io/badge/OpenCode-adapter-ffab01) ![Kilo CLI](https://img.shields.io/badge/Kilo_CLI-adapter-ffab01) ![Kiro](https://img.shields.io/badge/Kiro-adapter-ffab01) ![Windsurf](https://img.shields.io/badge/Windsurf-adapter-ffab01) ![Antigravity](https://img.shields.io/badge/Antigravity-adapter-ffab01) ![OpenClaw](https://img.shields.io/badge/OpenClaw-adapter-ffab01)
 
-**当你的 AI 编程助手需要关注时，播放游戏角色语音 + 显示视觉覆盖通知 — 或通过 MCP 让 AI 自行选择音效。**
+**将你的 IDE 变成魔兽争霸 III。赚取金币、升级角色、建造基地、解锁成就、收集传奇装备 — 全在写代码的过程中完成。**
 
-AI 编程助手完成任务或需要权限时不会通知你。你切换标签页、失去焦点，然后浪费 15 分钟重新进入状态。peon-ping 通过魔兽争霸、星际争霸、传送门、塞尔达等游戏的角色语音和醒目的屏幕横幅来解决这个问题 — 支持 **Claude Code**、**GitHub Copilot**、**Codex**、**Cursor**、**OpenCode**、**Kilo CLI**、**Kiro**、**Windsurf**、**Google Antigravity**、**OpenClaw** 及任何 MCP 客户端.
+AI 编程助手完成任务或需要权限时不会通知你。你切换标签页、失去焦点，然后浪费 15 分钟重新进入状态。ZugZug 通过魔兽争霸、星际争霸、传送门、塞尔达等游戏的角色语音和醒目的屏幕横幅来解决这个问题 — 还有完整的 WC3 元游戏，包括经济系统、建筑、装备和成就。支持 **Claude Code**、**GitHub Copilot**、**Codex**、**Cursor**、**OpenCode**、**Kilo CLI**、**Kiro**、**Windsurf**、**Google Antigravity**、**OpenClaw** 及任何 MCP 客户端。
 
-**查看演示** &rarr; [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) | [peonping.com](https://peonping.com/)
+**查看演示** &rarr; [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/)
 
 </div>
 
@@ -37,27 +37,19 @@ AI 编程助手完成任务或需要权限时不会通知你。你切换标签�
 
 ## 安装
 
-### 方式一：Homebrew（推荐）
+### 方式一：安装脚本（macOS、Linux、WSL2）
 
 ```bash
-brew install PeonPing/tap/peon-ping
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash
 ```
 
-然后运行 `peon-ping-setup` 注册钩子并下载语音包。支持 macOS 和 Linux。
-
-### 方式二：安装脚本（macOS、Linux、WSL2）
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash
-```
-
-### 方式三：Windows 安装
+### 方式二：Windows 安装
 
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.ps1" -UseBasicParsing | Invoke-Expression
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.ps1" -UseBasicParsing | Invoke-Expression
 ```
 
-默认安装 9 个精选语音包（魔兽、星际、传送门、Dota 2）以支持等级系统。重新运行可更新，同时保留配置和状态。你也可以在 **[peonping.com 交互式选择语音包](https://peonping.com/#picker)** 获取自定义安装命令。
+默认安装 9 个精选语音包（魔兽、星际、传送门、Dota 2）以支持等级系统。重新运行可更新，同时保留配置和状态。
 
 实用安装参数：
 
@@ -72,18 +64,18 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PeonPing/peon-ping/mai
 示例：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --all
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --packs=peon,sc_kerrigan
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --local
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash -s -- --all
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash -s -- --packs=peon,sc_kerrigan
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash -s -- --local
 ```
 
 如果已存在全局安装，你又安装了本地版本（或反之），安装程序会提示你移除现有的以避免冲突。
 
-### 方式四：克隆后检查
+### 方式三：克隆后检查
 
 ```bash
-git clone https://github.com/PeonPing/peon-ping.git
-cd peon-ping
+git clone https://github.com/MikeKovetsky/zugzug.sh.git
+cd zugzug.sh
 ./install.sh
 ```
 
@@ -99,7 +91,7 @@ cd peon-ping
 
 此外，还会在每个屏幕上显示**大型覆盖横幅**（macOS/WSL）和终端标签页标题（`● 项目: 完成`）——即使你在其他应用中，也能立即知道任务完成。
 
-peon-ping 实现了 [编码事件语音包规范（CESP）](https://github.com/PeonPing/openpeon) — 这是一个任何代理式 IDE 都可以采用的编码事件声音开放标准。
+ZugZug 实现了 [编码事件语音包规范（CESP）](https://github.com/PeonPing/openpeon) — 这是一个任何代理式 IDE 都可以采用的编码事件声音开放标准。
 
 ## 快捷控制
 
@@ -147,7 +139,7 @@ peon relay --stop         # 停止后台中继
 
 ## WC3 元游戏
 
-peon-ping 包含一个完整的魔兽争霸 III 基地建设元游戏，叠加在你的编程会话之上。赚取金币和木材，升级角色，建造建筑，解锁成就，收集装备，还会被你的苦工嘲讽。
+ZugZug 包含一个完整的魔兽争霸 III 基地建设元游戏，叠加在你的编程会话之上。赚取金币和木材，升级角色，建造建筑，解锁成就，收集装备，还会被你的苦工嘲讽。
 
 仪表板会在首次钩子事件时自动在浏览器中打开。或随时运行 `peon dashboard`。
 
@@ -206,7 +198,7 @@ WC3 主题仪表板位于 `localhost:19997`，首次钩子事件时自动打开�
 
 ## 配置
 
-peon-ping 在 Claude Code 中安装两个斜杠命令：
+ZugZug 在 Claude Code 中安装两个斜杠命令：
 
 - `/peon-ping-toggle` — 静音/取消静音
 - `/peon-ping-config` — 更改任意设置（音量、语音包、分类等）
@@ -298,7 +290,7 @@ trainer/sounds/slacking/       # 失望语音（"Peon very disappointed."）
 
 ## MCP 服务器
 
-peon-ping 包含一个 [MCP（模型上下文协议）](https://modelcontextprotocol.io/)服务器，任何兼容 MCP 的 AI 代理都可以通过工具调用直接播放声音，无需钩子。
+ZugZug 包含一个 [MCP（模型上下文协议）](https://modelcontextprotocol.io/)服务器，任何兼容 MCP 的 AI 代理都可以通过工具调用直接播放声音，无需钩子。
 
 核心区别：**由代理选择声音**。代理不再在每个事件上自动播放固定声音，而是直接调用 `play_sound` 指定想要的声音——构建失败时用 `duke_nukem/SonOfABitch`，读取文件时用 `sc_kerrigan/IReadYou`。
 
@@ -317,7 +309,7 @@ peon-ping 包含一个 [MCP（模型上下文协议）](https://modelcontextprot
 }
 ```
 
-通过 Homebrew 安装时路径为 `$(brew --prefix peon-ping)/libexec/mcp/peon-mcp.js`。完整设置说明见 [`mcp/README.md`](mcp/README.md)。
+完整设置说明见 [`mcp/README.md`](mcp/README.md)。
 
 ### 可用功能
 
@@ -331,7 +323,7 @@ peon-ping 包含一个 [MCP（模型上下文协议）](https://modelcontextprot
 
 ## 多 IDE 支持
 
-peon-ping 适用于任何支持钩子的代理式 IDE。适配器将 IDE 特定事件转换为 [CESP 标准](https://github.com/PeonPing/openpeon)。
+ZugZug 适用于任何支持钩子的代理式 IDE。适配器将 IDE 特定事件转换为 [CESP 标准](https://github.com/PeonPing/openpeon)。
 
 | IDE | 状态 | 设置 |
 |---|---|---|
@@ -339,8 +331,8 @@ peon-ping 适用于任何支持钩子的代理式 IDE。适配器将 IDE 特定�
 | **GitHub Copilot** | 适配器 | 在 `.github/hooks/hooks.json` 中添加指向 `adapters/copilot.sh` 的钩子（[设置](#github-copilot-设置)） |
 | **OpenAI Codex** | 适配器 | 在 `~/.codex/config.toml` 中添加 `notify = ["bash", "/absolute/path/to/.claude/hooks/peon-ping/adapters/codex.sh"]` |
 | **Cursor** | 内置 | `curl \| bash` 或 `peon-ping-setup` 自动检测并注册 Cursor 钩子 |
-| **OpenCode** | 适配器 | `curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode.sh \| bash`（[设置](#opencode-设置)） |
-| **Kilo CLI** | 适配器 | `curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/kilo.sh \| bash`（[设置](#kilo-cli-设置)） |
+| **OpenCode** | 适配器 | `curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/opencode.sh \| bash`（[设置](#opencode-设置)） |
+| **Kilo CLI** | 适配器 | `curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/kilo.sh \| bash`（[设置](#kilo-cli-设置)） |
 | **Kiro** | 适配器 | 在 `~/.kiro/agents/peon-ping.json` 中添加指向 `adapters/kiro.sh` 的钩子条目（[设置](#kiro-设置)） |
 | **Windsurf** | 适配器 | 在 `~/.codeium/windsurf/hooks.json` 中添加指向 `adapters/windsurf.sh` 的钩子条目（[设置](#windsurf-设置)） |
 | **Google Antigravity** | 适配器 | `bash ~/.claude/hooks/peon-ping/adapters/antigravity.sh`（需要 `fswatch`：`brew install fswatch`） |
@@ -352,7 +344,7 @@ peon-ping 适用于任何支持钩子的代理式 IDE。适配器将 IDE 特定�
 
 **设置步骤：**
 
-1. 确保已安装 peon-ping（`curl -fsSL https://peonping.com/install | bash`）
+1. 确保已安装 ZugZug（见[安装](#安装)）
 
 2. 在仓库的默认分支中创建 `.github/hooks/hooks.json`：
 
@@ -414,7 +406,7 @@ peon-ping 适用于任何支持钩子的代理式 IDE。适配器将 IDE 特定�
 **快速安装：**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/opencode.sh | bash
 ```
 
 安装程序将 `peon-ping.ts` 复制到 `~/.config/opencode/plugins/` 并在 `~/.config/opencode/peon-ping/config.json` 创建配置。语音包存储在共享 CESP 路径（`~/.openpeon/packs/`）。
@@ -445,7 +437,7 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/op
 默认情况下，`terminal-notifier` 显示通用终端图标。包含的脚本使用 macOS 内置工具（`sips` + `iconutil`）将其替换为苦工图标 — 无需额外依赖。
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode/setup-icon.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/opencode/setup-icon.sh)
 ```
 
 或本地安装（Homebrew / git clone）：
@@ -467,7 +459,7 @@ bash ~/.claude/hooks/peon-ping/adapters/opencode/setup-icon.sh
 **快速安装：**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/kilo.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/adapters/kilo.sh | bash
 ```
 
 安装程序将 `peon-ping.ts` 复制到 `~/.config/kilo/plugins/` 并在 `~/.config/kilo/peon-ping/config.json` 创建配置。语音包存储在共享 CESP 路径（`~/.openpeon/packs/`）。
@@ -521,7 +513,7 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/ki
 
 ## 远程开发（SSH / Devcontainers / Codespaces）
 
-在远程服务器或容器中编码？peon-ping 自动检测 SSH 会话、devcontainers 和 Codespaces，然后通过本地机器上运行的轻量级中继路由音频和通知。
+在远程服务器或容器中编码？ZugZug 自动检测 SSH 会话、devcontainers 和 Codespaces，然后通过本地机器上运行的轻量级中继路由音频和通知。
 
 ### SSH 设置
 
@@ -535,13 +527,13 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/ki
    ssh -R 19998:localhost:19998 your-server
    ```
 
-3. **在远程安装 peon-ping** — 它会自动检测 SSH 会话并通过转发端口将音频请求发送回本地中继。
+3. **在远程安装 ZugZug** — 它会自动检测 SSH 会话并通过转发端口将音频请求发送回本地中继。
 
 就这样。声音在你的笔记本电脑上播放，而不是远程服务器。
 
 ### Devcontainers / Codespaces
 
-无需端口转发 — peon-ping 自动检测 `REMOTE_CONTAINERS` 和 `CODESPACES` 环境变量并将音频路由到 `host.docker.internal:19998`。只需在主机上运行 `peon relay --daemon`。
+无需端口转发 — ZugZug 自动检测 `REMOTE_CONTAINERS` 和 `CODESPACES` 环境变量并将音频路由到 `host.docker.internal:19998`。只需在主机上运行 `peon relay --daemon`。
 
 ### 中继命令
 
@@ -556,11 +548,11 @@ peon relay --bind=0.0.0.0 # 监听所有接口（安全性较低）
 
 环境变量：`PEON_RELAY_PORT`、`PEON_RELAY_HOST`、`PEON_RELAY_BIND`。
 
-如果 peon-ping 检测到 SSH 或容器会话但无法连接中继，它会在 `SessionStart` 时打印设置说明。
+如果 ZugZug 检测到 SSH 或容器会话但无法连接中继，它会在 `SessionStart` 时打印设置说明。
 
 ### 基于分类的 API（用于轻量级远程钩子）
 
-中继支持在服务器端处理声音选择的基于分类的端点。这对于未安装 peon-ping 的远程机器很有用 — 远程钩子只需发送分类名称，中继从活动语音包中随机选择声音。
+中继支持在服务器端处理声音选择的基于分类的端点。这对于未安装 ZugZug 的远程机器很有用 — 远程钩子只需发送分类名称，中继从活动语音包中随机选择声音。
 
 **端点：**
 
@@ -700,15 +692,8 @@ powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\hooks\peon-pi
 
 ## 链接
 
-- [@peonping on X](https://x.com/peonping) — 更新和公告
-- [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) — ZugZug 主页
-- [peonping.com](https://peonping.com/) — peon-ping 主页
+- [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) — 主页
 - [openpeon.com](https://openpeon.com/) — CESP 规范、语音包浏览器、创建指南
 - [OpenPeon 注册表](https://github.com/PeonPing/registry) — 语音包注册表（GitHub Pages）
 - [og-packs](https://github.com/PeonPing/og-packs) — 官方语音包
 - [许可证 (MIT)](LICENSE)
-
-## 支持项目
-
-- Venmo: [@garysheng](https://venmo.com/garysheng)
-- 社区代币（DYOR / 仅供娱乐）：有人在 Base 上创建了 $PEON 代币 — 我们接收交易手续费，帮助资助开发。[`0xf4ba744229afb64e2571eef89aacec2f524e8ba3`](https://dexscreener.com/base/0xf4bA744229aFB64E2571eef89AaceC2F524e8bA3)

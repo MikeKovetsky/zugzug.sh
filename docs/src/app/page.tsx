@@ -631,7 +631,7 @@ export default function LandingPage() {
         return brew + " --packs=" + Array.from(selectedPacks).sort().join(",");
       }
     } else {
-      const base = "curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash";
+      const base = "curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash";
       if (selectedPacks.size === 0 || setsEqual(selectedPacks, DEFAULT_PACKS)) {
         return base;
       } else if (selectedPacks.size === registryPacks.length) {

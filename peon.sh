@@ -1548,7 +1548,7 @@ for i, s in enumerate(sounds):
     if [ -f "$INSTALL_SCRIPT" ]; then
       bash "$INSTALL_SCRIPT"
     else
-      curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash
+      curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash
     fi
     exit $? ;;
   economy)
@@ -3604,7 +3604,7 @@ if [ "$EVENT" = "SessionStart" ] && [ -f "$PEON_DIR/.update_available" ]; then
   CUR_VER=""
   [ -f "$PEON_DIR/VERSION" ] && CUR_VER=$(cat "$PEON_DIR/VERSION" | tr -d '[:space:]')
   if [ -n "$NEW_VER" ]; then
-    echo "peon-ping update available: ${CUR_VER:-?} → $NEW_VER — run: curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash" >&2
+    echo "peon-ping update available: ${CUR_VER:-?} → $NEW_VER — run: curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash" >&2
   fi
 fi
 
