@@ -3698,6 +3698,18 @@ _maybe_spawn_dashboard() {
       [ -n "$_dpid" ] && kill -0 "$_dpid" 2>/dev/null && running=true
     fi
     if [ "$running" = false ]; then
+      # Atomic lock: only one concurrent hook invocation proceeds to spawn+open
+      local _lock="$PEON_DIR/.dashboard.lock"
+      mkdir "$_lock" 2>/dev/null || return
+      # Re-check under lock in case another process just wrote the PID file
+      if [ -f "$_dashboard_pid_file" ]; then
+        local _dpid2
+        _dpid2=$(cat "$_dashboard_pid_file" 2>/dev/null)
+        if [ -n "$_dpid2" ] && kill -0 "$_dpid2" 2>/dev/null; then
+          rm -rf "$_lock"
+          return
+        fi
+      fi
       nohup python3 -c "
 import http.server, json, os, sys, socketserver, time, datetime
 
@@ -3882,6 +3894,7 @@ with socketserver.TCPServer(('127.0.0.1', PORT), Handler) as httpd:
     httpd.serve_forever()
 " >/dev/null 2>&1 &
       echo $! > "$_dashboard_pid_file"
+      rm -rf "$_lock"
       sleep 0.5
       case "$(uname -s)" in
         Darwin) open "http://localhost:$_dashboard_port" 2>/dev/null ;;
