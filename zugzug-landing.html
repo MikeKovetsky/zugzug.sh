@@ -5,30 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZugZug — Turn Your IDE Into Warcraft III</title>
 <meta name="description" content="Gamify vibecoding. Earn gold, level up through WC3 characters, build your base, farm achievements, and collect legendary loot — all while shipping code.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1FA93;</text></svg>">
-<!-- Open Graph -->
 <meta property="og:title" content="ZugZug — Turn Your IDE Into Warcraft III">
-<meta property="og:description" content="Gamify vibecoding. Earn gold, level up through WC3 heroes, build your base, farm achievements, and collect legendary loot.">
+<meta property="og:description" content="Gamify vibecoding. Earn gold, level up, build your base, and get roasted by your peon.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://zugzug-6l4.pages.dev/">
-<meta property="og:image" content="https://zugzug-6l4.pages.dev/og-image.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:site_name" content="ZugZug">
-<!-- Twitter Card -->
+<meta property="og:image" content="site/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ZugZug — Turn Your IDE Into Warcraft III">
 <meta name="twitter:description" content="Gamify vibecoding. Earn gold, level up through WC3 heroes, build your base, and get roasted by your peon.">
-<meta name="twitter:image" content="https://zugzug-6l4.pages.dev/og-image.jpg">
-<meta name="theme-color" content="#0d0d1a">
+<meta name="theme-color" content="#0a0a16">
+<link rel="icon" href="https://www.peonping.com/images/peon-portrait.gif" type="image/gif">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --gold: #ffab01;
   --dark-gold: #b8860b;
-  --bg: #0d0d1a;
-  --panel: #141428;
-  --border: #2a2a4a;
+  --bg: #0a0a16;
+  --panel: #12122a;
+  --border: #252548;
   --text: #e0d8c8;
   --muted: #8a8472;
   --green: #4a8;
@@ -36,47 +29,117 @@
   --purple: #a335ee;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 body {
   font-family: 'Inter', sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 h1, h2, h3 { font-family: 'Cinzel', serif; }
 
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10,10,22,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(37,37,72,0.6);
+  transition: background 0.3s;
+}
+.nav-logo {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--gold); }
+.nav-gh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text) !important;
+  transition: all 0.2s;
+}
+.nav-gh:hover { border-color: var(--gold); color: var(--gold) !important; }
+.nav-gh svg { width: 16px; height: 16px; fill: currentColor; }
+
 .hero {
   text-align: center;
-  padding: 80px 24px 60px;
+  padding: 130px 24px 80px;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(255,171,1,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 0%, rgba(255,171,1,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(163,53,238,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(255,128,0,0.04) 0%, transparent 50%),
     var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='g' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='30' cy='30' r='0.5' fill='%23ffab01' opacity='0.07'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='60' height='60' fill='url(%23g)'/%3E%3C/svg%3E");
+  pointer-events: none;
 }
 .hero-badge {
   display: inline-block;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 4px;
   color: var(--gold);
-  border: 1px solid rgba(255,171,1,0.3);
-  padding: 4px 16px;
-  border-radius: 20px;
-  margin-bottom: 24px;
+  border: 1px solid rgba(255,171,1,0.25);
+  padding: 6px 20px;
+  border-radius: 24px;
+  margin-bottom: 28px;
+  background: rgba(255,171,1,0.05);
+  position: relative;
 }
 .hero h1 {
-  font-size: clamp(36px, 6vw, 64px);
+  font-size: clamp(38px, 6vw, 68px);
   font-weight: 900;
   color: var(--gold);
-  text-shadow: 0 0 40px rgba(255,171,1,0.15);
-  margin-bottom: 16px;
+  text-shadow: 0 0 60px rgba(255,171,1,0.15);
+  margin-bottom: 20px;
+  position: relative;
+  line-height: 1.1;
 }
 .hero-sub {
-  font-size: clamp(16px, 2.5vw, 22px);
+  font-size: clamp(16px, 2.5vw, 20px);
   color: var(--text);
-  max-width: 700px;
-  margin: 0 auto 32px;
+  max-width: 680px;
+  margin: 0 auto 36px;
+  position: relative;
+  opacity: 0.9;
 }
 .hero-sub strong { color: var(--gold); }
+
 .install-box {
   display: inline-block;
   background: var(--panel);
@@ -84,13 +147,17 @@ h1, h2, h3 { font-family: 'Cinzel', serif; }
   border-radius: 8px;
   padding: 14px 28px;
   font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--gold);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s;
   position: relative;
 }
-.install-box:hover { border-color: var(--gold); box-shadow: 0 0 20px rgba(255,171,1,0.1); }
+.install-box:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 30px rgba(255,171,1,0.1);
+  transform: translateY(-1px);
+}
 .install-box::after {
   content: 'click to copy';
   position: absolute;
@@ -104,29 +171,44 @@ h1, h2, h3 { font-family: 'Cinzel', serif; }
   transition: opacity 0.2s;
 }
 .install-box:hover::after { opacity: 1; }
+.install-box.copied { border-color: var(--green); }
 .install-box.copied::after { content: 'copied!'; color: var(--green); opacity: 1; }
-.hero-links {
-  margin-top: 20px;
+
+.ide-badges {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: center;
-  font-size: 14px;
+  margin-top: 32px;
+  position: relative;
 }
-.hero-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
-.hero-links a:hover { color: var(--gold); }
+.ide-badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 5px;
+  background: rgba(255,171,1,0.08);
+  border: 1px solid rgba(255,171,1,0.15);
+  color: var(--gold);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.ide-badge:hover { opacity: 1; }
 
 .frame { max-width: 960px; margin: 0 auto; padding: 0 24px; }
 
 section { padding: 80px 0; }
-section:nth-child(even) { background: rgba(20,20,40,0.5); }
+section:nth-child(even) {
+  background: linear-gradient(180deg, rgba(18,18,42,0.5) 0%, rgba(10,10,22,0.5) 100%);
+}
 
 .section-title {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 4px;
   color: var(--gold);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .section-heading {
   font-size: clamp(24px, 4vw, 36px);
@@ -137,14 +219,20 @@ section:nth-child(even) { background: rgba(20,20,40,0.5); }
   color: var(--muted);
   max-width: 600px;
   margin-bottom: 40px;
-  font-size: 16px;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
 .screenshot {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 2px solid var(--border);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.screenshot:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 56px rgba(0,0,0,0.6);
 }
 .screenshot-wrap {
   position: relative;
@@ -154,7 +242,7 @@ section:nth-child(even) { background: rgba(20,20,40,0.5); }
   text-align: center;
   font-size: 13px;
   color: var(--muted);
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .level-grid {
@@ -171,7 +259,7 @@ section:nth-child(even) { background: rgba(20,20,40,0.5); }
   text-align: center;
   transition: all 0.3s;
 }
-.level-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.level-card:hover { border-color: var(--gold); transform: translateY(-3px); }
 .level-card.murloc-card {
   border: 2px solid transparent;
   background-origin: border-box;
@@ -192,30 +280,34 @@ section:nth-child(even) { background: rgba(20,20,40,0.5); }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 .feature-card {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 24px;
-  transition: border-color 0.2s;
+  transition: all 0.25s;
 }
-.feature-card:hover { border-color: var(--gold); }
+.feature-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
 .feature-icon { font-size: 28px; margin-bottom: 12px; }
 .feature-card h3 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   margin-bottom: 6px;
   font-family: 'Cinzel', serif;
   color: var(--gold);
 }
-.feature-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+.feature-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
 .rarity-row {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
   margin-top: 24px;
 }
@@ -225,7 +317,9 @@ section:nth-child(even) { background: rgba(20,20,40,0.5); }
   padding: 4px 12px;
   border-radius: 4px;
   border: 1px solid;
+  transition: transform 0.2s;
 }
+.rarity-tag:hover { transform: scale(1.05); }
 .r-common { color: #aaa; border-color: #666; }
 .r-uncommon { color: #1eff00; border-color: #1eff00; }
 .r-rare { color: #0070dd; border-color: #0070dd; }
@@ -256,79 +350,174 @@ section:nth-child(even) { background: rgba(20,20,40,0.5); }
 
 .cta {
   text-align: center;
-  padding: 80px 24px;
+  padding: 100px 24px;
   background:
-    radial-gradient(ellipse at 50% 100%, rgba(255,171,1,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(255,171,1,0.08) 0%, transparent 50%),
     var(--bg);
+  position: relative;
 }
 .cta h2 {
-  font-size: clamp(28px, 4vw, 42px);
+  font-size: clamp(28px, 4vw, 44px);
   font-weight: 900;
   color: var(--gold);
   margin-bottom: 16px;
 }
 .cta p {
   color: var(--muted);
-  font-size: 16px;
-  margin-bottom: 32px;
+  font-size: 15px;
+  margin-bottom: 36px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto 40px;
+  opacity: 0.4;
 }
 
 footer {
   text-align: center;
-  padding: 32px;
+  padding: 40px 24px;
   font-size: 13px;
   color: var(--muted);
   border-top: 1px solid var(--border);
 }
 footer a { color: var(--gold); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
+.footer-links {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
 
-.showcase-section { }
 .showcase-section .section-desc { margin-bottom: 24px; }
+
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  padding: 40px 24px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-item { text-align: center; }
+.stat-num {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1.2;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 @media (max-width: 768px) {
   .level-grid { grid-template-columns: repeat(3, 1fr); }
-  
-  .hero { padding: 48px 16px 40px; }
-  section { padding: 48px 0; }
+  .hero { padding: 100px 16px 50px; }
+  .hero h1 br { display: none; }
+  section { padding: 56px 0; }
+  .nav-links a:not(.nav-gh) { display: none; }
+  .ide-badges { gap: 6px; }
+  .ide-badge { font-size: 11px; padding: 4px 10px; }
+  .stats-bar { gap: 24px; flex-wrap: wrap; }
+  .stat-num { font-size: 24px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-card { padding: 20px; }
+  .section-desc { font-size: 14px; }
+  .cta { padding: 64px 24px; }
+  .screenshot-wrap { margin-bottom: 24px; }
 }
 @media (max-width: 480px) {
   .level-grid { grid-template-columns: repeat(2, 1fr); }
+  .install-box { font-size: 12px; padding: 12px 16px; max-width: 100%; overflow-wrap: break-word; }
+  .stats-bar { gap: 16px; }
+  .hero-badge { font-size: 10px; letter-spacing: 3px; padding: 5px 14px; }
+  .section-heading { font-size: 22px; }
+  .footer-links { gap: 14px; font-size: 13px; }
 }
 </style>
 </head>
 <body>
 
+<nav>
+  <a href="#" class="nav-logo">ZugZug</a>
+  <div class="nav-links">
+    <a href="#levels">Levels</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#features">Features</a>
+    <a href="https://github.com/MikeKovetsky/zugzug.sh" target="_blank" class="nav-gh">
+      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
 <div class="hero">
   <div class="hero-badge">Gamify Vibecoding</div>
-  <h1>Turn Your IDE Into Warcraft III</h1>
+  <h1>Turn Your IDE <br>Into Warcraft III</h1>
   <p class="hero-sub">Every token earns <strong>gold</strong>. Every task gives <strong>XP</strong>. Level up through WC3 heroes, build your base, farm achievements, and collect legendary loot &mdash; all while shipping code.</p>
-  <div class="install-box" onclick="navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash');this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)">
-    curl -fsSL https://raw.githubusercontent.com/.../install.sh | bash
+  <div class="install-box" onclick="copyInstall(this)">
+    curl -fsSL zugzug.sh/install | bash
   </div>
-  <div class="hero-links">
-    <a href="https://github.com/PeonPing/peon-ping">GitHub</a>
+  <div class="ide-badges">
+    <span class="ide-badge">Claude Code</span>
+    <span class="ide-badge">Cursor</span>
+    <span class="ide-badge">Codex</span>
+    <span class="ide-badge">Copilot</span>
+    <span class="ide-badge">OpenCode</span>
+    <span class="ide-badge">Kilo</span>
+    <span class="ide-badge">Kiro</span>
+    <span class="ide-badge">Windsurf</span>
+    <span class="ide-badge">Antigravity</span>
   </div>
 </div>
 
-<section>
-  <div class="frame">
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">9</div><div class="stat-label">IDEs</div></div>
+  <div class="stat-item"><div class="stat-num">75+</div><div class="stat-label">Sound Packs</div></div>
+  <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">Levels</div></div>
+  <div class="stat-item"><div class="stat-num">31</div><div class="stat-label">Items</div></div>
+  <div class="stat-item"><div class="stat-num">14</div><div class="stat-label">Achievements</div></div>
+</div>
+
+<section id="levels">
+  <div class="frame fade-in">
     <div class="section-title">Character Progression</div>
     <div class="section-heading">9 Levels. Every Faction. One Secret.</div>
     <div class="section-desc">Start as a lowly Peon. Grind your way through Orc, Human, Troll, Undead, and Neutral heroes. Each level changes your voice lines, overlay portrait, and dashboard character. Rumors say there's a secret Level 10. Nobody has reached it yet.</div>
-
-    <div class="level-grid" id="levels"></div>
+    <div class="level-grid" id="levelGrid"></div>
   </div>
 </section>
 
-<section>
-  <div class="frame">
+<section id="dashboard">
+  <div class="frame fade-in">
     <div class="showcase-section">
       <div class="section-title">Dashboard</div>
       <div class="section-heading">Your WC3 Command Center</div>
       <div class="section-desc">Auto-opens in your browser on first prompt. Live-updating character portrait, XP bar, progression ladder, resources, and activity feed. No configuration needed.</div>
       <div class="screenshot-wrap">
-        <img src="docs/screenshots/screenshot-character.png" class="screenshot" alt="Character page">
+        <img src="site/docs/screenshots/screenshot-character.png" class="screenshot" alt="Character page" loading="lazy">
         <div class="screenshot-caption">Character page &mdash; Level 4 Knight</div>
       </div>
     </div>
@@ -336,13 +525,13 @@ footer a:hover { text-decoration: underline; }
 </section>
 
 <section>
-  <div class="frame">
+  <div class="frame fade-in">
     <div class="showcase-section">
       <div class="section-title">Base Building</div>
       <div class="section-heading">Build Structures. Unlock Perks.</div>
       <div class="section-desc">Spend gold and lumber to construct 8 buildings on your base map. Each one unlocks a real perk: combo tracking, roast suppression, random treasure events, on-demand taunts.</div>
       <div class="screenshot-wrap">
-        <img src="docs/screenshots/screenshot-base.png" class="screenshot" alt="Base building">
+        <img src="site/docs/screenshots/screenshot-base.png" class="screenshot" alt="Base building" loading="lazy">
         <div class="screenshot-caption">Base page &mdash; 6 buildings constructed</div>
       </div>
     </div>
@@ -350,7 +539,7 @@ footer a:hover { text-decoration: underline; }
 </section>
 
 <section>
-  <div class="frame">
+  <div class="frame fade-in">
     <div class="showcase-section">
       <div class="section-title">Loot System</div>
       <div class="section-heading">31 Items. 5 Rarity Tiers.</div>
@@ -363,15 +552,18 @@ footer a:hover { text-decoration: underline; }
         <span class="rarity-tag r-legendary">Legendary</span>
       </div>
       <div class="screenshot-wrap">
-        <img src="docs/screenshots/screenshot-inventory.png" class="screenshot" alt="Inventory">
+        <img src="site/docs/screenshots/screenshot-inventory.png" class="screenshot" alt="Inventory" loading="lazy">
         <div class="screenshot-caption">Inventory &mdash; 6 equipped, Ashbringer in backpack</div>
       </div>
     </div>
   </div>
 </section>
 
-<section>
-  <div class="frame">
+<section id="features">
+  <div class="frame fade-in">
+    <div class="section-title">Features</div>
+    <div class="section-heading">Everything You Need to Waste Time Productively</div>
+    <div class="section-desc" style="margin-bottom:32px">Sound notifications are just the start. There's a full metagame underneath.</div>
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">&#x1F4B0;</div>
@@ -381,7 +573,7 @@ footer a:hover { text-decoration: underline; }
       <div class="feature-card">
         <div class="feature-icon">&#x1F525;</div>
         <h3>Combos</h3>
-        <p>Consecutive tasks without errors. Double kill &rarr; Triple kill &rarr; Mega kill &rarr; UNSTOPPABLE &rarr; GODLIKE. Requires War Mill building.</p>
+        <p>Consecutive tasks without errors. Double kill &rarr; Triple kill &rarr; Mega kill &rarr; UNSTOPPABLE &rarr; GODLIKE. Requires War Mill.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">&#x1F3C6;</div>
@@ -391,12 +583,12 @@ footer a:hover { text-decoration: underline; }
       <div class="feature-card">
         <div class="feature-icon">&#x1F608;</div>
         <h3>Roasts (Lvl 0-5)</h3>
-        <p>The worse you code, the more savage peon gets. Level 3: "Human considered different career?" Level 5: "Peon quit. Find another peon."</p>
+        <p>The worse you code, the more savage peon gets. Level 3: "Human considered different career?" Level 5: "Peon quit."</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">&#x1F552;</div>
         <h3>Time Awareness</h3>
-        <p>Dawn greetings. Late-night warnings. Monday morning dread. Friday payday bonus. Peon knows what day it is and judges accordingly.</p>
+        <p>Dawn greetings. Late-night warnings. Monday dread. Friday payday bonus. Peon knows what day it is and judges accordingly.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">&#x1F50A;</div>
@@ -408,13 +600,13 @@ footer a:hover { text-decoration: underline; }
 </section>
 
 <section>
-  <div class="frame">
+  <div class="frame fade-in">
     <div class="showcase-section">
       <div class="section-title">Achievements</div>
       <div class="section-heading">14 Milestones to Chase</div>
-      <div class="section-desc">WC3-themed achievements tracked across all your coding sessions. Hover any to see unlock conditions. Some are secret.</div>
+      <div class="section-desc">WC3-themed achievements tracked across all your coding sessions. Some are secret.</div>
       <div class="screenshot-wrap">
-        <img src="docs/screenshots/screenshot-achievements.png" class="screenshot" alt="Achievements">
+        <img src="site/docs/screenshots/screenshot-achievements.png" class="screenshot" alt="Achievements" loading="lazy">
         <div class="screenshot-caption">Achievements &mdash; Zug Zug Veteran and Night Elf unlocked</div>
       </div>
     </div>
@@ -423,21 +615,39 @@ footer a:hover { text-decoration: underline; }
 
 <div class="cta">
   <h2>Ready to Work?</h2>
-  <p>One command. Works with Claude Code, Codex, Cursor, OpenCode, Kiro, Windsurf, and Antigravity.</p>
-  <div class="install-box" onclick="navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash');this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)">
-    curl -fsSL https://raw.githubusercontent.com/.../install.sh | bash
+  <p>One command. Works with 9 IDEs. Takes 30 seconds.</p>
+  <div class="install-box" onclick="copyInstall(this)">
+    curl -fsSL zugzug.sh/install | bash
   </div>
-  <div class="hero-links" style="margin-top:20px">
-    <a href="https://github.com/PeonPing/peon-ping">GitHub</a>
+  <div class="ide-badges" style="margin-top:28px">
+    <span class="ide-badge">Claude Code</span>
+    <span class="ide-badge">Cursor</span>
+    <span class="ide-badge">Codex</span>
+    <span class="ide-badge">Copilot</span>
+    <span class="ide-badge">OpenCode</span>
+    <span class="ide-badge">Kilo</span>
+    <span class="ide-badge">Kiro</span>
+    <span class="ide-badge">Windsurf</span>
+    <span class="ide-badge">Antigravity</span>
   </div>
 </div>
 
 <footer>
-  MIT License &middot; <a href="https://github.com/PeonPing/peon-ping">GitHub</a>
-  <br>Forked from <a href="https://peonping.com">peon-ping</a>. Sound files are property of their respective publishers.
+  <div class="footer-links">
+    <a href="https://github.com/MikeKovetsky/zugzug.sh" target="_blank">GitHub</a>
+    <a href="https://zugzug.sh">zugzug.sh</a>
+    <a href="https://openpeon.com">openpeon.com</a>
+  </div>
+  MIT License &middot; Sound files are property of their respective publishers.
 </footer>
 
 <script>
+function copyInstall(el) {
+  navigator.clipboard.writeText('curl -fsSL zugzug.sh/install | bash');
+  el.classList.add('copied');
+  setTimeout(function() { el.classList.remove('copied'); }, 2000);
+}
+
 var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
 var WP = 'https://static.wikia.nocookie.net/wowpedia/images/';
 var LEVELS = [
@@ -452,10 +662,10 @@ var LEVELS = [
   { lvl:9, title:'Brewmaster', faction:'Neutral', tasks:'10,000', icon:W3+'neutral/pandarenbrewmaster.gif' },
   { lvl:10, title:'???', faction:'???', tasks:'1,000,000', icon:'', secret:true },
 ];
-var grid = document.getElementById('levels');
+var grid = document.getElementById('levelGrid');
 LEVELS.forEach(function(L) {
   var cls = L.secret ? 'level-card murloc-card' : 'level-card';
-  var t = L.tasks === 'Start' ? 'Start' : L.tasks === '???' ? '???' : L.tasks + ' tasks';
+  var t = L.tasks === 'Start' ? 'Start' : L.tasks + ' tasks';
   var iconHtml = L.secret
     ? '<div style="font-size:36px;margin-bottom:8px">&#x2753;</div>'
     : '<img src="' + L.icon + '" class="level-icon" alt="' + L.title + '">';
@@ -467,6 +677,16 @@ LEVELS.forEach(function(L) {
     '<div class="level-tasks">' + t + '</div>' +
     '</div>';
 });
+
+var io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(function(el) { io.observe(el); });
 </script>
 </body>
 </html>
