@@ -1,9 +1,10 @@
 #!/usr/bin/env osascript -l JavaScript
 // mac-overlay.js — WC3-themed Cocoa overlay notification for macOS
-// Usage: osascript -l JavaScript mac-overlay.js <message> <color> <icon_path> <slot> <dismiss_seconds> [category]
+// Usage: osascript -l JavaScript mac-overlay.js <message> <color> <icon_path> <slot> <dismiss_seconds> [category] [dashboard_port]
 //
 // JXA constraint: only one view per window may use layer.backgroundColor (CGColor).
 // Additional colored elements use NSTextField with setDrawsBackground/setBackgroundColor.
+// Click anywhere on the notification to open the dashboard in a browser.
 
 ObjC.import('Cocoa');
 
@@ -14,6 +15,7 @@ function run(argv) {
   var slot     = parseInt(argv[3], 10) || 0;
   var dismiss  = parseFloat(argv[4]) || 4;
   var category = argv[5] || '';
+  var dashPort = argv[6] || '19997';
 
   var acR = 180/255, acG = 30/255, acB = 30/255;
   switch (color) {
@@ -24,6 +26,34 @@ function run(argv) {
 
   var isLoop = (category === 'resource.limit');
   var W = 520, H = 86;
+  var dashURL = 'http://localhost:' + dashPort;
+
+  ObjC.registerSubclass({
+    name: 'DashOpener',
+    methods: {
+      'open:': {
+        types: ['void', ['id']],
+        implementation: function(_s) {
+          $.NSWorkspace.sharedWorkspace.openURL($.NSURL.URLWithString($(dashURL)));
+          $.NSApp.terminate(null);
+        }
+      }
+    }
+  });
+  var opener = $.DashOpener.alloc.init;
+
+  ObjC.registerSubclass({
+    name: 'HandButton',
+    superclass: 'NSButton',
+    methods: {
+      'resetCursorRects': {
+        types: ['void', []],
+        implementation: function() {
+          this.addCursorRectCursor(this.bounds, $.NSCursor.pointingHandCursor);
+        }
+      }
+    }
+  });
 
   $.NSApplication.sharedApplication;
   $.NSApp.setActivationPolicy($.NSApplicationActivationPolicyAccessory);
@@ -48,7 +78,7 @@ function run(argv) {
     win.setOpaque(false);
     win.setAlphaValue(1.0);
     win.setLevel($.NSStatusWindowLevel);
-    win.setIgnoresMouseEvents(true);
+    win.setIgnoresMouseEvents(false);
     win.setCollectionBehavior(
       $.NSWindowCollectionBehaviorCanJoinAllSpaces |
       $.NSWindowCollectionBehaviorStationary
@@ -151,6 +181,12 @@ function run(argv) {
     label.setShadow(shadow);
 
     panel.addSubview(label);
+
+    var btn = $.HandButton.alloc.initWithFrame($.NSMakeRect(0, 0, W, H));
+    btn.setTransparent(true);
+    btn.setTarget(opener);
+    btn.setAction('open:');
+    panel.addSubview(btn);
 
     win.orderFrontRegardless;
     windows.push(win);

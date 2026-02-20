@@ -87,7 +87,7 @@ if [ "$INIT_LOCAL_CONFIG" = true ]; then
 fi
 
 # Default packs (curated English set installed by default)
-DEFAULT_PACKS="peon peasant sc_kerrigan sc_battlecruiser glados"
+DEFAULT_PACKS="peon peasant sc_kerrigan sc_battlecruiser glados wc3_jaina dota2_witch_doctor wc3_corrupted_arthas murloc"
 
 
 # --- Platform detection ---
@@ -351,6 +351,22 @@ else
     curl -fsSL "$REPO_BASE/config.json" -o "$INSTALL_DIR/config.json"
   fi
 fi
+
+# --- Download level portrait icons ---
+_W3="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images"
+_WP="https://static.wikia.nocookie.net/wowpedia/images"
+mkdir -p "$INSTALL_DIR/icons"
+_dl_icon() { curl -fsSL --connect-timeout 5 --max-time 10 "$1" -o "$INSTALL_DIR/icons/lvl-$2.png" 2>/dev/null || true; }
+_dl_icon "$_W3/orc/peon.png" 1
+_dl_icon "$_WP/b/bc/BTNPeasant.png" 2
+_dl_icon "$_W3/orc/grunt.png" 3
+_dl_icon "$_WP/9/97/BTNKnight.png" 4
+_dl_icon "$_W3/orc/farseer.png" 5
+_dl_icon "$_WP/0/04/BTNJaina.png" 6
+_dl_icon "$_W3/orc/witchdoctor.png" 7
+_dl_icon "$_WP/d/db/BTNHeroDeathKnight.png" 8
+_dl_icon "$_W3/neutral/pandarenbrewmaster.gif" 9
+_dl_icon "$_WP/9/97/BTNMurloc.png" 10
 
 # --- Backfill new config keys on update ---
 # Merge any new keys from the default config template into the user's

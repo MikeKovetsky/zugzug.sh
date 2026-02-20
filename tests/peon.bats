@@ -2654,3 +2654,30 @@ else:
   has_lv=$(/usr/bin/python3 -c "import json; log=json.load(open('$TEST_DIR/.state.json')).get('activity_log',[]); print(any('lv' in e for e in log))")
   [ "$has_lv" = "False" ]
 }
+
+@test "game: level 2 uses peasant pack sounds" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'tasks_completed':30,'level':2,'level_title':'Peasant'}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  afplay_was_called
+  sound=$(afplay_sound)
+  [[ "$sound" == *"/packs/peasant/sounds/"* ]]
+}
+
+@test "game: level 1 uses peon pack sounds" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'tasks_completed':5,'level':1,'level_title':'Peon'}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  afplay_was_called
+  sound=$(afplay_sound)
+  [[ "$sound" == *"/packs/peon/sounds/"* ]]
+}
+
+@test "game: level pack fallback when pack not installed" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'tasks_completed':1100,'level':6,'level_title':'Jaina'}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  afplay_was_called
+  sound=$(afplay_sound)
+  [[ "$sound" == *"/packs/peon/sounds/"* ]]
+}

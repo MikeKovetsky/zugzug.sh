@@ -164,14 +164,14 @@ body {
 /* Portrait panel */
 .portrait-panel {
   background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
-  padding: 16px; border: 1px solid var(--border); border-radius: 4px;
-  display: flex; flex-direction: column; gap: 12px;
+  padding: 10px 16px; border: 1px solid var(--border); border-radius: 4px;
+  display: flex; flex-direction: row; align-items: center; gap: 16px;
 }
 .portrait-frame {
-  width: 100%; aspect-ratio: 1; background: #0a0a14;
+  width: 56px; height: 56px; background: #0a0a14;
   border: 3px solid var(--dark-gold); border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 64px; position: relative; overflow: hidden;
+  font-size: 32px; position: relative; overflow: hidden; flex-shrink: 0;
 }
 .portrait-frame::after {
   content: ''; position: absolute; inset: 0;
@@ -203,7 +203,7 @@ body {
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
 
 /* Action buttons */
-.act-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.act-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
 .act-btn {
   flex: 1; background: #1a1a2e; border: 1px solid var(--border);
   color: var(--text); padding: 8px 10px; border-radius: 3px;
@@ -217,7 +217,7 @@ body {
 
 /* Base page layout */
 .base-grid {
-  display: grid; grid-template-columns: 220px 1fr; gap: 16px;
+  display: flex; flex-direction: column; gap: 12px;
 }
 
 /* Base map */
@@ -623,11 +623,7 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .base-grid { grid-template-columns: 1fr; }
-  .portrait-panel {
-    flex-direction: row; flex-wrap: wrap; gap: 16px;
-  }
-  .portrait-frame { width: 120px; height: 120px; flex-shrink: 0; aspect-ratio: auto; }
+  .portrait-panel { flex-wrap: wrap; }
   .stats-layout { grid-template-columns: 1fr; }
   .inv-layout { grid-template-columns: 1fr; }
   .how-body { grid-template-columns: 1fr; }
@@ -653,7 +649,7 @@ body {
 }
 .w3i { image-rendering: pixelated; vertical-align: middle; width: 1em; height: 1em; border-radius: 2px; }
 .res-icon .w3i { width: 26px; height: 26px; }
-.portrait-frame .w3i { width: 80px; height: 80px; }
+.portrait-frame .w3i { width: 40px; height: 40px; }
 .tile-icon .w3i { width: 32px; height: 32px; }
 .tile-emoji .w3i { width: 28px; height: 28px; }
 .act-btn .w3i { width: 14px; height: 14px; }
@@ -774,11 +770,9 @@ body {
         <div id="debt-box"></div>
         <div class="act-btns" id="actions"></div>
       </div>
-      <div>
-        <div class="map-wrap">
-          <div class="base-map" id="basemap"></div>
-          <div class="bld-sidebar" id="bld-sidebar"></div>
-        </div>
+      <div class="map-wrap">
+        <div class="base-map" id="basemap"></div>
+        <div class="bld-sidebar" id="bld-sidebar"></div>
       </div>
     </div>
   </div>

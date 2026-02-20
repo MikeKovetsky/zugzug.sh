@@ -1,5 +1,20 @@
 # Changelog
 
+## v3.3.0 (2026-02-20)
+
+### Added
+- **Character page**: New dashboard tab with large portrait, XP progress bar, faction badge, and 10-level progression ladder showing completed/current/locked states
+- **Level-driven sounds**: Your level now determines which sound pack plays for ALL events (Level 4 Knight hears peasant voices, Level 8 Arthas hears death knight lines, etc.)
+- **Level-driven overlay portraits**: macOS overlay notifications show your level's character portrait instead of the default peon icon
+- **Level portrait icons**: 10 WC3 character portraits downloaded at install time into `icons/` for overlay use
+- **Level-up celebrations**: Level-up notification text in overlay, activity log, and dashboard toast with star icon
+- 8 new BATS tests for level system (level calculation, level-up detection, pack override, fallback)
+
+### Changed
+- **Default installed packs** expanded from 5 to 9: added `wc3_jaina`, `dota2_witch_doctor`, `wc3_corrupted_arthas`, `murloc` to support level-based sound progression
+- Dashboard default tab changed from Base to Character
+- Base page portrait is now dynamic (updates with level) and clickable (switches to Character tab)
+
 ## v3.2.0 (2026-02-19)
 
 ### Added

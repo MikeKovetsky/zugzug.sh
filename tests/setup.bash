@@ -64,6 +64,31 @@ JSON
     touch "$TEST_DIR/packs/peon/sounds/$f"
   done
 
+  # Create peasant pack (for level system tests)
+  mkdir -p "$TEST_DIR/packs/peasant/sounds"
+  cat > "$TEST_DIR/packs/peasant/manifest.json" <<'JSON'
+{
+  "name": "peasant",
+  "display_name": "Human Peasant",
+  "categories": {
+    "session.start": {
+      "sounds": [
+        { "file": "Hello1.wav", "label": "Ready to work!" }
+      ]
+    },
+    "task.complete": {
+      "sounds": [
+        { "file": "Done1.wav", "label": "Job's done!" }
+      ]
+    }
+  }
+}
+JSON
+
+  for f in Hello1.wav Done1.wav; do
+    touch "$TEST_DIR/packs/peasant/sounds/$f"
+  done
+
   # Create second pack manifest (for pack switching tests)
   cat > "$TEST_DIR/packs/sc_kerrigan/manifest.json" <<'JSON'
 {

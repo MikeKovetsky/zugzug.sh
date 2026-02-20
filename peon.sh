@@ -288,7 +288,7 @@ send_notification() {
             find "$slot_dir" -maxdepth 1 -name 'slot-*' -mmin +1 -exec rm -rf {} + 2>/dev/null
             slot=0; mkdir -p "$slot_dir/slot-0"
           fi
-          osascript -l JavaScript "$overlay_script" "$msg" "$color" "$icon_arg" "$slot" "4" >/dev/null 2>&1 || true
+          osascript -l JavaScript "$overlay_script" "$msg" "$color" "$icon_arg" "$slot" "4" "" "${PEON_DASHBOARD_PORT:-19997}" >/dev/null 2>&1 || true
           rm -rf "$slot_dir/slot-$slot"
         )
         if [ "$use_bg" = true ]; then _run_overlay & else _run_overlay; fi
@@ -306,17 +306,20 @@ send_notification() {
           *)
             if command -v terminal-notifier &>/dev/null && [ -f "$icon_path" ]; then
               # terminal-notifier supports custom icon (brew install terminal-notifier)
+              local _dash_url="http://localhost:${PEON_DASHBOARD_PORT:-19997}"
               if [ "$use_bg" = true ]; then
                 nohup terminal-notifier \
                   -title "$title" \
                   -message "$msg" \
                   -appIcon "$icon_path" \
+                  -open "$_dash_url" \
                   -group "peon-ping" >/dev/null 2>&1 &
               else
                 terminal-notifier \
                   -title "$title" \
                   -message "$msg" \
                   -appIcon "$icon_path" \
+                  -open "$_dash_url" \
                   -group "peon-ping" >/dev/null 2>&1
               fi
             else
@@ -2673,6 +2676,17 @@ else:
     # Default: everyone uses active_pack
     active_pack = cfg.get('active_pack', 'peon')
 
+# --- Level overrides pack (level determines sounds + overlay icon) ---
+_LVL_PACKS = {1:'peon', 2:'peasant', 3:'peon', 4:'peasant', 5:'peon',
+              6:'wc3_jaina', 7:'dota2_witch_doctor', 8:'wc3_corrupted_arthas',
+              9:'', 10:'murloc'}
+_cur_lvl = state.get('stats', {}).get('level', 1)
+_lvl_pack = _LVL_PACKS.get(_cur_lvl, '')
+if _lvl_pack:
+    _lvl_pack_dir = os.path.join(peon_dir, 'packs', _lvl_pack)
+    if os.path.isdir(_lvl_pack_dir):
+        active_pack = _lvl_pack
+
 # --- Track last active session for context-reset detection ---
 state['last_active'] = dict(session_id=session_id, pack=active_pack,
                             timestamp=time.time(), event=event)
@@ -2880,6 +2894,11 @@ if category and not paused:
                     icon_path = icon_resolved
     except Exception:
         pass
+
+# --- Level portrait override for overlay icon ---
+_lvl_icon = os.path.join(peon_dir, 'icons', f'lvl-{_cur_lvl}.png')
+if os.path.isfile(_lvl_icon):
+    icon_path = _lvl_icon
 
 # --- WC3 Metagame (stats, economy, buildings, achievements, roasts, combos, time) ---
 game_cfg = cfg.get('game', {})
