@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.4.1 (2026-02-19)
+
+### Fixed
+- **Dashboard opening on every hook**: Replaced stale PID file check with a live curl probe of the port. The old approach failed when the server crashed and left a stale PID, causing every subsequent hook to open a new browser tab.
+
 ## v3.4.0 (2026-02-19)
 
 ### Added
