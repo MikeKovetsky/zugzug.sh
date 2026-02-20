@@ -828,12 +828,12 @@ Write-Host "  UserPromptSubmit hook registered for /peon-ping-use" -ForegroundCo
 # --- Register Cursor hooks if ~/.cursor exists ---
 $CursorDir = Join-Path $env:USERPROFILE ".cursor"
 $CursorHooksFile = Join-Path $CursorDir "hooks.json"
+$CursorAdapterCmd = "bash `"$(Join-Path $InstallDir 'adapters/cursor.sh')`""
 
 if (Test-Path $CursorDir) {
     Write-Host ""
     Write-Host "Detected Cursor IDE installation, registering hooks..."
     
-    # Load or create Cursor hooks.json
     $cursorData = [PSCustomObject]@{
         version = 1
         hooks = [PSCustomObject]@{}
@@ -845,12 +845,9 @@ if (Test-Path $CursorDir) {
             if ($content) {
                 $cursorData = $content | ConvertFrom-Json
             }
-        } catch {
-            # Parse error, use default
-        }
+        } catch {}
     }
     
-    # Ensure $cursorData is valid and has required structure
     if (-not $cursorData) {
         $cursorData = [PSCustomObject]@{
             version = 1
@@ -865,32 +862,48 @@ if (Test-Path $CursorDir) {
         $cursorData | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{})
     }
     
-    # Create Cursor beforeSubmitPrompt hook (simpler format than Claude Code)
-    $cursorBeforeSubmitHook = [PSCustomObject]@{
+    # Main sound hooks via cursor adapter
+    $cursorEvents = @("stop", "beforeShellExecution", "afterFileEdit")
+    foreach ($evt in $cursorEvents) {
+        $hookEntry = [PSCustomObject]@{
+            command = "$CursorAdapterCmd $evt"
+            timeout = 10
+        }
+        $evtHooks = @()
+        if ($cursorData.hooks.PSObject.Properties.Name -contains $evt) {
+            $evtHooks = @($cursorData.hooks.$evt | Where-Object {
+                -not ($_.command -and $_.command -match "peon-ping")
+            })
+        }
+        $evtHooks += $hookEntry
+        if ($cursorData.hooks.PSObject.Properties.Name -contains $evt) {
+            $cursorData.hooks.$evt = $evtHooks
+        } else {
+            $cursorData.hooks | Add-Member -NotePropertyName $evt -NotePropertyValue $evtHooks
+        }
+    }
+    
+    # Skill handler hook (beforeSubmitPrompt)
+    $cursorUseHook = [PSCustomObject]@{
         command = $beforeSubmitCmd
         timeout = 5
     }
-    
-    $cursorEventHooks = @()
+    $useHooks = @()
     if ($cursorData.hooks.PSObject.Properties.Name -contains "beforeSubmitPrompt") {
-        # Remove existing handle-use entries, keep others
-        $cursorEventHooks = @($cursorData.hooks.beforeSubmitPrompt | Where-Object {
+        $useHooks = @($cursorData.hooks.beforeSubmitPrompt | Where-Object {
             -not ($_.command -and $_.command -match "hook-handle-use")
         })
     }
-    $cursorEventHooks += $cursorBeforeSubmitHook
-    
+    $useHooks += $cursorUseHook
     if ($cursorData.hooks.PSObject.Properties.Name -contains "beforeSubmitPrompt") {
-        $cursorData.hooks.beforeSubmitPrompt = $cursorEventHooks
+        $cursorData.hooks.beforeSubmitPrompt = $useHooks
     } else {
-        $cursorData.hooks | Add-Member -NotePropertyName "beforeSubmitPrompt" -NotePropertyValue $cursorEventHooks
+        $cursorData.hooks | Add-Member -NotePropertyName "beforeSubmitPrompt" -NotePropertyValue $useHooks
     }
     
-    # Ensure directory exists
     New-Item -ItemType Directory -Path $CursorDir -Force | Out-Null
-    
     $cursorData | ConvertTo-Json -Depth 10 | Set-Content $CursorHooksFile -Encoding UTF8
-    Write-Host "  Cursor beforeSubmitPrompt hook registered" -ForegroundColor Green
+    Write-Host "  Cursor hooks registered: $($cursorEvents -join ', '), beforeSubmitPrompt" -ForegroundColor Green
 }
 
 # --- Install skills ---

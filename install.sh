@@ -567,9 +567,11 @@ elif [ -f "$FISH_CONFIG" ] && [ ! -w "$FISH_CONFIG" ]; then
 fi
 FISH_COMPLETIONS_DIR="$HOME/.config/fish/completions"
 if [ -d "$HOME/.config/fish" ]; then
-  mkdir -p "$FISH_COMPLETIONS_DIR"
-  cp "$INSTALL_DIR/completions.fish" "$FISH_COMPLETIONS_DIR/peon.fish"
-  echo "Installed fish completions to $FISH_COMPLETIONS_DIR/peon.fish"
+  if mkdir -p "$FISH_COMPLETIONS_DIR" 2>/dev/null && cp "$INSTALL_DIR/completions.fish" "$FISH_COMPLETIONS_DIR/peon.fish" 2>/dev/null; then
+    echo "Installed fish completions to $FISH_COMPLETIONS_DIR/peon.fish"
+  else
+    echo "Warning: could not install fish completions (permission denied)" >&2
+  fi
 fi
 
 # --- Verify sounds are installed ---
@@ -813,10 +815,11 @@ with open(settings_path, 'w') as f:
 print('UserPromptSubmit hook registered for /peon-ping-use command')
 "
 
-# Register beforeSubmitPrompt hook for Cursor IDE if ~/.cursor exists
+# Register hooks for Cursor IDE if ~/.cursor exists
 CURSOR_DIR="$HOME/.cursor"
 CURSOR_HOOKS_FILE="$CURSOR_DIR/hooks.json"
-CURSOR_HOOK_CMD="$GLOBAL_BASE/hooks/peon-ping/scripts/hook-handle-use.sh"
+CURSOR_USE_CMD="$GLOBAL_BASE/hooks/peon-ping/scripts/hook-handle-use.sh"
+CURSOR_ADAPTER="$GLOBAL_BASE/hooks/peon-ping/adapters/cursor.sh"
 
 if [ -d "$CURSOR_DIR" ]; then
   echo ""
@@ -826,16 +829,15 @@ if [ -d "$CURSOR_DIR" ]; then
 import json, os
 
 hooks_file = '$CURSOR_HOOKS_FILE'
-hook_cmd = '$CURSOR_HOOK_CMD'
+use_cmd = '$CURSOR_USE_CMD'
+adapter = '$CURSOR_ADAPTER'
 
-# Load or create hooks.json
 if os.path.exists(hooks_file):
     with open(hooks_file) as f:
         data = json.load(f)
 else:
     data = {'version': 1, 'hooks': {}}
 
-# Ensure version and hooks structure
 if 'version' not in data:
     data['version'] = 1
 if 'hooks' not in data:
@@ -843,41 +845,48 @@ if 'hooks' not in data:
 
 hooks = data['hooks']
 
-# Create beforeSubmitPrompt hook entry (Cursor format)
-before_submit_hook = {
-    'command': hook_cmd,
-    'timeout': 5
-}
-
-# Handle both flat-array format [{event, command}] and dict format {event: [{command}]}
+# Normalize flat-array format to dict format
 if isinstance(hooks, list):
-    # Flat array format: remove existing handle-use entries for this event
-    hooks = [
-        h for h in hooks
-        if not (h.get('event') == 'beforeSubmitPrompt' and 'hook-handle-use.sh' in h.get('command', ''))
-    ]
-    before_submit_hook['event'] = 'beforeSubmitPrompt'
-    hooks.append(before_submit_hook)
-else:
-    # Dict format
-    event_hooks = hooks.get('beforeSubmitPrompt', [])
+    converted = {}
+    for h in hooks:
+        evt = h.pop('event', None)
+        if evt:
+            converted.setdefault(evt, []).append(h)
+    hooks = converted
+
+# Main sound hooks via cursor adapter
+cursor_events = ['stop', 'beforeShellExecution', 'afterFileEdit']
+for evt in cursor_events:
+    hook_entry = {
+        'command': 'bash ' + adapter + ' ' + evt,
+        'timeout': 10
+    }
+    event_hooks = hooks.get(evt, [])
     event_hooks = [
         h for h in event_hooks
-        if 'hook-handle-use.sh' not in h.get('command', '')
+        if 'peon-ping' not in h.get('command', '')
     ]
-    event_hooks.append(before_submit_hook)
-    hooks['beforeSubmitPrompt'] = event_hooks
+    event_hooks.append(hook_entry)
+    hooks[evt] = event_hooks
+
+# Skill handler hook (beforeSubmitPrompt)
+use_hook = {'command': use_cmd, 'timeout': 5}
+event_hooks = hooks.get('beforeSubmitPrompt', [])
+event_hooks = [
+    h for h in event_hooks
+    if 'hook-handle-use' not in h.get('command', '')
+]
+event_hooks.append(use_hook)
+hooks['beforeSubmitPrompt'] = event_hooks
 
 data['hooks'] = hooks
-
-# Ensure directory exists
 os.makedirs(os.path.dirname(hooks_file), exist_ok=True)
 
 with open(hooks_file, 'w') as f:
     json.dump(data, f, indent=2)
     f.write('\n')
 
-print('Cursor beforeSubmitPrompt hook registered')
+print('Cursor hooks registered: ' + ', '.join(cursor_events + ['beforeSubmitPrompt']))
 "
 fi
 
