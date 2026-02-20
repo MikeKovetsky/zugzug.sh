@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.4.0 (2026-02-19)
+
+### Added
+- **`notify_always` config option**: Overlay notifications now show on every response by default, even when the terminal is focused. Set `"notify_always": false` in `config.json` to restore the old focus-aware behavior.
+
 ## v3.3.0 (2026-02-20)
 
 ### Added

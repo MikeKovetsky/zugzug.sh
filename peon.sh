@@ -2503,6 +2503,7 @@ if str(cfg.get('enabled', True)).lower() == 'false':
 
 volume = cfg.get('volume', 0.5)
 desktop_notif = cfg.get('desktop_notifications', True)
+notify_always = cfg.get('notify_always', True)
 use_sound_effects_device = cfg.get('use_sound_effects_device', True)
 linux_audio_player = cfg.get('linux_audio_player', '')
 tab_color_cfg = cfg.get('tab_color', {})
@@ -3554,6 +3555,7 @@ print('NOTIFY=' + q(notify))
 print('NOTIFY_COLOR=' + q(notify_color))
 print('MSG=' + q(msg))
 print('DESKTOP_NOTIF=' + ('true' if desktop_notif else 'false'))
+print('NOTIFY_ALWAYS=' + ('true' if notify_always else 'false'))
 print('NOTIF_STYLE=' + q(cfg.get('notification_style', 'overlay')))
 print('USE_SOUND_EFFECTS_DEVICE=' + q(str(use_sound_effects_device).lower()))
 print('LINUX_AUDIO_PLAYER=' + q(linux_audio_player))
@@ -3669,9 +3671,9 @@ _run_sound_and_notify() {
     play_sound "$SOUND_FILE" "$VOLUME"
   fi
 
-  # --- Smart notification: only when terminal is NOT frontmost ---
+  # --- Notification: always show, or only when terminal is not frontmost ---
   if [ -n "$NOTIFY" ] && [ "$PAUSED" != "true" ] && [ "${DESKTOP_NOTIF:-true}" = "true" ]; then
-    if ! terminal_is_focused; then
+    if [ "${NOTIFY_ALWAYS:-true}" = "true" ] || ! terminal_is_focused; then
       local _notif_msg="$MSG"
       [ -n "${GAME_NOTIFY:-}" ] && _notif_msg="$_notif_msg  —  $GAME_NOTIFY"
       send_notification "$_notif_msg" "$TITLE" "${NOTIFY_COLOR:-red}" "${ICON_PATH:-}"
@@ -3922,7 +3924,7 @@ if [ -n "${TRAINER_SOUND:-}" ] && [ -f "$TRAINER_SOUND" ]; then
       sleep 0.5
       play_sound "$TRAINER_SOUND" "$VOLUME"
       if [ -n "$NOTIFY" ] && [ "$PAUSED" != "true" ] && [ "${DESKTOP_NOTIF:-true}" = "true" ]; then
-        if ! terminal_is_focused; then
+        if [ "${NOTIFY_ALWAYS:-true}" = "true" ] || ! terminal_is_focused; then
           send_notification "Peon Trainer" "${TRAINER_MSG:-Time for reps!}" "blue"
         fi
       fi
