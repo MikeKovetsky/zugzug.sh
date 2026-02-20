@@ -3587,7 +3587,7 @@ if [ "$EVENT" = "SessionStart" ]; then
       LOCAL_VERSION=""
       [ -f "$PEON_DIR/VERSION" ] && LOCAL_VERSION=$(cat "$PEON_DIR/VERSION" | tr -d '[:space:]')
       REMOTE_VERSION=$(curl -fsSL --connect-timeout 3 --max-time 5 \
-        "https://raw.githubusercontent.com/PeonPing/peon-ping/main/VERSION" 2>/dev/null | tr -d '[:space:]')
+        "https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/VERSION" 2>/dev/null | tr -d '[:space:]')
       if [ -n "$REMOTE_VERSION" ] && [ -n "$LOCAL_VERSION" ] && [ "$REMOTE_VERSION" != "$LOCAL_VERSION" ]; then
         # Write update notice to a file so we can display it
         echo "$REMOTE_VERSION" > "$PEON_DIR/.update_available"

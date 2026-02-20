@@ -59,7 +59,7 @@ if [ "$OPENCLAW_MODE" = false ]; then
   INSTALL_DIR="$BASE_DIR/hooks/peon-ping"
   SETTINGS="$BASE_DIR/settings.json"
 fi
-REPO_BASE="https://raw.githubusercontent.com/PeonPing/peon-ping/main"
+REPO_BASE="https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main"
 REGISTRY_URL="https://peonping.github.io/registry/index.json"
 
 if [ "$INIT_LOCAL_CONFIG" = true ]; then
@@ -321,6 +321,9 @@ if [ -n "$SCRIPT_DIR" ]; then
     mkdir -p "$INSTALL_DIR/docs"
     cp "$SCRIPT_DIR/docs/peon-icon.png" "$INSTALL_DIR/docs/"
   fi
+  if [ -f "$SCRIPT_DIR/dashboard/index.html" ]; then
+    cp "$SCRIPT_DIR/dashboard/index.html" "$INSTALL_DIR/dashboard.html"
+  fi
   if [ "$UPDATING" = false ]; then
     cp "$SCRIPT_DIR/config.json" "$INSTALL_DIR/"
   fi
@@ -347,6 +350,7 @@ else
   curl -fsSL "$REPO_BASE/scripts/mac-overlay.js" -o "$INSTALL_DIR/scripts/mac-overlay.js" 2>/dev/null || true
   mkdir -p "$INSTALL_DIR/docs"
   curl -fsSL "$REPO_BASE/docs/peon-icon.png" -o "$INSTALL_DIR/docs/peon-icon.png" 2>/dev/null || true
+  curl -fsSL "$REPO_BASE/dashboard/index.html" -o "$INSTALL_DIR/dashboard.html" 2>/dev/null || true
   if [ "$UPDATING" = false ]; then
     curl -fsSL "$REPO_BASE/config.json" -o "$INSTALL_DIR/config.json"
   fi
