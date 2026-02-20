@@ -102,7 +102,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; }
 .hero-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
 .hero-links a:hover { color: var(--gold); }
 
-.frame { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.frame { max-width: 960px; margin: 0 auto; padding: 0 24px; }
 
 section { padding: 80px 0; }
 section:nth-child(even) { background: rgba(20,20,40,0.5); }
@@ -270,18 +270,12 @@ footer {
 footer a { color: var(--gold); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: center;
-}
-.two-col.reverse { direction: rtl; }
-.two-col.reverse > * { direction: ltr; }
+.showcase-section { }
+.showcase-section .section-desc { margin-bottom: 24px; }
 
 @media (max-width: 768px) {
   .level-grid { grid-template-columns: repeat(3, 1fr); }
-  .two-col, .two-col.reverse { grid-template-columns: 1fr; }
+  
   .hero { padding: 48px 16px 40px; }
   section { padding: 48px 0; }
 }
@@ -316,12 +310,10 @@ footer a:hover { text-decoration: underline; }
 
 <section>
   <div class="frame">
-    <div class="two-col">
-      <div>
-        <div class="section-title">Dashboard</div>
-        <div class="section-heading">Your WC3 Command Center</div>
-        <div class="section-desc" style="margin-bottom:16px">Auto-opens in your browser on first prompt. Live-updating character portrait, XP bar, progression ladder, resources, and activity feed. No configuration needed.</div>
-      </div>
+    <div class="showcase-section">
+      <div class="section-title">Dashboard</div>
+      <div class="section-heading">Your WC3 Command Center</div>
+      <div class="section-desc">Auto-opens in your browser on first prompt. Live-updating character portrait, XP bar, progression ladder, resources, and activity feed. No configuration needed.</div>
       <div class="screenshot-wrap">
         <img src="docs/screenshots/screenshot-character.png" class="screenshot" alt="Character page">
         <div class="screenshot-caption">Character page &mdash; Level 4 Knight</div>
@@ -332,12 +324,10 @@ footer a:hover { text-decoration: underline; }
 
 <section>
   <div class="frame">
-    <div class="two-col reverse">
-      <div>
-        <div class="section-title">Base Building</div>
-        <div class="section-heading">Build Structures. Unlock Perks.</div>
-        <div class="section-desc" style="margin-bottom:16px">Spend gold and lumber to construct 8 buildings on your base map. Each one unlocks a real perk: combo tracking, roast suppression, random treasure events, on-demand taunts.</div>
-      </div>
+    <div class="showcase-section">
+      <div class="section-title">Base Building</div>
+      <div class="section-heading">Build Structures. Unlock Perks.</div>
+      <div class="section-desc">Spend gold and lumber to construct 8 buildings on your base map. Each one unlocks a real perk: combo tracking, roast suppression, random treasure events, on-demand taunts.</div>
       <div class="screenshot-wrap">
         <img src="docs/screenshots/screenshot-base.png" class="screenshot" alt="Base building">
         <div class="screenshot-caption">Base page &mdash; 6 buildings constructed</div>
@@ -348,18 +338,16 @@ footer a:hover { text-decoration: underline; }
 
 <section>
   <div class="frame">
-    <div class="two-col">
-      <div>
-        <div class="section-title">Loot System</div>
-        <div class="section-heading">31 Items. 5 Rarity Tiers.</div>
-        <div class="section-desc" style="margin-bottom:16px">Items drop randomly from completed tasks. Equip them to boost gold income, suppress roasts, make combos unbreakable, or lifesteal from errors. Legendary drop rate: 0.01%.</div>
-        <div class="rarity-row">
-          <span class="rarity-tag r-common">Common</span>
-          <span class="rarity-tag r-uncommon">Uncommon</span>
-          <span class="rarity-tag r-rare">Rare</span>
-          <span class="rarity-tag r-epic">Epic</span>
-          <span class="rarity-tag r-legendary">Legendary</span>
-        </div>
+    <div class="showcase-section">
+      <div class="section-title">Loot System</div>
+      <div class="section-heading">31 Items. 5 Rarity Tiers.</div>
+      <div class="section-desc">Items drop randomly from completed tasks. Equip them to boost gold income, suppress roasts, make combos unbreakable, or lifesteal from errors. Legendary drop rate: 0.01%.</div>
+      <div class="rarity-row" style="margin-bottom:24px">
+        <span class="rarity-tag r-common">Common</span>
+        <span class="rarity-tag r-uncommon">Uncommon</span>
+        <span class="rarity-tag r-rare">Rare</span>
+        <span class="rarity-tag r-epic">Epic</span>
+        <span class="rarity-tag r-legendary">Legendary</span>
       </div>
       <div class="screenshot-wrap">
         <img src="docs/screenshots/screenshot-inventory.png" class="screenshot" alt="Inventory">
@@ -408,12 +396,10 @@ footer a:hover { text-decoration: underline; }
 
 <section>
   <div class="frame">
-    <div class="two-col reverse">
-      <div>
-        <div class="section-title">Achievements</div>
-        <div class="section-heading">14 Milestones to Chase</div>
-        <div class="section-desc" style="margin-bottom:16px">WC3-themed achievements tracked across all your coding sessions. Hover any to see unlock conditions. Some are secret.</div>
-      </div>
+    <div class="showcase-section">
+      <div class="section-title">Achievements</div>
+      <div class="section-heading">14 Milestones to Chase</div>
+      <div class="section-desc">WC3-themed achievements tracked across all your coding sessions. Hover any to see unlock conditions. Some are secret.</div>
       <div class="screenshot-wrap">
         <img src="docs/screenshots/screenshot-achievements.png" class="screenshot" alt="Achievements">
         <div class="screenshot-caption">Achievements &mdash; Zug Zug Veteran and Night Elf unlocked</div>
