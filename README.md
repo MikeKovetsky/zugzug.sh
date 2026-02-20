@@ -58,7 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh 
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.ps1" -UseBasicParsing | Invoke-Expression
 ```
 
-Installs 5 curated packs by default (Warcraft, StarCraft, Portal). Re-run to update while preserving config/state. Or **[pick your packs interactively at peonping.com](https://peonping.com/#picker)** and get a custom install command.
+Installs 9 curated packs by default (Warcraft, StarCraft, Portal, Dota 2) to support the level system out of the box. Re-run to update while preserving config/state. Or **[pick your packs interactively at peonping.com](https://peonping.com/#picker)** and get a custom install command.
 
 Useful installer flags:
 
@@ -164,7 +164,38 @@ Pausing mutes sounds and desktop notifications instantly. Persists across sessio
 
 ## WC3 Metagame
 
-peon-ping includes a full Warcraft III base-building metagame layered on top of your coding sessions. Earn gold and lumber, build structures, unlock achievements, and get roasted by your peon.
+peon-ping includes a full Warcraft III base-building metagame layered on top of your coding sessions. Earn gold and lumber, level up your character, build structures, unlock achievements, collect loot, and get roasted by your peon.
+
+The dashboard auto-opens in your browser on the first hook event. Or run `peon dashboard` anytime.
+
+### Character Progression
+
+Every task you complete earns XP. As you level up, your character evolves through iconic Warcraft III characters across all factions — and so do your sounds and overlay portrait.
+
+| Level | Character | Faction | Tasks | Sound Pack |
+|-------|-----------|---------|-------|------------|
+| 1 | Peon | Orc | 0 | `peon` |
+| 2 | Peasant | Human | 25 | `peasant` |
+| 3 | Grunt | Orc | 100 | `peon` |
+| 4 | Knight | Human | 250 | `peasant` |
+| 5 | Far Seer | Orc | 500 | `peon` |
+| 6 | Jaina | Human | 1,000 | `wc3_jaina` |
+| 7 | Witch Doctor | Troll | 2,500 | `dota2_witch_doctor` |
+| 8 | Arthas | Undead | 5,000 | `wc3_corrupted_arthas` |
+| 9 | Brewmaster | Neutral | 10,000 | — |
+| 10 | Murloc | ??? | 1,000,000 | `murloc` |
+
+Your level drives everything: the voice lines you hear, the portrait in your overlay notifications, and the character shown in the dashboard. Level 10 at 1 million tasks gets a rainbow-glow portrait and murloc sounds. Good luck.
+
+<div align="center">
+<img src="docs/screenshots/screenshot-character.png" width="800" alt="Character progression page">
+</div>
+
+### Base Building
+
+<div align="center">
+<img src="docs/screenshots/screenshot-base.png" width="800" alt="Base building page">
+</div>
 
 ### Economy
 
@@ -196,11 +227,23 @@ Spend gold and lumber to build structures that unlock real perks:
 | **Spirit Lodge** | 500g/200l | Unlocks idle peon thoughts |
 | **Tavern** | 400g/200l | `peon taunt` — play a random roast on demand |
 
+### Items & Loot
+
+Items drop randomly from completed tasks. Legendary items have a 0.01% drop rate. Equip items to boost your gold, lumber, and combat stats.
+
+<div align="center">
+<img src="docs/screenshots/screenshot-inventory.png" width="800" alt="Inventory page">
+</div>
+
 ### Achievements
 
 14 achievements with WC3-themed flavor text, tracked across sessions:
 
 *First Blood* · *Zug Zug Veteran* (100 tasks) · *Night Elf* (code past 2 AM) · *Dawn Patrol* (session before 6 AM) · *Weekend Warrior* · *Iron Peon* (7-day streak) · *Rage Quit* (3+ errors) · *Oops* (50 errors) · *The Grind* (1000 tasks) · *Architect* (all buildings) · *Bankrupt* (-500 gold) · *Mogul* (5000 lifetime gold) · and more.
+
+<div align="center">
+<img src="docs/screenshots/screenshot-achievements.png" width="800" alt="Achievements page">
+</div>
 
 ### Roasts (Levels 0-5)
 
@@ -218,7 +261,11 @@ Build a **War Mill** to unlock multi-kill tracking. Consecutive task completions
 
 ### Dashboard
 
-Run `peon dashboard` to open a WC3-themed web dashboard at `localhost:19997`. Shows your base, resources, buildings, achievements, activity feed, and stats — all live-updating. The dashboard server auto-starts on the first hook event.
+The WC3-themed dashboard at `localhost:19997` auto-opens on first hook event. Shows your character, base, inventory, achievements, stats, and activity feed — all live-updating. Or run `peon dashboard` to open it manually.
+
+<div align="center">
+<img src="docs/screenshots/screenshot-stats.png" width="800" alt="Stats and activity page">
+</div>
 
 ### Time Awareness
 

@@ -57,7 +57,7 @@ curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh 
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.ps1" -UseBasicParsing | Invoke-Expression
 ```
 
-默认安装 5 个精选语音包（魔兽、星际、传送门）。重新运行可更新，同时保留配置和状态。你也可以在 **[peonping.com 交互式选择语音包](https://peonping.com/#picker)** 获取自定义安装命令。
+默认安装 9 个精选语音包（魔兽、星际、传送门、Dota 2）以支持等级系统。重新运行可更新，同时保留配置和状态。你也可以在 **[peonping.com 交互式选择语音包](https://peonping.com/#picker)** 获取自定义安装命令。
 
 实用安装参数：
 
@@ -144,6 +144,65 @@ peon relay --stop         # 停止后台中继
 支持 Tab 补全 — 输入 `peon packs use <TAB>` 查看可用语音包名称。
 
 暂停会立即静音声音和桌面通知。暂停状态会跨会话保持，直到你恢复。暂停时标签页标题仍会更新。
+
+## WC3 元游戏
+
+peon-ping 包含一个完整的魔兽争霸 III 基地建设元游戏，叠加在你的编程会话之上。赚取金币和木材，升级角色，建造建筑，解锁成就，收集装备，还会被你的苦工嘲讽。
+
+仪表板会在首次钩子事件时自动在浏览器中打开。或随时运行 `peon dashboard`。
+
+### 角色成长
+
+每完成一个任务都会获得经验值。随着等级提升，你的角色会进化为魔兽争霸 III 中各阵营的标志性角色 — 音效和通知头像也会随之变化。
+
+| 等级 | 角色 | 阵营 | 任务数 | 语音包 |
+|------|------|------|--------|--------|
+| 1 | 苦工 | 兽族 | 0 | `peon` |
+| 2 | 农民 | 人族 | 25 | `peasant` |
+| 3 | 步兵 | 兽族 | 100 | `peon` |
+| 4 | 骑士 | 人族 | 250 | `peasant` |
+| 5 | 先知 | 兽族 | 500 | `peon` |
+| 6 | 吉安娜 | 人族 | 1,000 | `wc3_jaina` |
+| 7 | 巫医 | 巨魔 | 2,500 | `dota2_witch_doctor` |
+| 8 | 阿尔萨斯 | 亡灵 | 5,000 | `wc3_corrupted_arthas` |
+| 9 | 熊猫酒仙 | 中立 | 10,000 | — |
+| 10 | 鱼人 | ??? | 1,000,000 | `murloc` |
+
+你的等级决定一切：听到的语音、通知中的头像、仪表板中显示的角色。10 级需要 100 万个任务，会获得彩虹光效头像和鱼人音效。祝你好运。
+
+<div align="center">
+<img src="docs/screenshots/screenshot-character.png" width="800" alt="角色成长页面">
+</div>
+
+### 基地建设
+
+<div align="center">
+<img src="docs/screenshots/screenshot-base.png" width="800" alt="基地建设页面">
+</div>
+
+### 物品与装备
+
+物品会在完成任务时随机掉落。传说级物品掉率仅 0.01%。装备物品可以提升你的金币、木材和战斗属性。
+
+<div align="center">
+<img src="docs/screenshots/screenshot-inventory.png" width="800" alt="物品栏页面">
+</div>
+
+### 成就
+
+14 项成就，带有魔兽争霸主题文案，跨会话追踪。
+
+<div align="center">
+<img src="docs/screenshots/screenshot-achievements.png" width="800" alt="成就页面">
+</div>
+
+### 仪表板
+
+WC3 主题仪表板位于 `localhost:19997`，首次钩子事件时自动打开。显示你的角色、基地、物品栏、成就、统计数据和活动记录 — 全部实时更新。
+
+<div align="center">
+<img src="docs/screenshots/screenshot-stats.png" width="800" alt="统计和活动页面">
+</div>
 
 ## 配置
 
@@ -574,7 +633,7 @@ peon mobile test          # 发送测试通知
 
 ## 语音包
 
-75 多个语音包，涵盖魔兽争霸、星际争霸、红色警戒、传送门、塞尔达、Dota 2、绝地潜兵2、上古卷轴等。默认安装包含 5 个精选语音包：
+75 多个语音包，涵盖魔兽争霸、星际争霸、红色警戒、传送门、塞尔达、Dota 2、绝地潜兵2、上古卷轴等。默认安装包含 9 个精选语音包：
 
 | 语音包 | 角色 | 声音 |
 |---|---|---|

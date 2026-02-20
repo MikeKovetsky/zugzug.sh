@@ -80,6 +80,19 @@ Notable packs: peon (Warcraft III orc), glados (Portal), sc_kerrigan (StarCraft)
 
 Full list: https://openpeon.com/packs
 
+## WC3 Metagame
+
+Full Warcraft III base-building metagame layered on coding sessions:
+
+- Character Progression: 10 levels from Peon (Lvl 1) to Murloc (Lvl 10, 1M tasks). Level determines sound pack, overlay portrait, and dashboard character.
+- Economy: Earn gold (task completions) and lumber (prompts). Gold mine depletion, debt with interest.
+- Buildings: 8 structures with real perks (combos, roast suppression, random events, on-demand taunts).
+- Items: 31 items across 5 rarity tiers. Equip for gold/lumber bonuses, roast immunity, combo persistence.
+- Achievements: 14 WC3-themed milestones tracked across sessions.
+- Roasts: Sass levels 0-5 escalate with errors. Peon gets increasingly savage.
+- Combos: Multi-kill tracking (Double/Triple/Mega/UNSTOPPABLE/GODLIKE).
+- Dashboard: Auto-opens at localhost:19997. Character page, base map, inventory, achievements, stats, activity feed.
+
 ## Key Features
 
 - Volume control (0.0–1.0)
@@ -89,7 +102,7 @@ Full list: https://openpeon.com/packs
 - Terminal tab title updates (● project: done)
 - Mobile push notifications (ntfy.sh, Pushover, Telegram)
 - Remote development support (SSH, devcontainers, Codespaces)
-- Pack rotation (random, round-robin, or agent-assigned)
+- Level-driven sound packs (level determines which voice you hear)
 - Multi-language packs (English, Spanish, French, Czech, Polish, Russian)
 
 ## Configuration
@@ -106,6 +119,8 @@ peon volume [0.0-1.0]
 peon rotation [random|round-robin|agentskill]
 peon packs list / use / install / next / remove
 peon notifications on / off / test
+peon economy / build / achievements / inventory / equip / unequip / use
+peon dashboard
 peon mobile ntfy <topic>
 peon relay --daemon
 peon trainer on / off / log / status
