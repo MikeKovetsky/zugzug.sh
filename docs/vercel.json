@@ -1,9 +1,0 @@
-{
-  "redirects": [
-    {
-      "source": "/install",
-      "destination": "https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh",
-      "statusCode": 301
-    }
-  ]
-}
