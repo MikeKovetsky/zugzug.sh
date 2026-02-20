@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZugZug — Turn Your IDE Into Warcraft III</title>
+<meta name="description" content="Gamify vibecoding. Earn gold, level up through WC3 characters, build your base, farm achievements, and collect legendary loot — all while shipping code.">
+<meta property="og:title" content="ZugZug — Turn Your IDE Into Warcraft III">
+<meta property="og:description" content="Gamify vibecoding. Earn gold, level up, build your base, and get roasted by your peon.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #ffab01;
+  --dark-gold: #b8860b;
+  --bg: #0d0d1a;
+  --panel: #141428;
+  --border: #2a2a4a;
+  --text: #e0d8c8;
+  --muted: #8a8472;
+  --green: #4a8;
+  --red: #c44;
+  --purple: #a335ee;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+h1, h2, h3 { font-family: 'Cinzel', serif; }
+
+.hero {
+  text-align: center;
+  padding: 80px 24px 60px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,171,1,0.08) 0%, transparent 60%),
+    var(--bg);
+}
+.hero-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--gold);
+  border: 1px solid rgba(255,171,1,0.3);
+  padding: 4px 16px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 40px rgba(255,171,1,0.15);
+  margin-bottom: 16px;
+}
+.hero-sub {
+  font-size: clamp(16px, 2.5vw, 22px);
+  color: var(--text);
+  max-width: 700px;
+  margin: 0 auto 32px;
+}
+.hero-sub strong { color: var(--gold); }
+.install-box {
+  display: inline-block;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 15px;
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.install-box:hover { border-color: var(--gold); box-shadow: 0 0 20px rgba(255,171,1,0.1); }
+.install-box::after {
+  content: 'click to copy';
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'Inter', sans-serif;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.install-box:hover::after { opacity: 1; }
+.install-box.copied::after { content: 'copied!'; color: var(--green); opacity: 1; }
+.hero-links {
+  margin-top: 20px;
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  font-size: 14px;
+}
+.hero-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.hero-links a:hover { color: var(--gold); }
+
+.frame { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+section { padding: 80px 0; }
+section:nth-child(even) { background: rgba(20,20,40,0.5); }
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.section-heading {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+.section-desc {
+  color: var(--muted);
+  max-width: 600px;
+  margin-bottom: 40px;
+  font-size: 16px;
+}
+
+.screenshot {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+.screenshot-wrap {
+  position: relative;
+  margin-bottom: 40px;
+}
+.screenshot-caption {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 32px;
+}
+.level-card {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 12px;
+  text-align: center;
+  transition: all 0.3s;
+}
+.level-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.level-card.murloc-card {
+  border: 2px solid transparent;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-image:
+    linear-gradient(var(--panel), var(--panel)),
+    conic-gradient(from var(--ma), #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff, #ff0000);
+  animation: spin 3s linear infinite;
+}
+@property --ma { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes spin { to { --ma: 360deg; } }
+.level-icon { width: 48px; height: 48px; image-rendering: pixelated; border-radius: 4px; margin-bottom: 8px; }
+.level-num { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.level-name { font-weight: 700; font-size: 14px; margin: 2px 0; }
+.level-tasks { font-size: 11px; color: var(--muted); }
+.level-faction { font-size: 10px; color: var(--dark-gold); text-transform: uppercase; letter-spacing: 1px; }
+.level-card.murloc-card .level-tasks { color: var(--red); font-weight: 700; }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.feature-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  transition: border-color 0.2s;
+}
+.feature-card:hover { border-color: var(--gold); }
+.feature-icon { font-size: 28px; margin-bottom: 12px; }
+.feature-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-family: 'Cinzel', serif;
+  color: var(--gold);
+}
+.feature-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+.rarity-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.rarity-tag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.r-common { color: #aaa; border-color: #666; }
+.r-uncommon { color: #1eff00; border-color: #1eff00; }
+.r-rare { color: #0070dd; border-color: #0070dd; }
+.r-epic { color: #a335ee; border-color: #a335ee; }
+.r-legendary { color: #ff8000; border-color: #ff8000; }
+
+.roast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  max-width: 500px;
+}
+.roast-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+.roast-item.r0 { border-color: var(--green); }
+.roast-item.r2 { border-color: var(--gold); }
+.roast-item.r4 { border-color: var(--red); }
+.roast-lvl { font-size: 11px; color: var(--muted); font-weight: 700; min-width: 50px; }
+.roast-text { font-style: italic; font-size: 14px; }
+
+.cta {
+  text-align: center;
+  padding: 80px 24px;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(255,171,1,0.06) 0%, transparent 60%),
+    var(--bg);
+}
+.cta h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.cta p {
+  color: var(--muted);
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+footer {
+  text-align: center;
+  padding: 32px;
+  font-size: 13px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--gold); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.two-col.reverse { direction: rtl; }
+.two-col.reverse > * { direction: ltr; }
+
+@media (max-width: 768px) {
+  .level-grid { grid-template-columns: repeat(3, 1fr); }
+  .two-col, .two-col.reverse { grid-template-columns: 1fr; }
+  .hero { padding: 48px 16px 40px; }
+  section { padding: 48px 0; }
+}
+@media (max-width: 480px) {
+  .level-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Powered by peon-ping</div>
+  <h1>Turn Your IDE Into Warcraft III</h1>
+  <p class="hero-sub">Every token earns <strong>gold</strong>. Every task gives <strong>XP</strong>. Level up through WC3 heroes, build your base, farm achievements, and collect legendary loot &mdash; all while shipping code.</p>
+  <div class="install-box" onclick="navigator.clipboard.writeText('curl -fsSL peonping.com/install | bash');this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)">
+    curl -fsSL peonping.com/install | bash
+  </div>
+  <div class="hero-links">
+    <a href="https://github.com/PeonPing/peon-ping">GitHub</a>
+    <a href="https://peonping.com">peonping.com</a>
+    <a href="https://x.com/peonping">@peonping</a>
+  </div>
+</div>
+
+<section>
+  <div class="frame">
+    <div class="section-title">Character Progression</div>
+    <div class="section-heading">9 Levels. Every Faction. One Secret.</div>
+    <div class="section-desc">Start as a lowly Peon. Grind your way through Orc, Human, Troll, Undead, and Neutral heroes. Each level changes your voice lines, overlay portrait, and dashboard character. Rumors say there's a secret Level 10. Nobody has reached it yet.</div>
+
+    <div class="level-grid" id="levels"></div>
+  </div>
+</section>
+
+<section>
+  <div class="frame">
+    <div class="two-col">
+      <div>
+        <div class="section-title">Dashboard</div>
+        <div class="section-heading">Your WC3 Command Center</div>
+        <div class="section-desc" style="margin-bottom:16px">Auto-opens in your browser on first prompt. Live-updating character portrait, XP bar, progression ladder, resources, and activity feed. No configuration needed.</div>
+      </div>
+      <div class="screenshot-wrap">
+        <img src="docs/screenshots/screenshot-character.png" class="screenshot" alt="Character page">
+        <div class="screenshot-caption">Character page &mdash; Level 4 Knight</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="frame">
+    <div class="two-col reverse">
+      <div>
+        <div class="section-title">Base Building</div>
+        <div class="section-heading">Build Structures. Unlock Perks.</div>
+        <div class="section-desc" style="margin-bottom:16px">Spend gold and lumber to construct 8 buildings on your base map. Each one unlocks a real perk: combo tracking, roast suppression, random treasure events, on-demand taunts.</div>
+      </div>
+      <div class="screenshot-wrap">
+        <img src="docs/screenshots/screenshot-base.png" class="screenshot" alt="Base building">
+        <div class="screenshot-caption">Base page &mdash; 6 buildings constructed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="frame">
+    <div class="two-col">
+      <div>
+        <div class="section-title">Loot System</div>
+        <div class="section-heading">31 Items. 5 Rarity Tiers.</div>
+        <div class="section-desc" style="margin-bottom:16px">Items drop randomly from completed tasks. Equip them to boost gold income, suppress roasts, make combos unbreakable, or lifesteal from errors. Legendary drop rate: 0.01%.</div>
+        <div class="rarity-row">
+          <span class="rarity-tag r-common">Common</span>
+          <span class="rarity-tag r-uncommon">Uncommon</span>
+          <span class="rarity-tag r-rare">Rare</span>
+          <span class="rarity-tag r-epic">Epic</span>
+          <span class="rarity-tag r-legendary">Legendary</span>
+        </div>
+      </div>
+      <div class="screenshot-wrap">
+        <img src="docs/screenshots/screenshot-inventory.png" class="screenshot" alt="Inventory">
+        <div class="screenshot-caption">Inventory &mdash; 6 equipped, Ashbringer in backpack</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="frame">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F4B0;</div>
+        <h3>Economy</h3>
+        <p>+10 gold per task. +5 lumber per session. Errors cost -5g. Gold mine depletes after 80 daily tasks. Go into debt and peon charges interest.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F525;</div>
+        <h3>Combos</h3>
+        <p>Consecutive tasks without errors. Double kill &rarr; Triple kill &rarr; Mega kill &rarr; UNSTOPPABLE &rarr; GODLIKE. Requires War Mill building.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F3C6;</div>
+        <h3>14 Achievements</h3>
+        <p>First Blood. Night Elf (code past 2 AM). Iron Peon (7-day streak). The Grind (1000 tasks). Mogul (5000 gold). Tracked forever.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F608;</div>
+        <h3>Roasts (Lvl 0-5)</h3>
+        <p>The worse you code, the more savage peon gets. Level 3: "Human considered different career?" Level 5: "Peon quit. Find another peon."</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F552;</div>
+        <h3>Time Awareness</h3>
+        <p>Dawn greetings. Late-night warnings. Monday morning dread. Friday payday bonus. Peon knows what day it is and judges accordingly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F50A;</div>
+        <h3>75+ Sound Packs</h3>
+        <p>Warcraft, StarCraft, Portal, Zelda, Dota 2, Red Alert, Duke Nukem, TF2, and more. Your level picks the pack automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="frame">
+    <div class="two-col reverse">
+      <div>
+        <div class="section-title">Achievements</div>
+        <div class="section-heading">14 Milestones to Chase</div>
+        <div class="section-desc" style="margin-bottom:16px">WC3-themed achievements tracked across all your coding sessions. Hover any to see unlock conditions. Some are secret.</div>
+      </div>
+      <div class="screenshot-wrap">
+        <img src="docs/screenshots/screenshot-achievements.png" class="screenshot" alt="Achievements">
+        <div class="screenshot-caption">Achievements &mdash; Zug Zug Veteran and Night Elf unlocked</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta">
+  <h2>Ready to Work?</h2>
+  <p>One command. Works with Claude Code, Codex, Cursor, OpenCode, Kiro, Windsurf, and Antigravity.</p>
+  <div class="install-box" onclick="navigator.clipboard.writeText('curl -fsSL peonping.com/install | bash');this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)">
+    curl -fsSL peonping.com/install | bash
+  </div>
+  <div class="hero-links" style="margin-top:20px">
+    <a href="https://github.com/PeonPing/peon-ping">GitHub</a>
+    <a href="https://peonping.com">peonping.com</a>
+    <a href="https://x.com/peonping">@peonping</a>
+  </div>
+</div>
+
+<footer>
+  MIT License &middot; <a href="https://github.com/PeonPing/peon-ping">GitHub</a> &middot; <a href="https://x.com/peonping">@peonping</a> &middot; <a href="https://discord.gg/peonping">Discord</a>
+  <br>Sound files are property of their respective publishers.
+</footer>
+
+<script>
+var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
+var WP = 'https://static.wikia.nocookie.net/wowpedia/images/';
+var LEVELS = [
+  { lvl:1, title:'Peon', faction:'Orc', tasks:'Start', icon:W3+'orc/peon.png' },
+  { lvl:2, title:'Peasant', faction:'Human', tasks:'25', icon:WP+'b/bc/BTNPeasant.png' },
+  { lvl:3, title:'Grunt', faction:'Orc', tasks:'100', icon:W3+'orc/grunt.png' },
+  { lvl:4, title:'Knight', faction:'Human', tasks:'250', icon:WP+'9/97/BTNKnight.png' },
+  { lvl:5, title:'Far Seer', faction:'Orc', tasks:'500', icon:W3+'orc/farseer.png' },
+  { lvl:6, title:'Jaina', faction:'Human', tasks:'1,000', icon:WP+'0/04/BTNJaina.png' },
+  { lvl:7, title:'Witch Doctor', faction:'Troll', tasks:'2,500', icon:W3+'orc/witchdoctor.png' },
+  { lvl:8, title:'Arthas', faction:'Undead', tasks:'5,000', icon:WP+'d/db/BTNHeroDeathKnight.png' },
+  { lvl:9, title:'Brewmaster', faction:'Neutral', tasks:'10,000', icon:W3+'neutral/pandarenbrewmaster.gif' },
+  { lvl:10, title:'???', faction:'???', tasks:'???', icon:'', secret:true },
+];
+var grid = document.getElementById('levels');
+LEVELS.forEach(function(L) {
+  var cls = L.secret ? 'level-card murloc-card' : 'level-card';
+  var t = L.tasks === 'Start' ? 'Start' : L.tasks === '???' ? '???' : L.tasks + ' tasks';
+  var iconHtml = L.secret
+    ? '<div style="font-size:36px;margin-bottom:8px">&#x2753;</div>'
+    : '<img src="' + L.icon + '" class="level-icon" alt="' + L.title + '">';
+  grid.innerHTML += '<div class="' + cls + '">' +
+    iconHtml +
+    '<div class="level-num">Lvl ' + L.lvl + '</div>' +
+    '<div class="level-name">' + L.title + '</div>' +
+    '<div class="level-faction">' + L.faction + '</div>' +
+    '<div class="level-tasks">' + t + '</div>' +
+    '</div>';
+});
+</script>
+</body>
+</html>

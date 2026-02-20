@@ -183,9 +183,9 @@ Every task you complete earns XP. As you level up, your character evolves throug
 | 7 | Witch Doctor | Troll | 2,500 | `dota2_witch_doctor` |
 | 8 | Arthas | Undead | 5,000 | `wc3_corrupted_arthas` |
 | 9 | Brewmaster | Neutral | 10,000 | — |
-| 10 | Murloc | ??? | 1,000,000 | `murloc` |
+| 10 | ??? | ??? | ??? | ??? |
 
-Your level drives everything: the voice lines you hear, the portrait in your overlay notifications, and the character shown in the dashboard. Level 10 at 1 million tasks gets a rainbow-glow portrait and murloc sounds. Good luck.
+Your level drives everything: the voice lines you hear, the portrait in your overlay notifications, and the character shown in the dashboard. There are rumors of a secret Level 10. Nobody has reached it yet.
 
 <div align="center">
 <img src="docs/screenshots/screenshot-character.png" width="800" alt="Character progression page">

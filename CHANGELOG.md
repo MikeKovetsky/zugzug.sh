@@ -11,14 +11,14 @@
 - 8 new BATS tests for level system (level calculation, level-up detection, pack override, fallback)
 
 ### Changed
-- **Default installed packs** expanded from 5 to 9: added `wc3_jaina`, `dota2_witch_doctor`, `wc3_corrupted_arthas`, `murloc` to support level-based sound progression
+- **Default installed packs** expanded from 5 to 9: added `wc3_jaina`, `dota2_witch_doctor`, `wc3_corrupted_arthas`, and more to support level-based sound progression
 - Dashboard default tab changed from Base to Character
 - Base page portrait is now dynamic (updates with level) and clickable (switches to Character tab)
 
 ## v3.2.0 (2026-02-19)
 
 ### Added
-- **Level system**: Cross-faction progression from Peon (Lvl 1) to Murloc (Lvl 10) based on lifetime tasks completed, with level-up notifications and sounds from matching packs
+- **Level system**: Cross-faction progression through 10 levels based on lifetime tasks completed, with level-up notifications and sounds from matching packs
 - **Dashboard API endpoints**: `/api/harvest`, `/api/equip`, `/api/unequip`, `/api/use` — inventory and harvest node interactions now work from the dashboard UI
 - **Dashboard auto-open**: Auto-spawn server now opens the browser on first launch (previously only via `peon dashboard` CLI)
 
