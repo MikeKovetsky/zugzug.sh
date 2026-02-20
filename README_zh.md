@@ -12,7 +12,7 @@
 
 AI 编程助手完成任务或需要权限时不会通知你。你切换标签页、失去焦点，然后浪费 15 分钟重新进入状态。peon-ping 通过魔兽争霸、星际争霸、传送门、塞尔达等游戏的角色语音和醒目的屏幕横幅来解决这个问题 — 支持 **Claude Code**、**GitHub Copilot**、**Codex**、**Cursor**、**OpenCode**、**Kilo CLI**、**Kiro**、**Windsurf**、**Google Antigravity**、**OpenClaw** 及任何 MCP 客户端.
 
-**查看演示** &rarr; [peonping.com](https://peonping.com/)
+**查看演示** &rarr; [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) | [peonping.com](https://peonping.com/)
 
 </div>
 
@@ -701,7 +701,8 @@ powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\hooks\peon-pi
 ## 链接
 
 - [@peonping on X](https://x.com/peonping) — 更新和公告
-- [peonping.com](https://peonping.com/) — 主页
+- [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) — ZugZug 主页
+- [peonping.com](https://peonping.com/) — peon-ping 主页
 - [openpeon.com](https://openpeon.com/) — CESP 规范、语音包浏览器、创建指南
 - [OpenPeon 注册表](https://github.com/PeonPing/registry) — 语音包注册表（GitHub Pages）
 - [og-packs](https://github.com/PeonPing/og-packs) — 官方语音包

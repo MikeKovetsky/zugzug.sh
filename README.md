@@ -12,7 +12,7 @@
 
 AI coding agents don't notify you when they finish or need permission. You tab away, lose focus, and waste 15 minutes getting back into flow. peon-ping fixes this with voice lines and bold on-screen banners from Warcraft, StarCraft, Portal, Zelda, and more — works with **Claude Code**, **GitHub Copilot**, **Codex**, **Cursor**, **OpenCode**, **Kilo CLI**, **Kiro**, **Windsurf**, **Google Antigravity**, and any MCP client.
 
-**See it in action** &rarr; [peonping.com](https://peonping.com/)
+**See it in action** &rarr; [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) | [peonping.com](https://peonping.com/)
 
 </div>
 
@@ -781,7 +781,8 @@ Sound packs are downloaded from the [OpenPeon registry](https://github.com/PeonP
 ## Links
 
 - [@peonping on X](https://x.com/peonping) — updates and announcements
-- [peonping.com](https://peonping.com/) — landing page
+- [zugzug-6l4.pages.dev](https://zugzug-6l4.pages.dev/) — ZugZug landing page
+- [peonping.com](https://peonping.com/) — peon-ping landing page
 - [openpeon.com](https://openpeon.com/) — CESP spec, pack browser, creation guide
 - [OpenPeon registry](https://github.com/PeonPing/registry) — pack registry (GitHub Pages)
 - [og-packs](https://github.com/PeonPing/og-packs) — official sound packs
