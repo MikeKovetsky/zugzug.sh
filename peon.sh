@@ -3691,26 +3691,19 @@ _dashboard_port=19997
 _dashboard_pid_file="$PEON_DIR/.dashboard.pid"
 _maybe_spawn_dashboard() {
   if command -v python3 &>/dev/null && [ -f "$PEON_DIR/dashboard.html" ]; then
-    local running=false
-    if [ -f "$_dashboard_pid_file" ]; then
-      local _dpid
-      _dpid=$(cat "$_dashboard_pid_file" 2>/dev/null)
-      [ -n "$_dpid" ] && kill -0 "$_dpid" 2>/dev/null && running=true
+    # Check if server is actually responding (more reliable than PID tracking)
+    if curl -sf --connect-timeout 1 --max-time 2 "http://127.0.0.1:$_dashboard_port/" >/dev/null 2>&1; then
+      return
     fi
-    if [ "$running" = false ]; then
-      # Atomic lock: only one concurrent hook invocation proceeds to spawn+open
-      local _lock="$PEON_DIR/.dashboard.lock"
-      mkdir "$_lock" 2>/dev/null || return
-      # Re-check under lock in case another process just wrote the PID file
-      if [ -f "$_dashboard_pid_file" ]; then
-        local _dpid2
-        _dpid2=$(cat "$_dashboard_pid_file" 2>/dev/null)
-        if [ -n "$_dpid2" ] && kill -0 "$_dpid2" 2>/dev/null; then
-          rm -rf "$_lock"
-          return
-        fi
-      fi
-      nohup python3 -c "
+    # Atomic lock: only one concurrent hook invocation proceeds to spawn+open
+    local _lock="$PEON_DIR/.dashboard.lock"
+    mkdir "$_lock" 2>/dev/null || return
+    # Re-check under lock
+    if curl -sf --connect-timeout 1 --max-time 2 "http://127.0.0.1:$_dashboard_port/" >/dev/null 2>&1; then
+      rm -rf "$_lock"
+      return
+    fi
+    nohup python3 -c "
 import http.server, json, os, sys, socketserver, time, datetime
 
 PORT = $_dashboard_port
@@ -3893,14 +3886,13 @@ socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(('127.0.0.1', PORT), Handler) as httpd:
     httpd.serve_forever()
 " >/dev/null 2>&1 &
-      echo $! > "$_dashboard_pid_file"
-      rm -rf "$_lock"
-      sleep 0.5
-      case "$(uname -s)" in
-        Darwin) open "http://localhost:$_dashboard_port" 2>/dev/null ;;
-        Linux) command -v xdg-open &>/dev/null && xdg-open "http://localhost:$_dashboard_port" &>/dev/null ;;
-      esac
-    fi
+    echo $! > "$_dashboard_pid_file"
+    rm -rf "$_lock"
+    sleep 0.5
+    case "$(uname -s)" in
+      Darwin) open "http://localhost:$_dashboard_port" 2>/dev/null ;;
+      Linux) command -v xdg-open &>/dev/null && xdg-open "http://localhost:$_dashboard_port" &>/dev/null ;;
+    esac
   fi
 }
 if [ "${PEON_TEST:-0}" != "1" ]; then
