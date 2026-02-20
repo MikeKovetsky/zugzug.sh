@@ -8,10 +8,12 @@
 <meta property="og:title" content="ZugZug — Turn Your IDE Into Warcraft III">
 <meta property="og:description" content="Gamify vibecoding. Earn gold, level up, build your base, and get roasted by your peon.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="site/og-image.jpg">
+<meta property="og:url" content="https://zugzug-6l4.pages.dev/">
+<meta property="og:image" content="https://zugzug-6l4.pages.dev/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ZugZug — Turn Your IDE Into Warcraft III">
 <meta name="twitter:description" content="Gamify vibecoding. Earn gold, level up through WC3 heroes, build your base, and get roasted by your peon.">
+<meta name="twitter:image" content="https://zugzug-6l4.pages.dev/og-image.jpg">
 <meta name="theme-color" content="#0a0a16">
 <link rel="icon" href="https://www.peonping.com/images/peon-portrait.gif" type="image/gif">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -122,13 +124,13 @@ nav {
   position: relative;
 }
 .hero h1 {
-  font-size: clamp(38px, 6vw, 68px);
-  font-weight: 900;
-  color: var(--gold);
-  text-shadow: 0 0 60px rgba(255,171,1,0.15);
+  font-size: clamp(22px, 3.5vw, 36px);
+  font-weight: 700;
+  color: var(--text);
   margin-bottom: 20px;
   position: relative;
-  line-height: 1.1;
+  line-height: 1.2;
+  opacity: 0.85;
 }
 .hero-sub {
   font-size: clamp(16px, 2.5vw, 20px);
@@ -137,6 +139,20 @@ nav {
   margin: 0 auto 36px;
   position: relative;
   opacity: 0.9;
+}
+.hero-logo {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: clamp(56px, 10vw, 100px);
+  color: var(--gold);
+  text-shadow:
+    0 0 40px rgba(255,171,1,0.3),
+    0 2px 0 var(--dark-gold),
+    0 4px 8px rgba(0,0,0,0.4);
+  letter-spacing: 6px;
+  line-height: 1;
+  margin-bottom: 12px;
+  position: relative;
 }
 .hero-sub strong { color: var(--gold); }
 
@@ -226,7 +242,7 @@ section:nth-child(even) {
 .screenshot {
   width: 100%;
   border-radius: 10px;
-  border: 2px solid var(--border);
+  border: none;
   box-shadow: 0 12px 48px rgba(0,0,0,0.5);
   transition: transform 0.3s, box-shadow 0.3s;
 }
@@ -397,6 +413,139 @@ footer a:hover { text-decoration: underline; }
 
 .showcase-section .section-desc { margin-bottom: 24px; }
 
+.hero-peon {
+  display: block;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 24px rgba(255,171,1,0.3);
+  margin: 0 auto 20px;
+  image-rendering: auto;
+  position: relative;
+}
+
+.quote-divider {
+  text-align: center;
+  padding: 32px 24px;
+  position: relative;
+}
+.quote-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+.quote-text {
+  display: inline-block;
+  position: relative;
+  font-family: 'Cinzel', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--gold);
+  background: var(--bg);
+  padding: 0 24px;
+  opacity: 0.7;
+}
+
+.os-notifs {
+  position: absolute;
+  top: 72px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+  pointer-events: none;
+}
+.os-notif {
+  width: 340px;
+  background: rgba(40,40,60,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.5),
+    0 0 0 0.5px rgba(255,255,255,0.05) inset;
+  animation: osSlide 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+.os-notif:nth-child(2) { animation-delay: 2.5s; }
+@keyframes osSlide {
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.os-notif-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.os-notif-content { flex: 1; min-width: 0; }
+.os-notif-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.os-notif-app {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+}
+.os-notif-time {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  margin-left: auto;
+}
+.os-notif-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1px;
+}
+.os-notif-body {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.35;
+}
+
+.roast-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  max-width: 480px;
+}
+.roast-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border-radius: 6px;
+  border-left: 3px solid;
+  font-size: 13px;
+}
+.roast-row .rlvl {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  min-width: 36px;
+}
+.roast-row .rmsg { font-style: italic; color: var(--text); }
+.roast-row.g { border-color: var(--green); }
+.roast-row.y { border-color: var(--gold); }
+.roast-row.r { border-color: var(--red); }
+
 .stats-bar {
   display: flex;
   justify-content: center;
@@ -436,6 +585,7 @@ footer a:hover { text-decoration: underline; }
   .level-grid { grid-template-columns: repeat(3, 1fr); }
   .hero { padding: 100px 16px 50px; }
   .hero h1 br { display: none; }
+  .hero-peon { width: 64px; height: 64px; }
   section { padding: 56px 0; }
   .nav-links a:not(.nav-gh) { display: none; }
   .ide-badges { gap: 6px; }
@@ -446,7 +596,12 @@ footer a:hover { text-decoration: underline; }
   .feature-card { padding: 20px; }
   .section-desc { font-size: 14px; }
   .cta { padding: 64px 24px; }
-  .screenshot-wrap { margin-bottom: 24px; }
+  .screenshot-wrap { margin-bottom: 24px; text-align: center; }
+  .screenshot { max-width: 360px; width: 100%; }
+  .os-notifs { position: relative; top: auto; right: auto; margin: 24px auto 0; align-items: center; }
+  .os-notif { width: 100%; max-width: 340px; }
+  .quote-divider { padding: 24px 16px; }
+  .quote-text { font-size: 13px; padding: 0 16px; }
 }
 @media (max-width: 480px) {
   .level-grid { grid-template-columns: repeat(2, 1fr); }
@@ -474,11 +629,37 @@ footer a:hover { text-decoration: underline; }
 </nav>
 
 <div class="hero">
+  <img src="https://www.peonping.com/images/peon-portrait.gif" alt="Peon" class="hero-peon">
   <div class="hero-badge">Gamify Vibecoding</div>
+  <div class="hero-logo">ZugZug</div>
   <h1>Turn Your IDE <br>Into Warcraft III</h1>
   <p class="hero-sub">Every token earns <strong>gold</strong>. Every task gives <strong>XP</strong>. Level up through WC3 heroes, build your base, farm achievements, and collect legendary loot &mdash; all while shipping code.</p>
   <div class="install-box" onclick="copyInstall(this)">
-    curl -fsSL zugzug.sh/install | bash
+    curl -fsSL zugzug-6l4.pages.dev/install | bash
+  </div>
+  <div class="os-notifs">
+    <div class="os-notif">
+      <img src="https://www.peonping.com/images/peon-portrait.gif" alt="Peon" class="os-notif-icon">
+      <div class="os-notif-content">
+        <div class="os-notif-header">
+          <span class="os-notif-app">peon-ping</span>
+          <span class="os-notif-time">now</span>
+        </div>
+        <div class="os-notif-title">&#x2705; Task Complete &mdash; +10 gold</div>
+        <div class="os-notif-body">"Zug zug." &nbsp;&#x1F525; Triple Kill!</div>
+      </div>
+    </div>
+    <div class="os-notif">
+      <img src="https://www.peonping.com/images/peon-portrait.gif" alt="Peon" class="os-notif-icon">
+      <div class="os-notif-content">
+        <div class="os-notif-header">
+          <span class="os-notif-app">peon-ping</span>
+          <span class="os-notif-time">now</span>
+        </div>
+        <div class="os-notif-title">&#x26A0;&#xFE0F; Error &mdash; Roast Lvl 2</div>
+        <div class="os-notif-body">"Human make many mistakes today."</div>
+      </div>
+    </div>
   </div>
   <div class="ide-badges">
     <span class="ide-badge">Claude Code</span>
@@ -494,12 +675,14 @@ footer a:hover { text-decoration: underline; }
 </div>
 
 <div class="stats-bar">
-  <div class="stat-item"><div class="stat-num">9</div><div class="stat-label">IDEs</div></div>
-  <div class="stat-item"><div class="stat-num">75+</div><div class="stat-label">Sound Packs</div></div>
-  <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">Levels</div></div>
-  <div class="stat-item"><div class="stat-num">31</div><div class="stat-label">Items</div></div>
-  <div class="stat-item"><div class="stat-num">14</div><div class="stat-label">Achievements</div></div>
+  <div class="stat-item"><div class="stat-num">9</div><div class="stat-label">&#x2694;&#xFE0F; IDEs</div></div>
+  <div class="stat-item"><div class="stat-num">75+</div><div class="stat-label">&#x1F50A; Packs</div></div>
+  <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">&#x1F396;&#xFE0F; Levels</div></div>
+  <div class="stat-item"><div class="stat-num">31</div><div class="stat-label">&#x1F5E1;&#xFE0F; Items</div></div>
+  <div class="stat-item"><div class="stat-num">14</div><div class="stat-label">&#x1F3C6; Achievements</div></div>
 </div>
+
+<div class="quote-divider"><span class="quote-text">"Work work."</span></div>
 
 <section id="levels">
   <div class="frame fade-in">
@@ -510,6 +693,8 @@ footer a:hover { text-decoration: underline; }
   </div>
 </section>
 
+<div class="quote-divider"><span class="quote-text">"Me busy. Leave me alone."</span></div>
+
 <section id="dashboard">
   <div class="frame fade-in">
     <div class="showcase-section">
@@ -517,12 +702,17 @@ footer a:hover { text-decoration: underline; }
       <div class="section-heading">Your WC3 Command Center</div>
       <div class="section-desc">Auto-opens in your browser on first prompt. Live-updating character portrait, XP bar, progression ladder, resources, and activity feed. No configuration needed.</div>
       <div class="screenshot-wrap">
-        <img src="site/docs/screenshots/screenshot-character.png" class="screenshot" alt="Character page" loading="lazy">
+        <picture>
+          <source media="(max-width: 768px)" srcset="site/docs/screenshots/screenshot-character-mobile.png">
+          <img src="site/docs/screenshots/screenshot-character.png" class="screenshot" alt="Character page" loading="lazy">
+        </picture>
         <div class="screenshot-caption">Character page &mdash; Level 4 Knight</div>
       </div>
     </div>
   </div>
 </section>
+
+<div class="quote-divider"><span class="quote-text">"More work?"</span></div>
 
 <section>
   <div class="frame fade-in">
@@ -531,12 +721,17 @@ footer a:hover { text-decoration: underline; }
       <div class="section-heading">Build Structures. Unlock Perks.</div>
       <div class="section-desc">Spend gold and lumber to construct 8 buildings on your base map. Each one unlocks a real perk: combo tracking, roast suppression, random treasure events, on-demand taunts.</div>
       <div class="screenshot-wrap">
-        <img src="site/docs/screenshots/screenshot-base.png" class="screenshot" alt="Base building" loading="lazy">
+        <picture>
+          <source media="(max-width: 768px)" srcset="site/docs/screenshots/screenshot-base-mobile.png">
+          <img src="site/docs/screenshots/screenshot-base.png" class="screenshot" alt="Base building" loading="lazy">
+        </picture>
         <div class="screenshot-caption">Base page &mdash; 6 buildings constructed</div>
       </div>
     </div>
   </div>
 </section>
+
+<div class="quote-divider"><span class="quote-text">"Okie dokie."</span></div>
 
 <section>
   <div class="frame fade-in">
@@ -552,12 +747,17 @@ footer a:hover { text-decoration: underline; }
         <span class="rarity-tag r-legendary">Legendary</span>
       </div>
       <div class="screenshot-wrap">
-        <img src="site/docs/screenshots/screenshot-inventory.png" class="screenshot" alt="Inventory" loading="lazy">
+        <picture>
+          <source media="(max-width: 768px)" srcset="site/docs/screenshots/screenshot-inventory-mobile.png">
+          <img src="site/docs/screenshots/screenshot-inventory.png" class="screenshot" alt="Inventory" loading="lazy">
+        </picture>
         <div class="screenshot-caption">Inventory &mdash; 6 equipped, Ashbringer in backpack</div>
       </div>
     </div>
   </div>
 </section>
+
+<div class="quote-divider"><span class="quote-text">"Me not that kind of orc!"</span></div>
 
 <section id="features">
   <div class="frame fade-in">
@@ -583,7 +783,12 @@ footer a:hover { text-decoration: underline; }
       <div class="feature-card">
         <div class="feature-icon">&#x1F608;</div>
         <h3>Roasts (Lvl 0-5)</h3>
-        <p>The worse you code, the more savage peon gets. Level 3: "Human considered different career?" Level 5: "Peon quit."</p>
+        <p>The worse you code, the more savage peon gets.</p>
+        <div class="roast-preview">
+          <div class="roast-row g"><span class="rlvl">Lvl 0</span><span class="rmsg">"Work complete."</span></div>
+          <div class="roast-row y"><span class="rlvl">Lvl 3</span><span class="rmsg">"Human considered different career?"</span></div>
+          <div class="roast-row r"><span class="rlvl">Lvl 5</span><span class="rmsg">"Peon quit. Find another peon."</span></div>
+        </div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">&#x1F552;</div>
@@ -599,6 +804,8 @@ footer a:hover { text-decoration: underline; }
   </div>
 </section>
 
+<div class="quote-divider"><span class="quote-text">"Why you poking me again?"</span></div>
+
 <section>
   <div class="frame fade-in">
     <div class="showcase-section">
@@ -606,18 +813,23 @@ footer a:hover { text-decoration: underline; }
       <div class="section-heading">14 Milestones to Chase</div>
       <div class="section-desc">WC3-themed achievements tracked across all your coding sessions. Some are secret.</div>
       <div class="screenshot-wrap">
-        <img src="site/docs/screenshots/screenshot-achievements.png" class="screenshot" alt="Achievements" loading="lazy">
+        <picture>
+          <source media="(max-width: 768px)" srcset="site/docs/screenshots/screenshot-achievements-mobile.png">
+          <img src="site/docs/screenshots/screenshot-achievements.png" class="screenshot" alt="Achievements" loading="lazy">
+        </picture>
         <div class="screenshot-caption">Achievements &mdash; Zug Zug Veteran and Night Elf unlocked</div>
       </div>
     </div>
   </div>
 </section>
 
+<div class="quote-divider"><span class="quote-text">"I can do that."</span></div>
+
 <div class="cta">
-  <h2>Ready to Work?</h2>
+  <h2>Something Need Doing?</h2>
   <p>One command. Works with 9 IDEs. Takes 30 seconds.</p>
   <div class="install-box" onclick="copyInstall(this)">
-    curl -fsSL zugzug.sh/install | bash
+    curl -fsSL zugzug-6l4.pages.dev/install | bash
   </div>
   <div class="ide-badges" style="margin-top:28px">
     <span class="ide-badge">Claude Code</span>
@@ -635,7 +847,7 @@ footer a:hover { text-decoration: underline; }
 <footer>
   <div class="footer-links">
     <a href="https://github.com/MikeKovetsky/zugzug.sh" target="_blank">GitHub</a>
-    <a href="https://zugzug.sh">zugzug.sh</a>
+    <a href="https://zugzug-6l4.pages.dev">zugzug-6l4.pages.dev</a>
     <a href="https://openpeon.com">openpeon.com</a>
   </div>
   MIT License &middot; Sound files are property of their respective publishers.
@@ -643,7 +855,7 @@ footer a:hover { text-decoration: underline; }
 
 <script>
 function copyInstall(el) {
-  navigator.clipboard.writeText('curl -fsSL zugzug.sh/install | bash');
+  navigator.clipboard.writeText('curl -fsSL zugzug-6l4.pages.dev/install | bash');
   el.classList.add('copied');
   setTimeout(function() { el.classList.remove('copied'); }, 2000);
 }
@@ -687,6 +899,22 @@ var io = new IntersectionObserver(function(entries) {
   });
 }, { threshold: 0.15 });
 document.querySelectorAll('.fade-in').forEach(function(el) { io.observe(el); });
+
+var PP = 'https://www.peonping.com/audio/';
+var SOUNDS = [
+  PP+'PeonYes3.ogg', PP+'PeonYes4.ogg', PP+'PeonWhat3.ogg',
+  PP+'PeonWhat4.ogg', PP+'PeonReady1.ogg', PP+'PeonYes1.ogg',
+  PP+'PeonYes2.ogg', PP+'PeonAngry1.ogg', PP+'PeonWhat1.ogg',
+  PP+'PeonWarcry1.ogg'
+];
+var peonAudio = null;
+document.addEventListener('click', function() {
+  var src = SOUNDS[Math.floor(Math.random() * SOUNDS.length)];
+  if (peonAudio) { peonAudio.pause(); peonAudio.currentTime = 0; }
+  peonAudio = new Audio(src);
+  peonAudio.volume = 0.4;
+  peonAudio.play().catch(function(){});
+});
 </script>
 </body>
 </html>
