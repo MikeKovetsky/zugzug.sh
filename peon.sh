@@ -3311,6 +3311,26 @@ if game_on:
             state['last_random_event_date'] = _today
             state_dirty = True
 
+    # --- Resource node spawning (harvestable on dashboard map) ---
+    _TREE_POS = ['0,0', '6,0', '0,1', '0,4', '1,4']
+    _MINE_POS = ['6,4', '6,3']
+    if econ_on and category in ('task.complete', 'session.start'):
+        lnodes = state.get('lumber_nodes', [])
+        gnodes = state.get('gold_nodes', [])
+        occupied = {n['pos'] for n in lnodes} | {n['pos'] for n in gnodes}
+        if random.random() < 0.15:
+            free_trees = [p for p in _TREE_POS if p not in occupied]
+            if free_trees:
+                lnodes.append(dict(pos=random.choice(free_trees), amt=random.randint(10, 40)))
+                state['lumber_nodes'] = lnodes
+                state_dirty = True
+        if random.random() < 0.06:
+            free_mines = [p for p in _MINE_POS if p not in occupied]
+            if free_mines:
+                gnodes.append(dict(pos=random.choice(free_mines), amt=random.randint(30, 120)))
+                state['gold_nodes'] = gnodes
+                state_dirty = True
+
     if _weekday == 4 and _hour == 17 and _minute < 5 and econ_on:
         weekly_gold = stats.get('tasks_completed', 0) % 100
         if weekly_gold > 0 and state.get('last_payday') != _today:
