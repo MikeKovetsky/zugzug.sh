@@ -255,7 +255,7 @@ body {
   border: 1px solid var(--dark-gold);
   box-shadow: 0 0 8px rgba(255,171,1,0.1), inset 0 0 6px rgba(0,0,0,0.4);
 }
-.tile.built .tile-icon { font-size: 26px; line-height: 1; }
+.tile.built .tile-icon { font-size: 36px; line-height: 1; }
 .tile.built .tile-lbl { font-size: 10px; font-weight: 700; color: var(--gold); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; }
 .tile.hall { border-color: var(--gold); box-shadow: 0 0 14px rgba(255,171,1,0.2), inset 0 0 6px rgba(0,0,0,0.4); }
 .tile.fresh { animation: builtFlash 0.8s; }
@@ -321,7 +321,8 @@ body {
 .bld-opt.sel { background: rgba(255,171,1,0.1); border-color: var(--gold); }
 .bld-opt.poor { opacity: 0.35; cursor: not-allowed; }
 .bld-opt.done { opacity: 0.3; cursor: default; }
-.bld-opt-icon { font-size: 24px; flex-shrink: 0; margin-top: 1px; }
+.bld-opt-icon { font-size: 32px; flex-shrink: 0; margin-top: 1px; }
+.bld-opt-icon .w3i { width: 36px; height: 36px; }
 .bld-opt-info { flex: 1; min-width: 0; }
 .bld-opt-name { font-weight: 700; font-size: 15px; }
 .bld-opt-cost { font-size: 13px; color: var(--muted); }
@@ -660,7 +661,7 @@ body {
 .w3i { image-rendering: pixelated; vertical-align: middle; width: 1em; height: 1em; border-radius: 2px; }
 .res-icon .w3i { width: 26px; height: 26px; }
 .portrait-frame .w3i { width: 40px; height: 40px; }
-.tile-icon .w3i { width: 32px; height: 32px; }
+.tile-icon .w3i { width: 44px; height: 44px; }
 .tile-emoji .w3i { width: 28px; height: 28px; }
 .act-btn .w3i { width: 14px; height: 14px; }
 .help-heading .w3i { width: 20px; height: 20px; }
@@ -1176,16 +1177,14 @@ function updateSidebar(s) {
     var gc = def.g, lc = def.l;
     if (disc && !isBuilt) { gc = Math.floor(gc / 2); lc = Math.floor(lc / 2); }
     var afford = g >= gc && l >= lc;
+    if (isBuilt) return;
     var opt = document.createElement('div');
     var cls = 'bld-opt';
-    if (isBuilt) cls += ' done';
-    else if (selectedBld === key) cls += ' sel';
+    if (selectedBld === key) cls += ' sel';
     else if (!afford) cls += ' poor';
     opt.className = cls;
     var h = '<span class="bld-opt-icon">' + def.icon + '</span><div class="bld-opt-info"><div class="bld-opt-name">' + def.name + '</div>';
-    if (isBuilt) {
-      h += '<div class="bld-opt-built">\u2713 Built</div>';
-    } else {
+    {
       var costCls = afford ? 'bld-opt-cost' : 'bld-opt-cost cant';
       h += '<div class="' + costCls + '">' + gc + 'g / ' + lc + 'l</div>';
       if (disc) h += '<div class="bld-opt-disc">50% OFF!</div>';
