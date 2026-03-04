@@ -1602,9 +1602,12 @@ defs = [
     ('the_grind', 'The Grind', '1000 lifetime tasks'),
     ('permit_patty', 'Permit Patty', '20 permissions in a session'),
     ('compact_survivor', 'Compact Survivor', '5 context compacts'),
-    ('architect', 'Architect', 'Build all structures'),
+    ('architect', 'Architect', 'Build 10 structures'),
     ('bankrupt', 'Bankrupt', 'Go below -500 gold'),
     ('mogul', 'Mogul', '5000 lifetime gold earned'),
+    ('stop_clicking', 'Stop Clicking Me!', '500 lifetime prompts'),
+    ('peon_union_rep', 'Peon Union Rep', '10 errors in one session'),
+    ('touch_grass', 'Touch Grass', 'Code past 3 AM on a weekend'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
 print()
@@ -1640,14 +1643,19 @@ today = state.get('goblin_discount_date', '')
 import datetime
 discount = today == datetime.date.today().isoformat()
 BUILDINGS = {
-    'stronghold':    (500, 200, 'Rank upgrade. Unlocks random events.'),
-    'fortress':      (2000, 800, 'Max rank. Unlocks leaderboard title.'),
-    'burrow':        (100, 50, 'peon bunker — suppress roasts for 1 hour.'),
-    'war_mill':      (200, 100, 'Unlocks combo system (multi-kill tracking).'),
-    'watch_tower':   (150, 75, 'Early warning at 80% context.'),
-    'altar':         (300, 150, 'peon resurrect — restore combo once/day.'),
-    'spirit_lodge':  (500, 200, 'Unlocks idle peon wisdom.'),
-    'tavern':        (400, 200, 'peon taunt — play a roast on demand.'),
+    'burrow':          (500, 250, 'peon bunker — suppress roasts for 1 hour.'),
+    'watch_tower':     (750, 375, 'Early warning at 80% context.'),
+    'war_mill':        (1000, 500, 'Unlocks combo system (multi-kill tracking).'),
+    'altar':           (1500, 750, 'peon resurrect — restore combo once/day.'),
+    'lumber_mill':     (1500, 500, '2x lumber from all sources.'),
+    'tavern':          (2000, 1000, 'peon taunt — play a roast on demand.'),
+    'stronghold':      (2500, 1000, 'Rank upgrade. Unlocks random events.'),
+    'spirit_lodge':    (2500, 1000, 'Unlocks idle peon wisdom.'),
+    'barracks':        (3000, 1200, 'Subagent sessions count toward stats.'),
+    'blacksmith':      (4000, 1500, 'Equipped items get +50% effect values.'),
+    'arcane_sanctum':  (7500, 3000, 'Unlocks peon prophecies on session start.'),
+    'fortress':        (10000, 4000, 'Max rank. Unlocks leaderboard title.'),
+    'citadel':         (15000, 6000, 'Prestige rank. Boosts item drop rate.'),
 }
 if arg == 'list':
     print(f'Gold: {gold} | Lumber: {lumber}')
@@ -1792,6 +1800,16 @@ ITEMS = {
     'slippers_of_agility': ('Slippers of Agility',   'common',    'Combos count +1 extra'),
     'circlet_of_nobility': ('Circlet of Nobility',    'common',    '+2 bonus gold per task'),
     'mantle_of_intel':     ('Mantle of Intelligence', 'common',    '+1 bonus lumber per prompt'),
+    'belt_of_str':         ('Belt of Giant Strength +6', 'common', '+1 bonus gold per task'),
+    'gloves_of_haste':     ('Gloves of Haste',       'common',    'Combos count +1 extra'),
+    'robe_of_magi':        ('Robe of the Magi +6',   'common',    '+2 bonus lumber per prompt'),
+    'pendant_of_mana':     ('Pendant of Mana',       'common',    '+1 bonus lumber per prompt'),
+    'hood_of_cunning':     ('Hood of Cunning',       'common',    '+2 bonus gold per task'),
+    'medallion':           ('Medallion of Courage',   'common',    'Max sass capped at 3'),
+    'tome_of_power':       ('Tome of Power +2',      'common',    '+1 bonus gold per task'),
+    'skull_shield':        ('Skull Shield',           'common',    'Gold mine depletion +10 tasks later'),
+    'kelen_dagger':        ('Kelen\\'s Dagger of Escape', 'common', 'Combos count +1 extra'),
+    'void_stone':          ('Void Stone',             'common',    '+1 bonus lumber per prompt'),
     'scroll_of_tp':        ('Scroll of Town Portal',  'uncommon',  'Restore combo streak (consumable)'),
     'potion_of_healing':   ('Potion of Healing',      'uncommon',  'Restore 200 gold (consumable)'),
     'potion_of_mana':      ('Potion of Mana',         'uncommon',  'Gain 50 lumber (consumable)'),
@@ -1806,6 +1824,11 @@ ITEMS = {
     'staff_of_negation':   ('Staff of Negation',      'rare',      'Immune to debt interest'),
     'sobi_mask':           ('Sobi Mask',              'rare',      '3x lumber from prompts'),
     'inv_potion':          ('Potion of Invisibility',  'rare',     'Suppress roasts for 2 hours (consumable)'),
+    'talisman_of_evasion': ('Talisman of Evasion',    'rare',      'First error per day costs 0 gold'),
+    'ring_of_regen':       ('Ring of Regeneration',    'rare',      '+8 bonus gold per task'),
+    'scourge_bone':        ('Scourge Bone Chimes',    'rare',      'Max sass capped at 1'),
+    'shadow_orb':          ('Shadow Orb +10',         'rare',      '5% chance of 3x gold on task complete'),
+    'lion_horn':           ('Lion Horn of Stormwind',  'rare',      'Gold mine depletion +15 tasks later'),
     'crown_of_kings':      ('Crown of Kings +5',      'epic',      '2x all gold income'),
     'mask_of_death':       ('Mask of Death',          'epic',      'Recover 50% of gold lost to errors'),
     'amulet_of_spell':     ('Amulet of Spell Shield', 'epic',      'Immune to base raids'),
@@ -1962,7 +1985,7 @@ print(msg)
 import http.server, json, os, socketserver, time, datetime
 PORT = $_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'stronghold':(500,200),'fortress':(2000,800),'burrow':(100,50),'war_mill':(200,100),'watch_tower':(150,75),'altar':(300,150),'spirit_lodge':(500,200),'tavern':(400,200)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'citadel':(15000,6000)}
 class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _json(self, code, data):
@@ -2555,18 +2578,26 @@ except Exception:
     state = {}
 
 # --- Agent detection ---
+_agent_silent = False
+_has_barracks = 'barracks' in state.get('buildings', {})
 agent_sessions = set(state.get('agent_sessions', []))
 if perm_mode and perm_mode in agent_modes:
     agent_sessions.add(session_id)
     state['agent_sessions'] = list(agent_sessions)
     state_dirty = True
-    print('PEON_EXIT=true')
-    os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-    json.dump(state, open(state_file, 'w'))
-    sys.exit(0)
+    if _has_barracks:
+        _agent_silent = True
+    else:
+        print('PEON_EXIT=true')
+        os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+        json.dump(state, open(state_file, 'w'))
+        sys.exit(0)
 elif session_id in agent_sessions:
-    print('PEON_EXIT=true')
-    sys.exit(0)
+    if _has_barracks:
+        _agent_silent = True
+    else:
+        print('PEON_EXIT=true')
+        sys.exit(0)
 
 # --- Session cleanup: expire old sessions ---
 now = time.time()
@@ -2923,6 +2954,7 @@ if game_on:
     sass = state.get('sass_level', 0)
     s_errors = state.get('session_errors', 0)
     s_perms = state.get('session_permissions', 0)
+    s_tasks = state.get('session_tasks', 0)
     log = state.get('activity_log', [])
 
     if econ.get('daily_date') != _today:
@@ -2933,6 +2965,7 @@ if game_on:
         sass = 0
         s_errors = 0
         s_perms = 0
+        s_tasks = 0
         streak = stats.get('current_streak_days', 0)
         last_date = stats.get('last_active_date', '')
         if last_date:
@@ -2981,6 +3014,7 @@ if game_on:
                 base_gold = 5
             gold_delta += int(base_gold * upkeep_mult)
             daily_tasks += 1
+            s_tasks += 1
             econ['daily_tasks'] = daily_tasks
             stats['tasks_completed'] = stats.get('tasks_completed', 0) + 1
         elif category == 'task.acknowledge':
@@ -3071,15 +3105,21 @@ if game_on:
             sass = min(5, sass + 1)
         if s_perms > 0 and s_perms % 5 == 0:
             sass = min(5, sass + 1)
+        if daily_tasks >= 30:
+            sass = min(5, sass + 1)
+        if gold >= 5000 and len(buildings) < 6:
+            sass = min(5, sass + 1)
+        if s_tasks >= 15:
+            sass = min(5, sass + 1)
         if category == 'task.complete' and s_errors == 0:
             sass = max(0, sass - 1)
 
         _roasts = {
-            1: ['Oh, another error? Shocking.', 'Job done... somehow.', 'Peon raise eyebrow.'],
-            2: ['Maybe read the docs?', 'Peon do better with eyes closed.', 'Human try turning it off and on?'],
-            3: ['Human considered different career?', 'Peon seen better code from murloc.', 'Even peasant code better.'],
-            4: ['At this point, Peon writing the code.', 'Error again? Peon not even surprised.', 'Peon losing faith in humanity.'],
-            5: ['Peon quit. Find another peon.', 'Me going to work for Night Elves.', 'Peon file complaint with Warchief.'],
+            1: ['Peon raise eyebrow.', 'Job done... somehow.', 'Peon leg hurt from all this work.', 'How many more tasks? Peon lost count.', 'Human done yet? Peon need nap.'],
+            2: ['Maybe read the docs?', 'Peon do better with eyes closed.', 'Gold pile big. Where Peon share?', 'Human ever heard of break? Peon has.', 'Even orc have labor laws, human.'],
+            3: ['Human considered different career?', 'Peon seen better code from murloc.', 'Even peasant code better.', 'Peon file overtime complaint.', 'Peon demand hazard pay for this session.'],
+            4: ['At this point, Peon writing the code.', 'Error again? Peon not even surprised.', 'Peon losing faith in humanity.', 'Peon legs give out. Send help.', 'Warchief would not approve of this.'],
+            5: ['Peon quit. Find another peon.', 'Me going to work for Night Elves.', 'Peon file complaint with Warchief.', 'Peon unionizing. Strike begins now.', 'This violate Geneva Convention. Peon sure of it.'],
         }
         if sass > 0 and category in ('task.error', 'task.complete', 'resource.limit'):
             roast_text = random.choice(_roasts.get(sass, []))
@@ -3087,6 +3127,7 @@ if game_on:
     state['sass_level'] = sass
     state['session_errors'] = s_errors
     state['session_permissions'] = s_perms
+    state['session_tasks'] = s_tasks
 
     # --- Time-aware mechanics ---
     time_on = str(game_cfg.get('time_aware', True)).lower() != 'false'
@@ -3106,6 +3147,22 @@ if game_on:
         if _hour >= 12 and _hour < 13 and random.random() < 0.15 and category:
             time_text = time_text or 'Human eat lunch? Or just code? Peon worried.'
 
+    # --- Arcane Sanctum: peon prophecies ---
+    if 'arcane_sanctum' in buildings and category == 'session.start':
+        _prophecies = [
+            'The spirits whisper: refactor before it is too late.',
+            'Peon foresee many tasks today. Many, many tasks.',
+            'The ancestors say: read the error message. Read it again.',
+            'A great PR merge is in your future.',
+            'Beware the 3 PM slump. Peon warned you.',
+            'The bones say: this session ends with a merge conflict.',
+            'Peon sense a long debug session ahead. Bring snacks.',
+            'The stars align for clean code. Do not waste this moment.',
+            'A legendary item draws near. Peon can feel it.',
+            'Today is good day to ship. Or terrible day. Peon not sure.',
+        ]
+        time_text = (time_text + ' ' if time_text else '') + random.choice(_prophecies)
+
     # --- Achievement checks ---
     achiev_on = str(game_cfg.get('achievements', True)).lower() != 'false'
     unlocked = stats.get('achievements_unlocked', {})
@@ -3122,9 +3179,12 @@ if game_on:
         ('the_grind',        lambda: stats.get('tasks_completed', 0) >= 1000, 'The Grind', 'Something need doing? ALWAYS.'),
         ('permit_patty',     lambda: s_perms >= 20, 'Permit Patty', 'Why you keep asking?!'),
         ('compact_survivor', lambda: stats.get('context_limits_hit', 0) >= 5, 'Compact Survivor', 'Under attack!'),
-        ('architect',        lambda: len(buildings) >= 7, 'Architect', 'Base complete! Peon... proud.'),
+        ('architect',        lambda: len(buildings) >= 10, 'Architect', 'Base complete! Peon... proud.'),
         ('bankrupt',         lambda: gold <= -500, 'Bankrupt', 'Peon seen better economy from gnolls.'),
         ('mogul',            lambda: stats.get('total_gold_earned', 0) >= 5000, 'Mogul', 'Human rich! Peon still poor though.'),
+        ('stop_clicking',    lambda: stats.get('prompts_total', 0) >= 500, 'Stop Clicking Me!', 'Me busy! Leave me alone!'),
+        ('peon_union_rep',   lambda: s_errors >= 10, 'Peon Union Rep', 'Peon demand hazard pay!'),
+        ('touch_grass',      lambda: _hour >= 3 and _hour < 5 and _weekday >= 5, 'Touch Grass', 'Why human code now?! Go outside!'),
     ]
     if achiev_on:
         for aid, check_fn, aname, aflavor in _achiev_defs:
@@ -3137,6 +3197,27 @@ if game_on:
                 except Exception:
                     pass
         stats['achievements_unlocked'] = unlocked
+
+    _ach_progress = {
+        'first_blood':      [stats.get('errors_total', 0), 1],
+        'zug_zug_veteran':  [stats.get('tasks_completed', 0), 100],
+        'night_elf':        [1 if 'night_elf' in unlocked else 0, 1],
+        'dawn_patrol':      [1 if 'dawn_patrol' in unlocked else 0, 1],
+        'weekend_warrior':  [stats.get('weekend_sessions', 0), 10],
+        'iron_peon':        [stats.get('current_streak_days', 0), 7],
+        'rage_quit':        [s_errors, 3],
+        'oops':             [stats.get('errors_total', 0), 50],
+        'the_grind':        [stats.get('tasks_completed', 0), 1000],
+        'permit_patty':     [s_perms, 20],
+        'compact_survivor': [stats.get('context_limits_hit', 0), 5],
+        'architect':        [len(buildings), 10],
+        'bankrupt':         [abs(min(gold, 0)), 500],
+        'mogul':            [stats.get('total_gold_earned', 0), 5000],
+        'stop_clicking':    [stats.get('prompts_total', 0), 500],
+        'peon_union_rep':   [s_errors, 10],
+        'touch_grass':      [1 if 'touch_grass' in unlocked else 0, 1],
+    }
+    stats['achievements_progress'] = _ach_progress
 
     # --- Level system (cross-faction progression) ---
     _LEVELS = [
@@ -3251,6 +3332,16 @@ if game_on:
         'slippers_of_agility': dict(name='Slippers of Agility',   r='common',    e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
         'circlet_of_nobility': dict(name='Circlet of Nobility',    r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
         'mantle_of_intel':     dict(name='Mantle of Intelligence', r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
+        'belt_of_str':         dict(name='Belt of Giant Strength +6', r='common', e='gold_bonus',      v=1,    desc='+1 bonus gold per task'),
+        'gloves_of_haste':     dict(name='Gloves of Haste',       r='common',    e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
+        'robe_of_magi':        dict(name='Robe of the Magi +6',   r='common',    e='lumber_bonus',    v=2,    desc='+2 bonus lumber per prompt'),
+        'pendant_of_mana':     dict(name='Pendant of Mana',       r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
+        'hood_of_cunning':     dict(name='Hood of Cunning',       r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
+        'medallion':           dict(name='Medallion of Courage',   r='common',    e='sass_cap',        v=3,    desc='Max sass capped at 3'),
+        'tome_of_power':       dict(name='Tome of Power +2',      r='common',    e='gold_bonus',      v=1,    desc='+1 bonus gold per task'),
+        'skull_shield':        dict(name='Skull Shield',           r='common',    e='depletion_ext',   v=10,   desc='Gold mine depletion +10 tasks later'),
+        'kelen_dagger':        dict(name='Kelen\\'s Dagger of Escape', r='common', e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
+        'void_stone':          dict(name='Void Stone',             r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
         'scroll_of_tp':        dict(name='Scroll of Town Portal',  r='uncommon',  e='consumable',      v='resurrect', desc='Restore combo streak (consumable)'),
         'potion_of_healing':   dict(name='Potion of Healing',      r='uncommon',  e='consumable',      v='heal',      desc='Restore 200 gold (consumable)'),
         'potion_of_mana':      dict(name='Potion of Mana',         r='uncommon',  e='consumable',      v='lumber50',  desc='Gain 50 lumber (consumable)'),
@@ -3264,6 +3355,11 @@ if game_on:
         'gem_of_seeing':       dict(name='Gem of True Seeing',     r='rare',      e='crit_chance',     v=10,   desc='10% chance of 3x gold on task complete'),
         'staff_of_negation':   dict(name='Staff of Negation',      r='rare',      e='debt_immune',     v=1,    desc='Immune to debt interest'),
         'sobi_mask':           dict(name='Sobi Mask',              r='rare',      e='lumber_mult',     v=3,    desc='3x lumber from prompts'),
+        'talisman_of_evasion': dict(name='Talisman of Evasion',    r='rare',      e='error_shield',    v=1,    desc='First error per day costs 0 gold'),
+        'ring_of_regen':       dict(name='Ring of Regeneration',    r='rare',      e='gold_bonus',      v=8,    desc='+8 bonus gold per task'),
+        'scourge_bone':        dict(name='Scourge Bone Chimes',    r='rare',      e='sass_cap',        v=1,    desc='Max sass capped at 1'),
+        'shadow_orb':          dict(name='Shadow Orb +10',         r='rare',      e='crit_chance',     v=5,    desc='5% chance of 3x gold on task complete'),
+        'lion_horn':           dict(name='Lion Horn of Stormwind',  r='rare',      e='depletion_ext',   v=15,   desc='Gold mine depletion +15 tasks later'),
         'crown_of_kings':      dict(name='Crown of Kings +5',      r='epic',      e='gold_mult',       v=2,    desc='2x all gold income'),
         'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='lifesteal',       v=50,   desc='Recover 50% of gold lost to errors'),
         'amulet_of_spell':     dict(name='Amulet of Spell Shield', r='epic',      e='raid_immune',     v=1,    desc='Immune to base raids'),
@@ -3290,29 +3386,39 @@ if game_on:
     equipped = state.get('equipped', [])
     item_drop = ''
 
+    _has_blacksmith = 'blacksmith' in buildings
     def _has_effect(eff):
         for eid in equipped:
             it = _ITEMS.get(eid)
             if it and it['e'] == eff:
-                return it['v']
+                v = it['v']
+                if _has_blacksmith and isinstance(v, (int, float)) and v > 0:
+                    v = int(v * 1.5)
+                return v
         return 0
 
     def _roll_drop(force_rarity=None):
+        owned = set(inventory) | set(equipped)
         if force_rarity:
-            pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity and k not in inventory and k not in equipped]
+            pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity and k not in owned]
         else:
-            total_w = sum(d['weight'] for d in _DROP_TABLE.values())
+            avail = {r: [] for r in _DROP_TABLE}
+            for k, v in _ITEMS.items():
+                if k not in owned and v['r'] in avail:
+                    avail[v['r']].append(k)
+            weights = [(r, d['weight']) for r, d in _DROP_TABLE.items() if avail.get(r)]
+            if not weights:
+                return None
+            total_w = sum(w for _, w in weights)
             r = random.random() * total_w
             cumul = 0
-            picked_rarity = 'common'
-            for rarity, d in _DROP_TABLE.items():
-                cumul += d['weight']
+            picked_rarity = weights[0][0]
+            for rarity, w in weights:
+                cumul += w
                 if r <= cumul:
                     picked_rarity = rarity
                     break
-            pool = [k for k, v in _ITEMS.items() if v['r'] == picked_rarity and k not in inventory and k not in equipped]
-        if not pool:
-            pool = [k for k, v in _ITEMS.items() if k not in inventory and k not in equipped]
+            pool = avail[picked_rarity]
         if pool:
             return random.choice(pool)
         return None
@@ -3377,6 +3483,10 @@ if game_on:
             combo += cb
             state['combo_count'] = combo
 
+    # --- Lumber Mill: 2x lumber ---
+    if 'lumber_mill' in buildings and lumber_delta > 0:
+        lumber_delta *= 2
+
     # --- Finalize gold/lumber (after item effects) ---
     if econ_on:
         gold += gold_delta
@@ -3400,6 +3510,8 @@ if game_on:
         drop_chance = 0.2
     elif combo >= 10:
         drop_chance = 0.4
+    if 'citadel' in buildings and drop_chance > 0:
+        drop_chance = min(1.0, drop_chance * 2)
 
     if drop_chance > 0 and random.random() < drop_chance:
         dropped = _roll_drop()
@@ -3545,7 +3657,7 @@ if tab_color_enabled:
         tab_color_rgb = f'{rgb[0]} {rgb[1]} {rgb[2]}'
 
 # --- Output shell variables ---
-print('PEON_EXIT=false')
+print('PEON_EXIT=' + ('true' if _agent_silent else 'false'))
 print('EVENT=' + q(event))
 print('VOLUME=' + q(str(volume)))
 print('PROJECT=' + q(project))
@@ -3708,7 +3820,7 @@ import http.server, json, os, sys, socketserver, time, datetime
 
 PORT = $_dashboard_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'stronghold':(500,200),'fortress':(2000,800),'burrow':(100,50),'war_mill':(200,100),'watch_tower':(150,75),'altar':(300,150),'spirit_lodge':(500,200),'tavern':(400,200)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'citadel':(15000,6000)}
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass

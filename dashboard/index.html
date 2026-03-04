@@ -857,15 +857,20 @@ var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
 function w3i(p) { return '<img src="' + W3 + p + '" class="w3i">'; }
 
 var BLDS = {
-  great_hall:   { icon: w3i('orc/greathall.png'), name: 'Great Hall', g: 0, l: 0, free: true, desc: 'Your base of operations.' },
-  stronghold:   { icon: w3i('orc/stronghold.png'), name: 'Stronghold', g: 500, l: 200, desc: 'Rank upgrade. Unlocks random events.' },
-  fortress:     { icon: w3i('orc/fortress.png'), name: 'Fortress', g: 2000, l: 800, desc: 'Max rank. Unlocks leaderboard title.' },
-  burrow:       { icon: w3i('orc/orcburrow.png'), name: 'Burrow', g: 100, l: 50, desc: 'Enables Bunker \u2014 suppress roasts for 1 hour.' },
-  war_mill:     { icon: w3i('orc/warmill.png'), name: 'War Mill', g: 200, l: 100, desc: 'Unlocks combo system (multi-kill tracking).' },
-  watch_tower:  { icon: w3i('orc/watchtower.png'), name: 'Watch Tower', g: 150, l: 75, desc: 'Early warning at 80% context usage.' },
-  altar:        { icon: w3i('orc/altarofstorms.png'), name: 'Altar of Storms', g: 300, l: 150, desc: 'Enables Resurrect \u2014 restore combo once/day.' },
-  spirit_lodge: { icon: w3i('orc/spiritlodge.png'), name: 'Spirit Lodge', g: 500, l: 200, desc: 'Unlocks idle peon wisdom notifications.' },
-  tavern:       { icon: w3i('neutral/tavern.png'), name: 'Tavern', g: 400, l: 200, desc: 'Enables Taunt \u2014 play a roast on demand.' },
+  great_hall:      { icon: w3i('orc/greathall.png'), name: 'Great Hall', g: 0, l: 0, free: true, desc: 'Your base of operations.' },
+  burrow:          { icon: w3i('orc/orcburrow.png'), name: 'Burrow', g: 500, l: 250, desc: 'Enables Bunker \u2014 suppress roasts for 1 hour.' },
+  watch_tower:     { icon: w3i('orc/watchtower.png'), name: 'Watch Tower', g: 750, l: 375, desc: 'Early warning at 80% context usage.' },
+  war_mill:        { icon: w3i('orc/warmill.png'), name: 'War Mill', g: 1000, l: 500, desc: 'Unlocks combo system (multi-kill tracking).' },
+  altar:           { icon: w3i('orc/altarofstorms.png'), name: 'Altar of Storms', g: 1500, l: 750, desc: 'Enables Resurrect \u2014 restore combo once/day.' },
+  lumber_mill:     { icon: w3i('common/lumber.png'), name: 'Lumber Mill', g: 1500, l: 500, desc: '2x lumber from all sources.' },
+  tavern:          { icon: w3i('neutral/tavern.png'), name: 'Tavern', g: 2000, l: 1000, desc: 'Enables Taunt \u2014 play a roast on demand.' },
+  stronghold:      { icon: w3i('orc/stronghold.png'), name: 'Stronghold', g: 2500, l: 1000, desc: 'Rank upgrade. Unlocks random events.' },
+  spirit_lodge:    { icon: w3i('orc/spiritlodge.png'), name: 'Spirit Lodge', g: 2500, l: 1000, desc: 'Unlocks idle peon wisdom notifications.' },
+  barracks:        { icon: w3i('orc/barracks.png'), name: 'Barracks', g: 3000, l: 1200, desc: 'Subagent sessions count toward stats.' },
+  blacksmith:      { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Blacksmith', g: 4000, l: 1500, desc: 'Equipped items get +50% effect values.' },
+  arcane_sanctum:  { icon: w3i('orc/voodoolounge.png'), name: 'Arcane Sanctum', g: 7500, l: 3000, desc: 'Unlocks peon prophecies on session start.' },
+  fortress:        { icon: w3i('orc/fortress.png'), name: 'Fortress', g: 10000, l: 4000, desc: 'Max rank. Unlocks leaderboard title.' },
+  citadel:         { icon: w3i('orc/taurentotem.png'), name: 'Citadel', g: 15000, l: 6000, desc: 'Prestige rank. 2x item drop rate.' },
 };
 
 var ACHS = [
@@ -880,7 +885,7 @@ var ACHS = [
   { id: 'the_grind', icon: '\u26CF\uFE0F', name: 'The Grind', how: '1,000 lifetime tasks', tgt: 1000 },
   { id: 'permit_patty', icon: '\u{1F6D1}', name: 'Permit Patty', how: '20 permissions in one session', tgt: 20 },
   { id: 'compact_survivor', icon: '\u{1F6E1}\uFE0F', name: 'Compact Survivor', how: '5 context compacts', tgt: 5 },
-  { id: 'architect', icon: '\u{1F3D7}\uFE0F', name: 'Architect', how: 'Build all structures', tgt: 7 },
+  { id: 'architect', icon: '\u{1F3D7}\uFE0F', name: 'Architect', how: 'Build 10 structures', tgt: 10 },
   { id: 'bankrupt', icon: '\u{1F4B8}', name: 'Bankrupt', how: 'Go below -500 gold', tgt: 500 },
   { id: 'mogul', icon: '\u{1F4B0}', name: 'Mogul', how: 'Earn 5,000 lifetime gold', tgt: 5000 },
   { id: 'stop_clicking', icon: '\u{1F5B1}\uFE0F', name: 'Stop Clicking Me!', how: '500 lifetime prompts', tgt: 500, secret: true },

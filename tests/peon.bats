@@ -2537,7 +2537,7 @@ _start_dash() {
 }
 
 @test "dashboard API: POST /api/build creates building with resources" {
-  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':500,'lumber':300}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':600,'lumber':300}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
   _start_dash
   resp=$(/usr/bin/curl -s -X POST "http://localhost:$_dash_port/api/build" \
     -H "Content-Type: application/json" -d '{"building":"burrow"}')
@@ -2545,7 +2545,7 @@ _start_dash() {
   built=$(/usr/bin/python3 -c "import json; print('burrow' in json.load(open('$TEST_DIR/.state.json')).get('buildings',{}))")
   [ "$built" = "True" ]
   gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
-  [ "$gold" = "400" ]
+  [ "$gold" = "100" ]
 }
 
 @test "dashboard API: POST /api/build rejects insufficient resources" {
