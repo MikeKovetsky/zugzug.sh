@@ -2368,12 +2368,11 @@ SCRIPT
   [ "$gold" = "10" ]
 }
 
-@test "game: task.error costs gold" {
-  # Start with some gold
-  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':100,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
-  run_peon '{"hook_event_name":"PostToolUseFailure","tool_name":"Bash","error":"Exit code 1","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
-  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
-  [ "$gold" = "95" ]
+@test "game: fatigue increments on task complete" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':100,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  fatigue=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('fatigue',0))")
+  [ "$fatigue" = "1" ]
 }
 
 @test "game: stats track tasks_completed" {
@@ -2384,8 +2383,10 @@ SCRIPT
   [ "$tasks" = "1" ]
 }
 
-@test "game: first_blood achievement unlocks on first error" {
-  run_peon '{"hook_event_name":"PostToolUseFailure","tool_name":"Bash","error":"Exit code 1","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+@test "game: first_blood achievement unlocks at 20 fatigue" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['stats']={'fatigue_total':20}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   unlocked=$(/usr/bin/python3 -c "import json; print('first_blood' in json.load(open('$TEST_DIR/.state.json')).get('stats',{}).get('achievements_unlocked',{}))")
   [ "$unlocked" = "True" ]
 }

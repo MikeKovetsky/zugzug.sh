@@ -1591,14 +1591,14 @@ except Exception:
 stats = state.get('stats', {})
 unlocked = stats.get('achievements_unlocked', {})
 defs = [
-    ('first_blood', 'First Blood', 'First task error'),
+    ('first_blood', 'First Blood', 'Accumulate 20 fatigue'),
     ('zug_zug_veteran', 'Zug Zug Veteran', '100 tasks completed'),
     ('night_elf', 'Night Elf', 'Code past 2 AM'),
     ('dawn_patrol', 'Dawn Patrol', 'Session before 6 AM'),
     ('weekend_warrior', 'Weekend Warrior', '10 weekend sessions'),
     ('iron_peon', 'Iron Peon', '7-day coding streak'),
-    ('rage_quit', 'Rage Quit', '3+ errors in a session'),
-    ('oops', 'Oops', '50 lifetime errors'),
+    ('rage_quit', 'Rage Quit', 'Fatigue hits 40 in one session'),
+    ('oops', 'Oops', 'Repair items 25 times'),
     ('the_grind', 'The Grind', '1000 lifetime tasks'),
     ('permit_patty', 'Permit Patty', '20 permissions in a session'),
     ('compact_survivor', 'Compact Survivor', '5 context compacts'),
@@ -1606,7 +1606,7 @@ defs = [
     ('bankrupt', 'Bankrupt', 'Go below -500 gold'),
     ('mogul', 'Mogul', '5000 lifetime gold earned'),
     ('stop_clicking', 'Stop Clicking Me!', '500 lifetime prompts'),
-    ('peon_union_rep', 'Peon Union Rep', '10 errors in one session'),
+    ('peon_union_rep', 'Peon Union Rep', 'Fatigue hits 50 in one session'),
     ('touch_grass', 'Touch Grass', 'Code past 3 AM on a weekend'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
@@ -1783,6 +1783,112 @@ taunts = [
 print(random.choice(taunts))
 "
     exit 0 ;;
+  rest)
+    python3 -c "
+import json, os
+state_file = '$STATE'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+fatigue = state.get('fatigue', 0)
+if fatigue == 0:
+    print('Peon not tired. Peon strong!')
+    exit(0)
+econ = state.get('economy', {})
+lumber = econ.get('lumber', 0)
+cost = 20
+if lumber < cost:
+    print(f'Not enough lumber! Need {cost}l, have {lumber}l')
+    exit(1)
+econ['lumber'] = lumber - cost
+state['economy'] = econ
+state['fatigue'] = 0
+os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+json.dump(state, open(state_file, 'w'))
+print(f'Peon rested! Fatigue reset to 0. (-{cost} lumber)')
+print(f'Lumber: {econ[\"lumber\"]}')
+"
+    exit $? ;;
+  repair)
+    shift
+    python3 -c "
+import json, os, sys
+state_file = '$STATE'
+target = '${1:-all}'
+try:
+    state = json.load(open(state_file))
+except Exception:
+    state = {}
+econ = state.get('economy', {})
+gold = econ.get('gold', 0)
+equipped = state.get('equipped', [])
+durability = state.get('item_durability', {})
+REPAIR_COSTS = {'common': 25, 'uncommon': 50, 'rare': 100, 'epic': 200, 'legendary': 500}
+ITEMS_R = {
+    'claws_of_attack': 'common', 'gauntlets_of_str': 'common', 'ring_of_protection': 'common',
+    'slippers_of_agility': 'common', 'circlet_of_nobility': 'common', 'mantle_of_intel': 'common',
+    'belt_of_str': 'common', 'gloves_of_haste': 'common', 'robe_of_magi': 'common',
+    'pendant_of_mana': 'common', 'hood_of_cunning': 'common', 'medallion': 'common',
+    'tome_of_power': 'common', 'skull_shield': 'common', 'kelen_dagger': 'common', 'void_stone': 'common',
+    'boots_of_speed': 'uncommon', 'periapt_of_vitality': 'uncommon', 'pendant_of_energy': 'uncommon',
+    'helm_of_valor': 'rare', 'cloak_of_shadows': 'rare', 'orb_of_fire': 'rare',
+    'gem_of_seeing': 'rare', 'staff_of_negation': 'rare', 'sobi_mask': 'rare',
+    'talisman_of_evasion': 'rare', 'ring_of_regen': 'rare', 'scourge_bone': 'rare',
+    'shadow_orb': 'rare', 'lion_horn': 'rare',
+    'crown_of_kings': 'epic', 'mask_of_death': 'epic', 'amulet_of_spell': 'epic', 'khadgars_pipe': 'epic',
+    'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
+    'unstoppable_force': 'legendary', 'ashbringer': 'legendary',
+}
+MAX_DUR = {'common': 50, 'uncommon': 75, 'rare': 100, 'epic': 150, 'legendary': 200}
+has_discount = False
+for eid in equipped:
+    if eid == 'mask_of_death':
+        has_discount = True
+        break
+broken = []
+for eid in equipped:
+    if durability.get(eid, 999) <= 0:
+        broken.append(eid)
+if target != 'all':
+    if target in broken:
+        broken = [target]
+    elif target in equipped and durability.get(target, 999) > 0:
+        print(f'{target} is not broken.')
+        exit(0)
+    else:
+        print(f'Item not found or not equipped: {target}')
+        exit(1)
+if not broken:
+    print('Nothing to repair. All items operational!')
+    exit(0)
+total_cost = 0
+for eid in broken:
+    r = ITEMS_R.get(eid, 'common')
+    c = REPAIR_COSTS.get(r, 25)
+    if has_discount:
+        c = c // 2
+    total_cost += c
+if gold < total_cost:
+    print(f'Not enough gold! Need {total_cost}g, have {gold}g')
+    exit(1)
+econ['gold'] = gold - total_cost
+for eid in broken:
+    r = ITEMS_R.get(eid, 'common')
+    durability[eid] = MAX_DUR.get(r, 50)
+state['economy'] = econ
+state['item_durability'] = durability
+stats = state.get('stats', {})
+stats['repairs_total'] = stats.get('repairs_total', 0) + len(broken)
+state['stats'] = stats
+os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
+json.dump(state, open(state_file, 'w'))
+print(f'Repaired {len(broken)} item(s)! (-{total_cost}g)')
+for eid in broken:
+    print(f'  {eid} restored')
+print(f'Gold: {econ[\"gold\"]}')
+"
+    exit $? ;;
   inventory)
     python3 -c "
 import json, os
@@ -1817,20 +1923,20 @@ ITEMS = {
     'periapt_of_vitality': ('Periapt of Vitality',    'uncommon',  'Gold mine depletion +25 tasks later'),
     'pendant_of_energy':   ('Pendant of Energy',      'uncommon',  '+5 bonus gold per task'),
     'tome_of_xp':          ('Tome of Experience',     'uncommon',  'Gain 500 gold (consumable)'),
-    'helm_of_valor':       ('Helm of Valor',          'rare',      'First 3 errors per day cost 0 gold'),
+    'helm_of_valor':       ('Helm of Valor',          'rare',      'First 3 fatigue per session are free'),
     'cloak_of_shadows':    ('Cloak of Shadows',       'rare',      'Roasts suppressed while equipped'),
-    'orb_of_fire':         ('Orb of Fire',            'rare',      'Errors grant +2g instead of -5g'),
+    'orb_of_fire':         ('Orb of Fire',            'rare',      'Earn half gold even when tired'),
     'gem_of_seeing':       ('Gem of True Seeing',     'rare',      '10% chance of 3x gold on task complete'),
     'staff_of_negation':   ('Staff of Negation',      'rare',      'Immune to debt interest'),
     'sobi_mask':           ('Sobi Mask',              'rare',      '3x lumber from prompts'),
     'inv_potion':          ('Potion of Invisibility',  'rare',     'Suppress roasts for 2 hours (consumable)'),
-    'talisman_of_evasion': ('Talisman of Evasion',    'rare',      'First error per day costs 0 gold'),
+    'talisman_of_evasion': ('Talisman of Evasion',    'rare',      'First fatigue per session is free'),
     'ring_of_regen':       ('Ring of Regeneration',    'rare',      '+8 bonus gold per task'),
     'scourge_bone':        ('Scourge Bone Chimes',    'rare',      'Max sass capped at 1'),
     'shadow_orb':          ('Shadow Orb +10',         'rare',      '5% chance of 3x gold on task complete'),
     'lion_horn':           ('Lion Horn of Stormwind',  'rare',      'Gold mine depletion +15 tasks later'),
     'crown_of_kings':      ('Crown of Kings +5',      'epic',      '2x all gold income'),
-    'mask_of_death':       ('Mask of Death',          'epic',      'Recover 50% of gold lost to errors'),
+    'mask_of_death':       ('Mask of Death',          'epic',      '50% off repair costs'),
     'amulet_of_spell':     ('Amulet of Spell Shield', 'epic',      'Immune to base raids'),
     'khadgars_pipe':       ('Khadgar\\'s Pipe',       'epic',      'Sass resets to 0 after every task'),
     'ankh':                ('Ankh of Reincarnation',  'epic',      'Undo last base raid (consumable)'),
@@ -2084,6 +2190,43 @@ class H(http.server.BaseHTTPRequestHandler):
             st['last_resurrect_date'] = today
             self._save('.state.json', st)
             self._json(200, {'ok': True, 'combo': st['combo_count']})
+        elif self.path == '/api/rest':
+            st = self._load('.state.json')
+            f = st.get('fatigue', 0)
+            if f == 0:
+                return self._json(200, {'ok': True, 'msg': 'Not tired'})
+            ec = st.setdefault('economy', {})
+            l = ec.get('lumber', 0)
+            if l < 20:
+                return self._json(400, {'error': 'Need 20 lumber', 'have': l})
+            ec['lumber'] = l - 20
+            st['fatigue'] = 0
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'lumber': ec['lumber']})
+        elif self.path == '/api/repair':
+            st = self._load('.state.json')
+            eq = st.get('equipped', [])
+            dur = st.get('item_durability', {})
+            ec = st.setdefault('economy', {})
+            MAXD = {'common':50,'uncommon':75,'rare':100,'epic':150,'legendary':200}
+            cost = body.get('cost', 0)
+            items = body.get('items', [])
+            if not items:
+                return self._json(200, {'ok': True, 'msg': 'Nothing to repair'})
+            g = ec.get('gold', 0)
+            if g < cost:
+                return self._json(400, {'error': 'Need ' + str(cost) + 'g', 'have': g})
+            ec['gold'] = g - cost
+            for e in items:
+                r = body.get('rarities', {}).get(e, 'common')
+                dur[e] = MAXD.get(r, 50)
+            st['item_durability'] = dur
+            st['economy'] = ec
+            stats = st.setdefault('stats', {})
+            stats['repairs_total'] = stats.get('repairs_total', 0) + len(items)
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'repaired': len(items), 'cost': cost, 'gold': ec['gold']})
         elif self.path == '/api/harvest':
             pos = body.get('pos', '')
             st = self._load('.state.json')
@@ -2955,6 +3098,7 @@ if game_on:
     s_errors = state.get('session_errors', 0)
     s_perms = state.get('session_permissions', 0)
     s_tasks = state.get('session_tasks', 0)
+    fatigue = state.get('fatigue', 0)
     log = state.get('activity_log', [])
 
     if econ.get('daily_date') != _today:
@@ -2966,6 +3110,7 @@ if game_on:
         s_errors = 0
         s_perms = 0
         s_tasks = 0
+        fatigue = 0
         streak = stats.get('current_streak_days', 0)
         last_date = stats.get('last_active_date', '')
         if last_date:
@@ -3005,6 +3150,11 @@ if game_on:
 
     daily_tasks = econ.get('daily_tasks', 0)
 
+    _fatigue_thresh = 20
+    if 'tavern' in buildings:
+        _fatigue_thresh += 10
+    _fatigue_exhaust = _fatigue_thresh + 10
+
     if econ_on:
         if category == 'task.complete' or event == 'Stop':
             base_gold = 10
@@ -3012,17 +3162,20 @@ if game_on:
                 base_gold = 0
             elif daily_tasks >= 50:
                 base_gold = 5
-            gold_delta += int(base_gold * upkeep_mult)
+            _fg = int(base_gold * upkeep_mult)
+            if fatigue >= _fatigue_exhaust:
+                _fg = 0
+            elif fatigue >= _fatigue_thresh:
+                _fg = _fg // 2
+            gold_delta += _fg
             daily_tasks += 1
             s_tasks += 1
+            fatigue += 1
+            stats['fatigue_total'] = stats.get('fatigue_total', 0) + 1
             econ['daily_tasks'] = daily_tasks
             stats['tasks_completed'] = stats.get('tasks_completed', 0) + 1
         elif category == 'task.acknowledge':
             gold_delta += int(2 * upkeep_mult)
-        elif category == 'task.error' or event == 'PostToolUseFailure':
-            gold_delta -= 5
-            s_errors += 1
-            stats['errors_total'] = stats.get('errors_total', 0) + 1
         elif category == 'resource.limit':
             gold_delta -= 20
             stats['context_limits_hit'] = stats.get('context_limits_hit', 0) + 1
@@ -3045,15 +3198,16 @@ if game_on:
         if econ.get('debt_interest') and gold < 0 and gold_delta > 0:
             gold_delta = max(0, gold_delta - 1)
 
-        if s_errors >= 5 and s_errors % 5 == 0 and gold > 0:
-            raid_loss = random.randint(50, 200)
-            raid_loss = min(raid_loss, gold + gold_delta)
-            gold_delta -= raid_loss
-            raiders = random.choice(['Murlocs', 'Gnolls', 'Kobolds'])
-            raid_msg = f'{raiders} raided your gold mine! -{raid_loss} gold'
-            if raiders == 'Kobolds':
-                raid_msg += ' (You no take candle!)'
-            game_subtitle = raid_msg
+        if fatigue >= _fatigue_exhaust and gold > 0 and category == 'task.complete':
+            if random.random() < 0.1:
+                raid_loss = random.randint(50, 200)
+                raid_loss = min(raid_loss, gold + gold_delta)
+                gold_delta -= raid_loss
+                raiders = random.choice(['Murlocs', 'Gnolls', 'Kobolds'])
+                raid_msg = f'{raiders} raided your gold mine! -{raid_loss} gold (Peon too tired to defend!)'
+                if raiders == 'Kobolds':
+                    raid_msg += ' You no take candle!'
+                game_subtitle = raid_msg
 
         econ['upkeep'] = upkeep
 
@@ -3085,7 +3239,7 @@ if game_on:
                 combo_text = 'Double kill!'
             if combo > stats.get('max_combo', 0):
                 stats['max_combo'] = combo
-        elif category in ('task.error', 'resource.limit'):
+        elif fatigue >= _fatigue_exhaust or category == 'resource.limit':
             if combo >= 2:
                 combo_text = f'Combo broken at {combo}x.'
             combo = 0
@@ -3097,7 +3251,7 @@ if game_on:
     bunker_until = state.get('bunker_until', 0)
     in_bunker = bunker_until > time.time()
     if roast_on and not in_bunker:
-        if s_errors > 0 and s_errors % 3 == 0:
+        if fatigue >= _fatigue_thresh:
             sass = min(5, sass + 1)
         if category == 'resource.limit':
             sass = min(5, sass + 1)
@@ -3111,7 +3265,7 @@ if game_on:
             sass = min(5, sass + 1)
         if s_tasks >= 15:
             sass = min(5, sass + 1)
-        if category == 'task.complete' and s_errors == 0:
+        if category == 'task.complete' and fatigue < _fatigue_thresh:
             sass = max(0, sass - 1)
 
         _roasts = {
@@ -3121,13 +3275,14 @@ if game_on:
             4: ['At this point, Peon writing the code.', 'Error again? Peon not even surprised.', 'Peon losing faith in humanity.', 'Peon legs give out. Send help.', 'Warchief would not approve of this.'],
             5: ['Peon quit. Find another peon.', 'Me going to work for Night Elves.', 'Peon file complaint with Warchief.', 'Peon unionizing. Strike begins now.', 'This violate Geneva Convention. Peon sure of it.'],
         }
-        if sass > 0 and category in ('task.error', 'task.complete', 'resource.limit'):
+        if sass > 0 and category in ('task.complete', 'resource.limit'):
             roast_text = random.choice(_roasts.get(sass, []))
 
     state['sass_level'] = sass
     state['session_errors'] = s_errors
     state['session_permissions'] = s_perms
     state['session_tasks'] = s_tasks
+    state['fatigue'] = fatigue
 
     # --- Time-aware mechanics ---
     time_on = str(game_cfg.get('time_aware', True)).lower() != 'false'
@@ -3168,14 +3323,14 @@ if game_on:
     unlocked = stats.get('achievements_unlocked', {})
     new_achiev = ''
     _achiev_defs = [
-        ('first_blood',      lambda: stats.get('errors_total', 0) >= 1, 'First Blood', 'Our town is under attack!'),
+        ('first_blood',      lambda: stats.get('fatigue_total', 0) >= 20, 'First Blood', 'Peon... so... tired...'),
         ('zug_zug_veteran',  lambda: stats.get('tasks_completed', 0) >= 100, 'Zug Zug Veteran', 'More work? ...More work.'),
         ('night_elf',        lambda: _hour >= 2 and _hour < 5, 'Night Elf', 'The shadows hold many secrets...'),
         ('dawn_patrol',      lambda: _hour >= 4 and _hour < 6 and category == 'session.start', 'Dawn Patrol', 'The horn of Cenarius has sounded!'),
         ('weekend_warrior',  lambda: stats.get('weekend_sessions', 0) >= 10, 'Weekend Warrior', 'For the Horde! ...on a Saturday?'),
         ('iron_peon',        lambda: stats.get('current_streak_days', 0) >= 7, 'Iron Peon', 'Peon never stop. Peon strong.'),
-        ('rage_quit',        lambda: s_errors >= 3, 'Rage Quit', 'Our forces are under attack!'),
-        ('oops',             lambda: stats.get('errors_total', 0) >= 50, 'Oops', 'Stop poking me!'),
+        ('rage_quit',        lambda: fatigue >= 40, 'Rage Quit', 'Peon collapse! Too many tasks!'),
+        ('oops',             lambda: stats.get('repairs_total', 0) >= 25, 'Oops', 'Stop breaking things!'),
         ('the_grind',        lambda: stats.get('tasks_completed', 0) >= 1000, 'The Grind', 'Something need doing? ALWAYS.'),
         ('permit_patty',     lambda: s_perms >= 20, 'Permit Patty', 'Why you keep asking?!'),
         ('compact_survivor', lambda: stats.get('context_limits_hit', 0) >= 5, 'Compact Survivor', 'Under attack!'),
@@ -3183,7 +3338,7 @@ if game_on:
         ('bankrupt',         lambda: gold <= -500, 'Bankrupt', 'Peon seen better economy from gnolls.'),
         ('mogul',            lambda: stats.get('total_gold_earned', 0) >= 5000, 'Mogul', 'Human rich! Peon still poor though.'),
         ('stop_clicking',    lambda: stats.get('prompts_total', 0) >= 500, 'Stop Clicking Me!', 'Me busy! Leave me alone!'),
-        ('peon_union_rep',   lambda: s_errors >= 10, 'Peon Union Rep', 'Peon demand hazard pay!'),
+        ('peon_union_rep',   lambda: fatigue >= 50, 'Peon Union Rep', 'Peon demand hazard pay!'),
         ('touch_grass',      lambda: _hour >= 3 and _hour < 5 and _weekday >= 5, 'Touch Grass', 'Why human code now?! Go outside!'),
     ]
     if achiev_on:
@@ -3199,14 +3354,14 @@ if game_on:
         stats['achievements_unlocked'] = unlocked
 
     _ach_progress = {
-        'first_blood':      [stats.get('errors_total', 0), 1],
+        'first_blood':      [stats.get('fatigue_total', 0), 20],
         'zug_zug_veteran':  [stats.get('tasks_completed', 0), 100],
         'night_elf':        [1 if 'night_elf' in unlocked else 0, 1],
         'dawn_patrol':      [1 if 'dawn_patrol' in unlocked else 0, 1],
         'weekend_warrior':  [stats.get('weekend_sessions', 0), 10],
         'iron_peon':        [stats.get('current_streak_days', 0), 7],
-        'rage_quit':        [s_errors, 3],
-        'oops':             [stats.get('errors_total', 0), 50],
+        'rage_quit':        [fatigue, 40],
+        'oops':             [stats.get('repairs_total', 0), 25],
         'the_grind':        [stats.get('tasks_completed', 0), 1000],
         'permit_patty':     [s_perms, 20],
         'compact_survivor': [stats.get('context_limits_hit', 0), 5],
@@ -3214,7 +3369,7 @@ if game_on:
         'bankrupt':         [abs(min(gold, 0)), 500],
         'mogul':            [stats.get('total_gold_earned', 0), 5000],
         'stop_clicking':    [stats.get('prompts_total', 0), 500],
-        'peon_union_rep':   [s_errors, 10],
+        'peon_union_rep':   [fatigue, 50],
         'touch_grass':      [1 if 'touch_grass' in unlocked else 0, 1],
     }
     stats['achievements_progress'] = _ach_progress
@@ -3369,19 +3524,19 @@ if game_on:
         'periapt_of_vitality': dict(name='Periapt of Vitality',    r='uncommon',  e='depletion_ext',   v=25,   desc='Gold mine depletion +25 tasks later'),
         'pendant_of_energy':   dict(name='Pendant of Energy',      r='uncommon',  e='gold_bonus',      v=5,    desc='+5 bonus gold per task'),
         'tome_of_xp':          dict(name='Tome of Experience',     r='uncommon',  e='consumable',      v='gold500',   desc='Gain 500 gold (consumable)'),
-        'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='error_shield',    v=3,    desc='First 3 errors per day cost 0 gold'),
+        'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='fatigue_resist',  v=3,    desc='First 3 fatigue per session are free'),
         'cloak_of_shadows':    dict(name='Cloak of Shadows',       r='rare',      e='roast_immune',    v=1,    desc='Roasts suppressed while equipped'),
-        'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='error_to_gold',   v=2,    desc='Errors grant +2g instead of -5g'),
+        'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='fatigue_gold',    v=1,    desc='Earn half gold even when tired'),
         'gem_of_seeing':       dict(name='Gem of True Seeing',     r='rare',      e='crit_chance',     v=10,   desc='10% chance of 3x gold on task complete'),
         'staff_of_negation':   dict(name='Staff of Negation',      r='rare',      e='debt_immune',     v=1,    desc='Immune to debt interest'),
         'sobi_mask':           dict(name='Sobi Mask',              r='rare',      e='lumber_mult',     v=3,    desc='3x lumber from prompts'),
-        'talisman_of_evasion': dict(name='Talisman of Evasion',    r='rare',      e='error_shield',    v=1,    desc='First error per day costs 0 gold'),
+        'talisman_of_evasion': dict(name='Talisman of Evasion',    r='rare',      e='fatigue_resist',  v=1,    desc='First fatigue per session is free'),
         'ring_of_regen':       dict(name='Ring of Regeneration',    r='rare',      e='gold_bonus',      v=8,    desc='+8 bonus gold per task'),
         'scourge_bone':        dict(name='Scourge Bone Chimes',    r='rare',      e='sass_cap',        v=1,    desc='Max sass capped at 1'),
         'shadow_orb':          dict(name='Shadow Orb +10',         r='rare',      e='crit_chance',     v=5,    desc='5% chance of 3x gold on task complete'),
         'lion_horn':           dict(name='Lion Horn of Stormwind',  r='rare',      e='depletion_ext',   v=15,   desc='Gold mine depletion +15 tasks later'),
         'crown_of_kings':      dict(name='Crown of Kings +5',      r='epic',      e='gold_mult',       v=2,    desc='2x all gold income'),
-        'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='lifesteal',       v=50,   desc='Recover 50% of gold lost to errors'),
+        'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='repair_discount', v=50,   desc='50% off repair costs'),
         'amulet_of_spell':     dict(name='Amulet of Spell Shield', r='epic',      e='raid_immune',     v=1,    desc='Immune to base raids'),
         'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='sass_reset',      v=1,    desc='Sass resets to 0 after every task'),
         'frostmourne':         dict(name='Frostmourne',            r='legendary', e='roast_to_praise',  v=1,    desc='All roasts become compliments'),
@@ -3407,8 +3562,29 @@ if game_on:
     item_drop = ''
 
     _has_blacksmith = 'blacksmith' in buildings
+    _durability = state.get('item_durability', {})
+    _MAX_DUR = {'common': 50, 'uncommon': 75, 'rare': 100, 'epic': 150, 'legendary': 200}
+
+    for _eid in equipped:
+        if _eid not in _durability:
+            _r = _ITEMS.get(_eid, {}).get('r', 'common')
+            _durability[_eid] = _MAX_DUR.get(_r, 50)
+
+    if (category == 'task.complete' or event == 'Stop') and equipped:
+        _dur_step = 2 if _has_blacksmith else 1
+        _dur_tick = state.get('_dur_tick', 0) + 1
+        state['_dur_tick'] = _dur_tick
+        if _dur_tick % _dur_step == 0:
+            for _eid in equipped:
+                if _eid in _durability and _durability[_eid] > 0:
+                    _durability[_eid] -= 1
+        state['item_durability'] = _durability
+        state_dirty = True
+
     def _has_effect(eff):
         for eid in equipped:
+            if _durability.get(eid, 1) <= 0:
+                continue
             it = _ITEMS.get(eid)
             if it and it['e'] == eff:
                 v = it['v']
@@ -3457,17 +3633,12 @@ if game_on:
         lm = _has_effect('lumber_mult')
         if lm and lumber_delta > 0:
             lumber_delta = int(lumber_delta * lm)
-        if _has_effect('error_to_gold') and (category == 'task.error' or event == 'PostToolUseFailure'):
-            gold_delta = _has_effect('error_to_gold')
-        es = _has_effect('error_shield')
-        if es and gold_delta < 0:
-            shielded = state.get('error_shield_used', 0)
-            if shielded < es:
-                gold_delta = 0
-                state['error_shield_used'] = shielded + 1
-        if _has_effect('lifesteal') and gold_delta < 0:
-            recover = int(abs(gold_delta) * _has_effect('lifesteal') / 100)
-            gold_delta += recover
+        fr = _has_effect('fatigue_resist')
+        if fr and fatigue > 0 and fatigue <= fr:
+            fatigue = max(0, fatigue - 1)
+            state['fatigue'] = fatigue
+        if _has_effect('fatigue_gold') and fatigue >= _fatigue_thresh and gold_delta == 0:
+            gold_delta = int(base_gold * upkeep_mult) // 2 if category == 'task.complete' else 0
         if _has_effect('debt_immune'):
             econ['debt_interest'] = False
         if _has_effect('raid_immune') and game_subtitle and 'raided' in game_subtitle:
@@ -3542,11 +3713,6 @@ if game_on:
             item_drop = 'ITEM DROP: ' + it['name'] + ' (' + rarity_names.get(it['r'], it['r']) + ') - ' + it['desc']
             state['inventory'] = inventory
 
-    # Reset daily error shield
-    if econ.get('daily_date') == _today and state.get('error_shield_date') != _today:
-        state['error_shield_used'] = 0
-        state['error_shield_date'] = _today
-
     state['inventory'] = inventory
     state['equipped'] = equipped
 
@@ -3566,14 +3732,23 @@ if game_on:
             log = log[-50:]
         state['activity_log'] = log
 
+    # --- Fatigue notification color/text ---
+    if fatigue >= _fatigue_exhaust and category == 'task.complete':
+        notify_color = 'red'
+        game_subtitle = (game_subtitle + ' ' if game_subtitle else '') + 'EXHAUSTED! 0 gold. peon rest to recover.'
+    elif fatigue >= _fatigue_thresh and category == 'task.complete':
+        notify_color = 'yellow'
+        game_subtitle = (game_subtitle + ' ' if game_subtitle else '') + f'Tired ({fatigue}). Half gold.'
+
     # --- Compose game notification ---
     parts = []
     if level_up_text:
         parts.append(level_up_text)
     if item_drop:
-        parts.append(item_drop)
+        _drop_short = item_drop.split(' - ')[0] if ' - ' in item_drop else item_drop
+        parts.append(_drop_short)
     if new_achiev:
-        parts.append(f'Achievement: {new_achiev}')
+        parts.append(new_achiev)
     if combo_text:
         parts.append(combo_text)
     if game_event_text:
@@ -3942,6 +4117,42 @@ class Handler(http.server.BaseHTTPRequestHandler):
             st['last_resurrect_date'] = today
             self._save('.state.json', st)
             self._json(200, {'ok': True, 'combo': st['combo_count']})
+        elif self.path == '/api/rest':
+            st = self._load('.state.json')
+            f = st.get('fatigue', 0)
+            if f == 0:
+                return self._json(200, {'ok': True, 'msg': 'Not tired'})
+            ec = st.setdefault('economy', {})
+            l = ec.get('lumber', 0)
+            if l < 20:
+                return self._json(400, {'error': 'Need 20 lumber', 'have': l})
+            ec['lumber'] = l - 20
+            st['fatigue'] = 0
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'lumber': ec['lumber']})
+        elif self.path == '/api/repair':
+            st = self._load('.state.json')
+            ec = st.setdefault('economy', {})
+            MAXD = {'common':50,'uncommon':75,'rare':100,'epic':150,'legendary':200}
+            cost = body.get('cost', 0)
+            items = body.get('items', [])
+            if not items:
+                return self._json(200, {'ok': True, 'msg': 'Nothing to repair'})
+            g = ec.get('gold', 0)
+            if g < cost:
+                return self._json(400, {'error': 'Need ' + str(cost) + 'g', 'have': g})
+            ec['gold'] = g - cost
+            dur = st.get('item_durability', {})
+            for e in items:
+                r = body.get('rarities', {}).get(e, 'common')
+                dur[e] = MAXD.get(r, 50)
+            st['item_durability'] = dur
+            st['economy'] = ec
+            stats = st.setdefault('stats', {})
+            stats['repairs_total'] = stats.get('repairs_total', 0) + len(items)
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'repaired': len(items), 'cost': cost, 'gold': ec['gold']})
         elif self.path == '/api/harvest':
             pos = body.get('pos', '')
             st = self._load('.state.json')

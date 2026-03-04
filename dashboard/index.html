@@ -122,6 +122,11 @@ body {
 .res-icon { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; }
 .res-gold { color: var(--gold); }
 .res-lumber { color: #8B6914; }
+.res-fatigue { display: flex; align-items: center; gap: 5px; }
+.fatigue-icon { font-size: 16px; }
+.fatigue-bar { width: 60px; height: 8px; background: rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+.fatigue-fill { height: 100%; border-radius: 3px; transition: width 0.4s, background 0.4s; }
+.fatigue-lbl { font-size: 13px; color: var(--muted); font-weight: 700; min-width: 16px; }
 .res-right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
 .goblin-badge {
   font-size: 13px; padding: 3px 10px; border-radius: 3px;
@@ -442,6 +447,12 @@ body {
 .inv-hint p { font-size: 13px; color: var(--muted); margin: 8px 0 0; line-height: 1.5; }
 
 .slot-rarity { background: #888; }
+.dur-bar { width: 80%; height: 3px; background: rgba(0,0,0,0.4); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+.dur-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+.inv-slot.broken { opacity: 0.5; }
+.inv-slot.broken .slot-icon { filter: grayscale(1); }
+.tip-dur { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.tip-broken { color: var(--red); font-size: 11px; margin-top: 2px; font-weight: 700; }
 
 /* Achievements */
 .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
@@ -695,6 +706,11 @@ body {
       <span class="res-icon"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/common/iconlumber.gif" class="w3i" alt=""></span>
       <span class="sv" id="lumber">0</span>
     </div>
+    <div class="res-fatigue" id="fatigue-wrap" style="display:none">
+      <span class="fatigue-icon">💤</span>
+      <div class="fatigue-bar"><div class="fatigue-fill" id="fatigue-fill"></div></div>
+      <span class="fatigue-lbl" id="fatigue-lbl">0</span>
+    </div>
     <div class="res-right">
       <span class="goblin-badge hidden" id="goblin-badge"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/neutral/goblinmerchant.png" class="w3i" style="width:14px;height:14px" alt=""> 50% OFF</span>
       <span id="streak" class="streak-badge"></span>
@@ -719,27 +735,35 @@ body {
     <div class="how-body">
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/common/icongold.gif" class="w3i" alt=""> Gold</div>
-        <div class="help-text">+10g per completed task. Errors cost -5g. Daily cap at 80 tasks (gold mine depletes). Payday bonus every Friday at 5 PM.</div>
+        <div class="help-text">+10g per completed task. Daily cap at 80 tasks (gold mine depletes). Payday bonus every Friday at 5 PM. Fatigue reduces gold income.</div>
       </div>
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/common/iconlumber.gif" class="w3i" alt=""> Lumber</div>
-        <div class="help-text">+5 lumber per session start (each prompt/session contributes lumber).</div>
+        <div class="help-text">+5 lumber per session start, +1 per prompt. Lumber Mill doubles all lumber. Click glowing trees on the base map to harvest bonus lumber.</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading">💤 Fatigue</div>
+        <div class="help-text">+1 per task completed. At 20: tired (half gold). At 30: exhausted (no gold, combos break). Use <code>peon rest</code> (20 lumber) or click Rest to reset. Tavern raises thresholds by 10.</div>
       </div>
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/greathall.png" class="w3i" alt=""> Buildings</div>
-        <div class="help-text">Spend gold and lumber to construct buildings on the map. Each unlocks a perk. Click any empty tile to build.</div>
+        <div class="help-text">13 structures, each with a unique perk. Click empty tiles on the base map to place. Highlights: Tavern (+10 fatigue threshold), Blacksmith (+50% item effects, halves durability loss), Citadel (2x item drops).</div>
       </div>
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/warmill.png" class="w3i" alt=""> Combos</div>
-        <div class="help-text">Consecutive task completions without errors (requires War Mill). Higher combos = better item drops.</div>
+        <div class="help-text">Consecutive task completions (requires War Mill). Higher combos = better item drops. Broken by exhaustion or context limits. Altar restores combos once/day.</div>
       </div>
       <div class="help-block">
-        <div class="help-heading">&#x1F525; Roast</div>
-        <div class="help-text">Roast level 0-5. Increases with errors, context limits, and late-night coding. Build a Burrow to suppress.</div>
+        <div class="help-heading">&#x1F6E0;&#xFE0F; Durability</div>
+        <div class="help-text">Equipped items lose 1 durability per task. At 0 they break and their effect stops. Use <code>peon repair</code> or click Repair to fix (costs gold). Blacksmith halves durability loss.</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading">&#x1F525; Sass</div>
+        <div class="help-text">Peon gets grumpy from overwork (30+ daily tasks), fatigue, gold hoarding, marathon sessions, late nights, and context limits. Burrow suppresses for 1 hour. Frostmourne turns sass into compliments.</div>
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F3C6; Achievements</div>
-        <div class="help-text">Hover any achievement to see how to unlock it. Tracked automatically as you code.</div>
+        <div class="help-text">17 achievements (3 secret). Track fatigue, task milestones, streaks, repairs, and more. Hover any achievement to see progress.</div>
       </div>
     </div>
   </div>
@@ -864,25 +888,25 @@ var BLDS = {
   war_mill:        { icon: w3i('orc/warmill.png'), name: 'War Mill', g: 1000, l: 500, desc: 'Unlocks combo system (multi-kill tracking).' },
   altar:           { icon: w3i('orc/altarofstorms.png'), name: 'Altar of Storms', g: 1500, l: 750, desc: 'Enables Resurrect \u2014 restore combo once/day.' },
   lumber_mill:     { icon: w3i('common/lumber.png'), name: 'Lumber Mill', g: 1500, l: 500, desc: '2x lumber from all sources.' },
-  tavern:          { icon: w3i('neutral/tavern.png'), name: 'Tavern', g: 2000, l: 1000, desc: 'Enables Taunt \u2014 play a roast on demand.' },
+  tavern:          { icon: w3i('neutral/tavern.png'), name: 'Tavern', g: 2000, l: 1000, desc: 'Taunt on demand. +10 fatigue threshold.' },
   stronghold:      { icon: w3i('orc/stronghold.png'), name: 'Stronghold', g: 2500, l: 1000, desc: 'Rank upgrade. Unlocks random events.' },
   spirit_lodge:    { icon: w3i('orc/spiritlodge.png'), name: 'Spirit Lodge', g: 2500, l: 1000, desc: 'Unlocks idle peon wisdom notifications.' },
   barracks:        { icon: w3i('orc/barracks.png'), name: 'Barracks', g: 3000, l: 1200, desc: 'Subagent sessions count toward stats.' },
-  blacksmith:      { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Blacksmith', g: 4000, l: 1500, desc: 'Equipped items get +50% effect values.' },
+  blacksmith:      { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Blacksmith', g: 4000, l: 1500, desc: '+50% item effects. Halves durability loss.' },
   arcane_sanctum:  { icon: w3i('orc/voodoolounge.png'), name: 'Arcane Sanctum', g: 7500, l: 3000, desc: 'Unlocks peon prophecies on session start.' },
   fortress:        { icon: w3i('orc/fortress.png'), name: 'Fortress', g: 10000, l: 4000, desc: 'Max rank. Unlocks leaderboard title.' },
   citadel:         { icon: w3i('orc/taurentotem.png'), name: 'Citadel', g: 15000, l: 6000, desc: 'Prestige rank. 2x item drop rate.' },
 };
 
 var ACHS = [
-  { id: 'first_blood', icon: '\u{1FA78}', name: 'First Blood', how: 'First task error', tgt: 1 },
+  { id: 'first_blood', icon: '\u{1FA78}', name: 'First Blood', how: 'Accumulate 20 fatigue', tgt: 20 },
   { id: 'zug_zug_veteran', icon: '\u2692\uFE0F', name: 'Zug Zug Veteran', how: 'Complete 100 tasks', tgt: 100 },
   { id: 'night_elf', icon: '\u{1F319}', name: 'Night Elf', how: 'Code past 2 AM', tgt: 1 },
   { id: 'dawn_patrol', icon: '\u{1F305}', name: 'Dawn Patrol', how: 'Start a session before 6 AM', tgt: 1 },
   { id: 'weekend_warrior', icon: '\u{1F5E1}\uFE0F', name: 'Weekend Warrior', how: '10 weekend sessions', tgt: 10 },
   { id: 'iron_peon', icon: '\u{1F4AA}', name: 'Iron Peon', how: '7-day coding streak', tgt: 7 },
-  { id: 'rage_quit', icon: '\u{1F4A2}', name: 'Rage Quit', how: '3+ errors in one session', tgt: 3 },
-  { id: 'oops', icon: '\u{1F92D}', name: 'Oops', how: '50 lifetime errors', tgt: 50 },
+  { id: 'rage_quit', icon: '\u{1F4A2}', name: 'Rage Quit', how: 'Fatigue hits 40 in one session', tgt: 40 },
+  { id: 'oops', icon: '\u{1F92D}', name: 'Oops', how: 'Repair items 25 times', tgt: 25 },
   { id: 'the_grind', icon: '\u26CF\uFE0F', name: 'The Grind', how: '1,000 lifetime tasks', tgt: 1000 },
   { id: 'permit_patty', icon: '\u{1F6D1}', name: 'Permit Patty', how: '20 permissions in one session', tgt: 20 },
   { id: 'compact_survivor', icon: '\u{1F6E1}\uFE0F', name: 'Compact Survivor', how: '5 context compacts', tgt: 5 },
@@ -890,7 +914,7 @@ var ACHS = [
   { id: 'bankrupt', icon: '\u{1F4B8}', name: 'Bankrupt', how: 'Go below -500 gold', tgt: 500 },
   { id: 'mogul', icon: '\u{1F4B0}', name: 'Mogul', how: 'Earn 5,000 lifetime gold', tgt: 5000 },
   { id: 'stop_clicking', icon: '\u{1F5B1}\uFE0F', name: 'Stop Clicking Me!', how: '500 lifetime prompts', tgt: 500, secret: true },
-  { id: 'peon_union_rep', icon: '\u{1F4CB}', name: 'Peon Union Rep', how: '10 errors in one session', tgt: 10, secret: true },
+  { id: 'peon_union_rep', icon: '\u{1F4CB}', name: 'Peon Union Rep', how: 'Fatigue hits 50 in one session', tgt: 50, secret: true },
   { id: 'touch_grass', icon: '\u{1F33F}', name: 'Touch Grass', how: 'Code past 3 AM on a weekend', tgt: 1, secret: true },
 ];
 
@@ -1092,6 +1116,20 @@ function updateRes(s) {
   $('streak').textContent = streak > 0 ? streak + ' day streak' : '';
   var gb = $('goblin-badge');
   gb.classList.toggle('hidden', s.goblin_discount_date !== today());
+  var fat = s.fatigue || 0;
+  var hasTavern = (s.buildings || {}).tavern != null;
+  var thresh = hasTavern ? 30 : 20;
+  var exhaust = thresh + 10;
+  var wrap = $('fatigue-wrap');
+  wrap.style.display = fat > 0 ? 'flex' : 'none';
+  if (fat > 0) {
+    var pct = Math.min(100, (fat / exhaust) * 100);
+    var fill = $('fatigue-fill');
+    fill.style.width = pct + '%';
+    fill.style.background = fat >= exhaust ? '#c44' : fat >= thresh ? '#ca2' : '#4a4';
+    $('fatigue-lbl').textContent = fat;
+    $('fatigue-lbl').style.color = fat >= exhaust ? '#c44' : fat >= thresh ? '#ca2' : 'var(--muted)';
+  }
 }
 
 function updateStats(s) {
@@ -1311,13 +1349,64 @@ function updateActions(s) {
       btn2.addEventListener('click', function() {
         apiPost('/api/resurrect').then(function(res) {
           if (res.ok) {
-            addToast('', '\u26A1', 'Peon call upon ancestors! Combo restored to ' + res.combo + 'x.');
+            addToast('', '\u26A1', 'Combo restored to ' + res.combo + 'x.');
             poll();
-          } else { addToast('err', '\u274C', res.error || 'Resurrect failed'); }
+          } else { addToast('err', '\u274C', res.error || 'Failed'); }
         });
       });
     }
     div.appendChild(btn2);
+  }
+  var fat = s.fatigue || 0;
+  if (fat > 0) {
+    var rbtn = document.createElement('button');
+    rbtn.className = 'act-btn';
+    var ec = s.economy || {};
+    if (ec.lumber >= 20) {
+      rbtn.innerHTML = '\u{1F4A4} Rest (' + fat + ') \u2014 20l';
+      rbtn.addEventListener('click', function() {
+        apiPost('/api/rest').then(function(res) {
+          if (res.ok) { addToast('', '\u{1F4A4}', 'Peon rested! Fatigue reset.'); poll(); }
+          else { addToast('err', '\u274C', res.error || 'Failed'); }
+        });
+      });
+    } else {
+      rbtn.innerHTML = '\u{1F4A4} Rest (' + fat + ') \u2014 20l';
+      rbtn.disabled = true;
+    }
+    div.appendChild(rbtn);
+  }
+  var dur = s.item_durability || {};
+  var eq = s.equipped || [];
+  var broken = eq.filter(function(e) { return (dur[e] != null && dur[e] <= 0); });
+  if (broken.length > 0) {
+    var RCOST = {common:25,uncommon:50,rare:100,epic:200,legendary:500};
+    var hasDisc = eq.indexOf('mask_of_death') >= 0 && (dur['mask_of_death'] == null || dur['mask_of_death'] > 0);
+    var cost = 0, rarities = {};
+    broken.forEach(function(e) {
+      var it = ITEMS[e];
+      var r = it ? it.r : 'common';
+      rarities[e] = r;
+      var c = RCOST[r] || 25;
+      if (hasDisc) c = Math.floor(c / 2);
+      cost += c;
+    });
+    var rpbtn = document.createElement('button');
+    rpbtn.className = 'act-btn';
+    var ec2 = s.economy || {};
+    if (ec2.gold >= cost) {
+      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair (' + broken.length + ') \u2014 ' + cost + 'g';
+      rpbtn.addEventListener('click', function() {
+        apiPost('/api/repair', {items: broken, rarities: rarities, cost: cost}).then(function(res) {
+          if (res.ok) { addToast('', '\u{1F6E0}\uFE0F', 'Repaired ' + res.repaired + ' item(s)! -' + res.cost + 'g'); poll(); }
+          else { addToast('err', '\u274C', res.error || 'Failed'); }
+        });
+      });
+    } else {
+      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair \u2014 ' + cost + 'g';
+      rpbtn.disabled = true;
+    }
+    div.appendChild(rpbtn);
   }
 }
 
@@ -1384,6 +1473,8 @@ function updateLog(s) {
 function updateInventory(s) {
   var equipped = s.equipped || [];
   var inventory = s.inventory || [];
+  var dur = s.item_durability || {};
+  var MAX_DUR = {common: 50, uncommon: 75, rare: 100, epic: 150, legendary: 200};
   var eqDiv = $('equip-slots');
   eqDiv.innerHTML = '';
   for (var i = 0; i < 6; i++) {
@@ -1391,9 +1482,17 @@ function updateInventory(s) {
     var iid = equipped[i];
     var it = iid ? ITEMS[iid] : null;
     if (it) {
-      slot.className = 'inv-slot r-' + it.r;
-      slot.innerHTML = '<span class="slot-rarity"></span><span class="slot-icon">' + it.icon + '</span><span class="slot-lbl">' + it.name.split(' ')[0] + '</span>';
-      slot.innerHTML += '<span class="slot-tip"><div class="tip-name">' + it.name + '</div><div class="tip-desc">' + it.desc + '</div><div class="tip-act">Click to unequip</div></span>';
+      var d = dur[iid] != null ? dur[iid] : MAX_DUR[it.r] || 50;
+      var mx = MAX_DUR[it.r] || 50;
+      var broken = d <= 0;
+      var pct = Math.max(0, Math.min(100, (d / mx) * 100));
+      var barColor = pct > 50 ? '#4a4' : pct > 20 ? '#ca2' : '#c44';
+      slot.className = 'inv-slot r-' + it.r + (broken ? ' broken' : '');
+      var lbl = it.name.split(' ')[0] + (broken ? ' \u{1F6E0}\uFE0F' : '');
+      slot.innerHTML = '<span class="slot-rarity"></span><span class="slot-icon">' + it.icon + '</span><span class="slot-lbl">' + lbl + '</span>';
+      slot.innerHTML += '<div class="dur-bar"><div class="dur-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>';
+      var tipExtra = broken ? '<div class="tip-broken">BROKEN \u2014 peon repair to fix</div>' : '<div class="tip-dur">' + d + '/' + mx + ' durability</div>';
+      slot.innerHTML += '<span class="slot-tip"><div class="tip-name">' + it.name + '</div><div class="tip-desc">' + it.desc + '</div>' + tipExtra + '<div class="tip-act">Click to unequip</div></span>';
       (function(itemId) {
         slot.addEventListener('click', function() {
           apiPost('/api/unequip', { item: itemId }).then(function(res) {
