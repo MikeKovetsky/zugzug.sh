@@ -38,13 +38,25 @@ AI coding agents don't notify you when they finish or need permission. You tab a
 
 ## Install
 
-### Option 1: Installer script (macOS, Linux, WSL2)
+### Option 1: Homebrew (macOS, Linux)
+
+```bash
+brew install MikeKovetsky/zugzug/zugzug
+```
+
+This installs the `zugzug` CLI. Then run the setup to register hooks and download sound packs:
+
+```bash
+zugzug update
+```
+
+### Option 2: Installer script (macOS, Linux, WSL2)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash
 ```
 
-### Option 2: Installer for Windows
+### Option 3: Installer for Windows
 
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.ps1" -UseBasicParsing | Invoke-Expression
@@ -72,7 +84,7 @@ curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install
 
 If a global install exists and you install local (or vice versa), the installer prompts you to remove the existing one to avoid conflicts.
 
-### Option 3: Clone and inspect first
+### Option 4: Clone and inspect first
 
 ```bash
 git clone https://github.com/MikeKovetsky/zugzug.sh.git

@@ -37,13 +37,25 @@ AI 编程助手完成任务或需要权限时不会通知你。你切换标签�
 
 ## 安装
 
-### 方式一：安装脚本（macOS、Linux、WSL2）
+### 方式一：Homebrew（macOS、Linux）
+
+```bash
+brew install MikeKovetsky/zugzug/zugzug
+```
+
+安装 `zugzug` CLI。然后运行设置以注册钩子并下载语音包：
+
+```bash
+zugzug update
+```
+
+### 方式二：安装脚本（macOS、Linux、WSL2）
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash
 ```
 
-### 方式二：Windows 安装
+### 方式三：Windows 安装
 
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.ps1" -UseBasicParsing | Invoke-Expression
@@ -71,7 +83,7 @@ curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install
 
 如果已存在全局安装，你又安装了本地版本（或反之），安装程序会提示你移除现有的以避免冲突。
 
-### 方式三：克隆后检查
+### 方式四：克隆后检查
 
 ```bash
 git clone https://github.com/MikeKovetsky/zugzug.sh.git

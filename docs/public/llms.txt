@@ -15,6 +15,12 @@ ZugZug plays voice lines and shows bold on-screen overlay banners from Warcraft,
 ## Install
 
 ```bash
+brew install MikeKovetsky/zugzug/zugzug && zugzug update
+```
+
+Or without Homebrew:
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/MikeKovetsky/zugzug.sh/main/install.sh | bash
 ```
 

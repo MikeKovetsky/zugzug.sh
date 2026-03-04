@@ -622,7 +622,7 @@ export default function LandingPage() {
   /* ---- Picker: compute install command ---- */
   const pickerCommand = (() => {
     if (installMode === "brew") {
-      const brew = "brew install PeonPing/tap/peon-ping && peon-ping-setup";
+      const brew = "brew install MikeKovetsky/zugzug/zugzug && zugzug update";
       if (selectedPacks.size === 0 || setsEqual(selectedPacks, DEFAULT_PACKS)) {
         return brew;
       } else if (selectedPacks.size === registryPacks.length) {
@@ -827,7 +827,7 @@ export default function LandingPage() {
           <p className="hero-sub">
             Game character voice lines the instant your AI agent finishes or needs permission. Or let the agent choose its own sound via MCP. Works with <strong>Claude Code</strong>, <strong>Codex</strong>, <strong>Cursor</strong>, <strong>OpenCode</strong>, <strong>Kiro</strong>, <strong>Windsurf</strong>, <strong>Antigravity</strong>, and more. Never lose flow to a silent terminal again.
           </p>
-          <CopyBlock command="brew install PeonPing/tap/peon-ping" />
+          <CopyBlock command="brew install MikeKovetsky/zugzug/zugzug" />
           <p style={{ textAlign: "center", marginTop: "0.75rem", color: "var(--wc3-text-dim)", fontSize: "0.85rem" }}>
             or <code style={{ color: "var(--wc3-gold)", fontSize: "0.85rem" }}>curl -fsSL peonping.com/install | bash</code>
           </p>
@@ -1321,7 +1321,7 @@ export default function LandingPage() {
           <p className="section-desc" style={{ margin: "0 auto 32px" }}>
             One command. Works with Claude Code, Codex, Cursor, OpenCode, Kiro, and Antigravity on macOS, Linux, and WSL2.
           </p>
-          <CopyBlock command="brew install PeonPing/tap/peon-ping" />
+          <CopyBlock command="brew install MikeKovetsky/zugzug/zugzug" />
           <p style={{ textAlign: "center", marginTop: "0.75rem", color: "var(--wc3-text-dim)", fontSize: "0.85rem" }}>
             or <code style={{ color: "var(--wc3-gold)", fontSize: "0.85rem" }}>curl -fsSL peonping.com/install | bash</code>
           </p>

@@ -1,19 +1,19 @@
-# Releasing peon-ping
+# Releasing zugzug
 
 ## Two install channels
 
-peon-ping has two install paths that update differently:
+zugzug has two install paths that update differently:
 
 | Channel | What users run | What it pulls from |
 |---|---|---|
 | **curl \| bash** | `curl -fsSL peonping.com/install \| bash` | `main` branch (always latest) |
-| **Homebrew** | `brew upgrade peon-ping` | Tagged release tarball |
+| **Homebrew** | `brew tap MikeKovetsky/zugzug && brew install zugzug` | Tagged release tarball via [homebrew-zugzug](https://github.com/MikeKovetsky/homebrew-zugzug) tap |
 
 Pushing to `main` is effectively a release for curl users. Tags + tap updates are what make it available to Homebrew users.
 
 ## Version numbering
 
-peon-ping uses semver loosely:
+zugzug uses semver loosely:
 
 - **Patch** (1.6.1): bug fixes, small tweaks, new sound packs
 - **Minor** (1.7.0): new features (SSH relay, mobile notifications, new CLI commands)
@@ -59,17 +59,26 @@ git push && git push --tags
 
 This triggers `.github/workflows/release.yml` which creates a GitHub Release with auto-generated notes and a `checksums.txt` asset.
 
-### 5. Homebrew tap (automatic)
+### 5. Update Homebrew tap
 
-The `update-tap` job in `release.yml` automatically updates `PeonPing/homebrew-tap` after a successful release. It computes the tarball SHA256 and pushes a formula update.
+After tagging, update the formula in both places:
 
-This requires a `TAP_TOKEN` repository secret with write access to the tap repo.
+```bash
+# Get the SHA256 for the new tag
+curl -fsSL "https://github.com/MikeKovetsky/zugzug.sh/archive/refs/tags/v1.7.0.tar.gz" | shasum -a 256
+
+# Update homebrew/zugzug.rb in this repo (url + sha256)
+# Update ../homebrew-zugzug/Formula/zugzug.rb (same changes)
+# Commit and push both repos
+```
+
+The tap repo is at [MikeKovetsky/homebrew-zugzug](https://github.com/MikeKovetsky/homebrew-zugzug).
 
 ### 6. Verify
 
-- [ ] [GitHub Releases page](https://github.com/PeonPing/peon-ping/releases) shows the new version with checksums
+- [ ] [GitHub Releases page](https://github.com/MikeKovetsky/zugzug.sh/releases) shows the new version with checksums
 - [ ] `curl -fsSL peonping.com/install | bash` installs the new version (check `cat ~/.claude/hooks/peon-ping/VERSION`)
-- [ ] `brew update && brew upgrade peon-ping` pulls the new version
+- [ ] `brew update && brew upgrade zugzug` pulls the new version (requires `brew tap MikeKovetsky/zugzug`)
 
 ## Hotfix process
 
@@ -88,4 +97,3 @@ There's no release branch — `main` is always the release branch.
 1. Generates SHA256 checksums for all core files
 2. Creates a GitHub Release using `softprops/action-gh-release` with `generate_release_notes: true`
 3. Attaches `checksums.txt` as a release asset
-4. The `update-tap` job automatically updates `PeonPing/homebrew-tap` with the new tarball SHA256 (requires `TAP_TOKEN` secret)

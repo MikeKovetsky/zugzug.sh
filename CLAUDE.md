@@ -35,16 +35,20 @@ There is no build step, linter, or formatter configured for the shell codebase.
 
 See [RELEASING.md](RELEASING.md) for the full release process (version bumps, tagging, Homebrew tap updates).
 
-## Related Repos
+## Homebrew
 
-peon-ping is part of the [PeonPing](https://github.com/PeonPing) org:
+The Homebrew formula lives in this repo at `homebrew/zugzug.rb`. This is the zugzug-specific formula (not the upstream PeonPing tap).
+
+## Related Repos (upstream)
+
+zugzug.sh is forked from [peon-ping](https://github.com/PeonPing/peon-ping). Upstream repos in the [PeonPing](https://github.com/PeonPing) org:
 
 | Repo | Purpose |
 |---|---|
-| **[peon-ping](https://github.com/PeonPing/peon-ping)** (this repo) | CLI tool, installer, hook runtime, IDE adapters |
+| **[peon-ping](https://github.com/PeonPing/peon-ping)** | Upstream CLI tool (forked into this repo) |
 | **[registry](https://github.com/PeonPing/registry)** | Pack registry (`index.json` served via GitHub Pages at `peonping.github.io/registry/index.json`) |
 | **[og-packs](https://github.com/PeonPing/og-packs)** | Official sound packs (40 packs, tagged releases) |
-| **[homebrew-tap](https://github.com/PeonPing/homebrew-tap)** | Homebrew formula (`brew install PeonPing/tap/peon-ping`) |
+| **[homebrew-tap](https://github.com/PeonPing/homebrew-tap)** | Upstream Homebrew tap (`brew install PeonPing/tap/peon-ping`) |
 | **[openpeon](https://github.com/PeonPing/openpeon)** | CESP spec + openpeon.com website (Next.js in `site/`) |
 
 ## Architecture
@@ -140,9 +144,7 @@ After merging PRs that add features, fix bugs, or make notable changes, **proact
 5. Tag: `git tag vX.Y.Z`
 6. Push: `git push && git push --tags`
 
-The tag push triggers CI to create a GitHub Release and auto-update the Homebrew tap.
-
-See [RELEASING.md](RELEASING.md) for full details.
+The tag push triggers CI to create a GitHub Release. The Homebrew tap (`homebrew-zugzug`) must be updated manually — see step 5 in [RELEASING.md](RELEASING.md).
 
 ## Skills
 
@@ -162,13 +164,13 @@ These are hard rules. When you make a change of type X, you MUST also do Y.
 → Update `../openpeon/site/public/llms.txt` (openpeon.com LLM context)
 
 ### If you add/change a hook event (e.g., SubagentStart, PreCompact)
-→ Update `../homebrew-tap/Formula/peon-ping.rb` — the hook registration list in Phase 4
+→ Update `homebrew/zugzug.rb` — the hook registration list if needed
 → Update `README.md` — the "Supported events" section
 → Bump version (patch or minor depending on significance)
 
 ### If you add a new IDE adapter (e.g., a new `adapters/foo.sh`)
 → Update `README.md` — supported IDEs section
-→ Update `../homebrew-tap/Formula/peon-ping.rb` — add detection/setup phase if needed
+→ Update `homebrew/zugzug.rb` — add detection/setup phase if needed
 → Update `workspace/SOUL.md` in peonping-x-bot repo (supported tools count)
 → Update `docs/public/llms.txt`
 → Bump version (minor)
@@ -192,7 +194,7 @@ These are hard rules. When you make a change of type X, you MUST also do Y.
 → Update `CHANGELOG.md` — add a new section at the top
 → Tag: `git tag vX.Y.Z`
 → Push tags: `git push --tags`
-→ Update `../homebrew-tap/Formula/peon-ping.rb` URL and SHA256 if releasing
+→ Update `homebrew/zugzug.rb` URL and SHA256 if releasing
 
 ## Documentation rules
 

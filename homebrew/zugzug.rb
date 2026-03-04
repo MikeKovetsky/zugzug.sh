@@ -1,8 +1,8 @@
 class Zugzug < Formula
   desc "WC3 metagame for AI coding agents — sounds, achievements, economy, roasts"
   homepage "https://github.com/MikeKovetsky/zugzug.sh"
-  url "https://github.com/MikeKovetsky/zugzug.sh/archive/refs/tags/v3.0.0.tar.gz"
-  sha256 "eb0feb3e5e5a68a3add854cd832b2455f11d1dcf4e39939549618ef274da21cc"
+  url "https://github.com/MikeKovetsky/zugzug.sh/archive/refs/tags/v3.4.1.tar.gz"
+  sha256 "533e52b5ae6539803fb97f91b857f828066c5dfd88eb3f08a6cb95efebaeb408"
   license "MIT"
 
   depends_on "python@3"
