@@ -1,5 +1,35 @@
 # Changelog
 
+## v3.5.0 (2026-03-04)
+
+### Added
+- **Fatigue system**: Peon accumulates fatigue (+1 per task). Tired at 20 (half gold), exhausted at 30 (no gold, combos break). `peon rest` costs 20 lumber to reset. Tavern building raises thresholds by 10. Replaces the error-based penalty system which only worked in Claude Code.
+- **Item durability**: Equipped items lose 1 durability per task. Broken items (0 durability) lose their effect until repaired. `peon repair` costs gold by rarity. Blacksmith building halves durability loss rate.
+- **5 new buildings**: Lumber Mill (2x lumber), Barracks (agent sessions count toward stats), Blacksmith (+50% item effects, halves durability loss), Arcane Sanctum (peon prophecies on session start), Citadel (2x item drop rate).
+- **15 new items**: 10 commons (Belt of Giant Strength, Gloves of Haste, Robe of the Magi, Pendant of Mana, Hood of Cunning, Medallion of Courage, Tome of Power, Skull Shield, Kelen's Dagger, Void Stone) and 5 rares (Talisman of Evasion, Ring of Regeneration, Scourge Bone Chimes, Shadow Orb, Lion Horn of Stormwind).
+- **3 secret achievements**: Stop Clicking Me! (500 prompts), Peon Union Rep (fatigue 50 in session), Touch Grass (code past 3 AM on weekend).
+- **Achievement progress tracking**: Dashboard now shows real progress bars for all achievements instead of 0/N.
+- **Resource node spawning**: Lumber and gold nodes appear on the base map (15%/6% chance per task) and can be harvested by clicking.
+- **Sass from productivity**: New roast triggers for overwork (30+ daily tasks), gold hoarding (5000g), and marathon sessions (15+ tasks). New grumpy-but-funny roast lines.
+- **Dashboard fatigue bar**: Resource bar shows fatigue level with color-coded progress (green/yellow/red).
+- **Dashboard rest/repair buttons**: One-click rest and repair actions in the base view.
+- **Dashboard durability display**: Inventory page shows durability bars on equipped items with broken state.
+
+### Changed
+- **Building costs 5x**: All existing buildings now cost 5x their previous price.
+- **Architect achievement**: Threshold raised from 7 to 10 buildings.
+- **4 error items remapped**: Helm of Valor (fatigue resist), Orb of Fire (half gold when tired), Talisman of Evasion (fatigue resist), Mask of Death (50% repair discount).
+- **4 error achievements remapped**: First Blood (20 fatigue), Rage Quit (fatigue 40), Oops (25 repairs), Peon Union Rep (fatigue 50).
+- **Dashboard How It Works**: Updated all sections to reflect current mechanics.
+- **Tavern perk expanded**: Now also provides +10 fatigue threshold.
+- **Blacksmith perk expanded**: Now also halves item durability loss.
+
+### Fixed
+- **Achievement progress bug**: Dashboard showed 0/N for all unfinished achievements because `achievements_progress` was never written to state.
+- **Item drop rarity collapse**: When all items of a rarity were collected, drops fell back to uniform distribution across all remaining items. Now redistributes weights among remaining rarities.
+- **Resource node harvesting**: Dashboard harvest UI existed but no nodes were ever spawned. Added spawn logic to event loop.
+- **Dashboard building icons**: Fixed broken icon paths for Lumber Mill, Blacksmith, Arcane Sanctum, and Citadel.
+
 ## v3.4.1 (2026-02-19)
 
 ### Fixed
