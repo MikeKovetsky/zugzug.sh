@@ -1051,6 +1051,7 @@ var ITEMS = {
 };
 
 var prev = null, curState = null, cfg = null, packs = [];
+var MAX_DUR = {common: 50, uncommon: 75, rare: 100, epic: 150, legendary: 200};
 var fails = 0, lastSeenTs = 0, selectedBld = null;
 
 var MAP_COLS = 7, MAP_ROWS = 5;
@@ -1528,7 +1529,6 @@ function updateInventory(s) {
   var equipped = s.equipped || [];
   var inventory = s.inventory || [];
   var dur = s.item_durability || {};
-  var MAX_DUR = {common: 50, uncommon: 75, rare: 100, epic: 150, legendary: 200};
   var eqDiv = $('equip-slots');
   eqDiv.innerHTML = '';
   for (var i = 0; i < 6; i++) {
@@ -1759,7 +1759,8 @@ function poll() {
     fails = 0;
     $('loading').classList.add('done');
     $('error-banner').classList.remove('on');
-  }).catch(function() {
+  }).catch(function(err) {
+    console.error('poll error:', err);
     fails++;
     if (fails >= 3) $('error-banner').classList.add('on');
   });

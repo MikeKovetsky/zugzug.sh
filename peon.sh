@@ -2586,6 +2586,7 @@ class H(http.server.BaseHTTPRequestHandler):
         else:
             self._json(404, {'error': 'Not found'})
 socketserver.TCPServer.allow_reuse_address = True
+socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(('127.0.0.1',PORT),H) as s:
     s.serve_forever()
 " >/dev/null 2>&1 &
@@ -4819,6 +4820,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         else:
             self._json(404, {'error': 'Not found'})
 
+socketserver.TCPServer.allow_reuse_address = True
 socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(('127.0.0.1', PORT), Handler) as httpd:
     httpd.serve_forever()
