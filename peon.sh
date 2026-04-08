@@ -1637,6 +1637,12 @@ defs = [
     ('touch_grass', 'Touch Grass', 'Code past 3 AM on a weekend'),
     ('first_kill', 'First Kill', 'Defeat your first boss'),
     ('raid_leader', 'Raid Leader', 'Defeat 10 bosses'),
+    ('you_no_take', 'You No Take Candle!', 'Defeat 5 kobolds'),
+    ('night_raid', 'Night Raid', 'Hit a boss past midnight'),
+    ('combo_god', 'Combo God', 'Reach 100 combo'),
+    ('hoarder', 'Hoarder', 'Own 12+ items total'),
+    ('lunch_raider', 'Lunch Raider', 'Hit a boss during lunch hour'),
+    ('boss_slayer', 'Boss Slayer', 'Defeat all 10 unique bosses'),
     ('archimondes_bane', 'Archimonde\\'s Bane', 'Defeat Archimonde'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
@@ -2187,10 +2193,14 @@ bk_total = state.get('boss_kills_total', 0)
 lvl = stats.get('level', 1)
 BOSSES = {
     'kobold':    dict(name='Kobold Taskmaster',     hp=30,    days=1, unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,    loot='common',    gold_r=50,   lumber_r=25,  counter_g=20),
+    'mud_golem': dict(name='Mud Golem',             hp=100,   days=1, unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,    loot='common',    gold_r=80,   lumber_r=40,  counter_g=25),
     'troll':     dict(name='Forest Troll Warlord',  hp=200,   days=2, unlock_kills=1,  unlock_lvl=0, unlock_bld=[], fee=100,  loot='uncommon',  gold_r=200,  lumber_r=100, counter_g=40),
     'ogre':      dict(name='Ogre Magi',             hp=600,   days=3, unlock_kills=3,  unlock_lvl=0, unlock_bld=[], fee=250,  loot='rare',      gold_r=500,  lumber_r=250, counter_g=60),
+    'naga':      dict(name='Naga Sea Witch',        hp=1200,  days=3, unlock_kills=5,  unlock_lvl=5, unlock_bld=[], fee=400,  loot='rare',      gold_r=800,  lumber_r=400, counter_g=70),
     'infernal':  dict(name='Infernal',              hp=2000,  days=4, unlock_kills=6,  unlock_lvl=6, unlock_bld=[], fee=500,  loot='rare',      gold_r=1200, lumber_r=500, counter_g=80),
+    'brewmaster':dict(name='Pandaren Brewmaster',   hp=3500,  days=4, unlock_kills=9,  unlock_lvl=7, unlock_bld=[], fee=750,  loot='epic',      gold_r=2000, lumber_r=800, counter_g=90),
     'mannoroth': dict(name='Pit Lord Mannoroth',    hp=5000,  days=5, unlock_kills=12, unlock_lvl=8, unlock_bld=['citadel'], fee=1000, loot='epic', gold_r=3000, lumber_r=1200, counter_g=100),
+    'blademaster':dict(name='Blademaster',          hp=8000,  days=6, unlock_kills=18, unlock_lvl=9, unlock_bld=['citadel'], fee=1500, loot='epic', gold_r=5000, lumber_r=2000, counter_g=100),
     'archimonde':dict(name='Archimonde',            hp=12000, days=7, unlock_kills=25, unlock_lvl=9, unlock_bld=['citadel'], fee=2000, loot='epic', gold_r=8000, lumber_r=3000, counter_g=100),
 }
 MODIFIERS = ['enraged', 'armored', 'cursed', 'weakened']
@@ -2382,7 +2392,7 @@ class H(http.server.BaseHTTPRequestHandler):
             import random as _rr
             bid = body.get('boss', '')
             st = self._load('.state.json')
-            BOSSES = {'kobold': dict(hp=30,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=50,lumber_r=25,counter_g=20,name='Kobold Taskmaster'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=100,loot='uncommon',gold_r=200,lumber_r=100,counter_g=40,name='Forest Troll Warlord'), 'ogre': dict(hp=600,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=250,loot='rare',gold_r=500,lumber_r=250,counter_g=60,name='Ogre Magi'), 'infernal': dict(hp=2000,days=4,unlock_kills=6,unlock_lvl=6,unlock_bld=[],fee=500,loot='rare',gold_r=1200,lumber_r=500,counter_g=80,name='Infernal'), 'mannoroth': dict(hp=5000,days=5,unlock_kills=12,unlock_lvl=8,unlock_bld=['citadel'],fee=1000,loot='epic',gold_r=3000,lumber_r=1200,counter_g=100,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=12000,days=7,unlock_kills=25,unlock_lvl=9,unlock_bld=['citadel'],fee=2000,loot='epic',gold_r=8000,lumber_r=3000,counter_g=100,name='Archimonde')}
+            BOSSES = {'kobold': dict(hp=30,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=50,lumber_r=25,counter_g=20,name='Kobold Taskmaster'), 'mud_golem': dict(hp=100,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=80,lumber_r=40,counter_g=25,name='Mud Golem'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=100,loot='uncommon',gold_r=200,lumber_r=100,counter_g=40,name='Forest Troll Warlord'), 'ogre': dict(hp=600,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=250,loot='rare',gold_r=500,lumber_r=250,counter_g=60,name='Ogre Magi'), 'naga': dict(hp=1200,days=3,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot='rare',gold_r=800,lumber_r=400,counter_g=70,name='Naga Sea Witch'), 'infernal': dict(hp=2000,days=4,unlock_kills=6,unlock_lvl=6,unlock_bld=[],fee=500,loot='rare',gold_r=1200,lumber_r=500,counter_g=80,name='Infernal'), 'brewmaster': dict(hp=3500,days=4,unlock_kills=9,unlock_lvl=7,unlock_bld=[],fee=750,loot='epic',gold_r=2000,lumber_r=800,counter_g=90,name='Pandaren Brewmaster'), 'mannoroth': dict(hp=5000,days=5,unlock_kills=12,unlock_lvl=8,unlock_bld=['citadel'],fee=1000,loot='epic',gold_r=3000,lumber_r=1200,counter_g=100,name='Pit Lord Mannoroth'), 'blademaster': dict(hp=8000,days=6,unlock_kills=18,unlock_lvl=9,unlock_bld=['citadel'],fee=1500,loot='epic',gold_r=5000,lumber_r=2000,counter_g=100,name='Blademaster'), 'archimonde': dict(hp=12000,days=7,unlock_kills=25,unlock_lvl=9,unlock_bld=['citadel'],fee=2000,loot='epic',gold_r=8000,lumber_r=3000,counter_g=100,name='Archimonde')}
             MODS = ['enraged','armored','cursed','weakened']
             if st.get('active_boss'):
                 return self._json(400, {'error': 'Already in a raid'})
@@ -3628,6 +3638,12 @@ if game_on:
         ('touch_grass',      lambda: _hour >= 3 and _hour < 5 and _weekday >= 5, 'Touch Grass', 'Why human code now?! Go outside!'),
         ('first_kill',       lambda: state.get('boss_kills_total', 0) >= 1, 'First Kill', 'Peon... actually killed something?!'),
         ('raid_leader',      lambda: state.get('boss_kills_total', 0) >= 10, 'Raid Leader', 'LFM ICC 25 Heroic, link achievement.'),
+        ('you_no_take',      lambda: state.get('boss_kills', {}).get('kobold', 0) >= 5, 'You No Take Candle!', 'Stop farming kobolds! They have families!'),
+        ('night_raid',       lambda: _hour >= 0 and _hour < 5 and state.get('active_boss') is not None, 'Night Raid', 'Raiding at this hour?! Peon calling HR.'),
+        ('combo_god',        lambda: stats.get('max_combo', 0) >= 100, 'Combo God', 'Peon kneel. 100 combo. Human is machine.'),
+        ('hoarder',          lambda: len(state.get('inventory', [])) + len(state.get('equipped', [])) >= 12, 'Hoarder', 'Where peon put all this stuff?!'),
+        ('lunch_raider',     lambda: _hour == 12 and state.get('active_boss') is not None and category == 'task.complete', 'Lunch Raider', 'Human raid during lunch. Very dedicated. Very hungry.'),
+        ('boss_slayer',      lambda: len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]) >= 10, 'Boss Slayer', 'Every boss defeated at least once. Peon... genuinely in awe.'),
         ('archimondes_bane', lambda: state.get('boss_kills', {}).get('archimonde', 0) >= 1, 'Archimonde\'s Bane', 'The Defiler is no more. Peon... legendary.'),
     ]
     if achiev_on:
@@ -3662,6 +3678,12 @@ if game_on:
         'touch_grass':      [1 if 'touch_grass' in unlocked else 0, 1],
         'first_kill':       [state.get('boss_kills_total', 0), 1],
         'raid_leader':      [state.get('boss_kills_total', 0), 10],
+        'you_no_take':      [state.get('boss_kills', {}).get('kobold', 0), 5],
+        'night_raid':       [1 if 'night_raid' in unlocked else 0, 1],
+        'combo_god':        [stats.get('max_combo', 0), 100],
+        'hoarder':          [len(state.get('inventory', [])) + len(state.get('equipped', [])), 12],
+        'lunch_raider':     [1 if 'lunch_raider' in unlocked else 0, 1],
+        'boss_slayer':      [len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]), 10],
         'archimondes_bane': [state.get('boss_kills', {}).get('archimonde', 0), 1],
     }
     stats['achievements_progress'] = _ach_progress
@@ -4587,7 +4609,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             import random as _rr
             bid = body.get('boss', '')
             st = self._load('.state.json')
-            BOSSES = {'kobold': dict(hp=30,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=50,lumber_r=25,counter_g=20,name='Kobold Taskmaster'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=100,loot='uncommon',gold_r=200,lumber_r=100,counter_g=40,name='Forest Troll Warlord'), 'ogre': dict(hp=600,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=250,loot='rare',gold_r=500,lumber_r=250,counter_g=60,name='Ogre Magi'), 'infernal': dict(hp=2000,days=4,unlock_kills=6,unlock_lvl=6,unlock_bld=[],fee=500,loot='rare',gold_r=1200,lumber_r=500,counter_g=80,name='Infernal'), 'mannoroth': dict(hp=5000,days=5,unlock_kills=12,unlock_lvl=8,unlock_bld=['citadel'],fee=1000,loot='epic',gold_r=3000,lumber_r=1200,counter_g=100,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=12000,days=7,unlock_kills=25,unlock_lvl=9,unlock_bld=['citadel'],fee=2000,loot='epic',gold_r=8000,lumber_r=3000,counter_g=100,name='Archimonde')}
+            BOSSES = {'kobold': dict(hp=30,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=50,lumber_r=25,counter_g=20,name='Kobold Taskmaster'), 'mud_golem': dict(hp=100,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=80,lumber_r=40,counter_g=25,name='Mud Golem'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=100,loot='uncommon',gold_r=200,lumber_r=100,counter_g=40,name='Forest Troll Warlord'), 'ogre': dict(hp=600,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=250,loot='rare',gold_r=500,lumber_r=250,counter_g=60,name='Ogre Magi'), 'naga': dict(hp=1200,days=3,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot='rare',gold_r=800,lumber_r=400,counter_g=70,name='Naga Sea Witch'), 'infernal': dict(hp=2000,days=4,unlock_kills=6,unlock_lvl=6,unlock_bld=[],fee=500,loot='rare',gold_r=1200,lumber_r=500,counter_g=80,name='Infernal'), 'brewmaster': dict(hp=3500,days=4,unlock_kills=9,unlock_lvl=7,unlock_bld=[],fee=750,loot='epic',gold_r=2000,lumber_r=800,counter_g=90,name='Pandaren Brewmaster'), 'mannoroth': dict(hp=5000,days=5,unlock_kills=12,unlock_lvl=8,unlock_bld=['citadel'],fee=1000,loot='epic',gold_r=3000,lumber_r=1200,counter_g=100,name='Pit Lord Mannoroth'), 'blademaster': dict(hp=8000,days=6,unlock_kills=18,unlock_lvl=9,unlock_bld=['citadel'],fee=1500,loot='epic',gold_r=5000,lumber_r=2000,counter_g=100,name='Blademaster'), 'archimonde': dict(hp=12000,days=7,unlock_kills=25,unlock_lvl=9,unlock_bld=['citadel'],fee=2000,loot='epic',gold_r=8000,lumber_r=3000,counter_g=100,name='Archimonde')}
             MODS = ['enraged','armored','cursed','weakened']
             if st.get('active_boss'):
                 return self._json(400, {'error': 'Already in a raid'})
