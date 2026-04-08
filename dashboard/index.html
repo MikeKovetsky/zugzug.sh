@@ -427,6 +427,8 @@ body {
 .bag-item .bag-icon { font-size: 24px; }
 .bag-item .bag-name { font-weight: 700; }
 .bag-item:hover .slot-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+.bag-sell { font-size: 11px; padding: 2px 6px; border: 1px solid #666; border-radius: 3px; background: rgba(0,0,0,0.3); color: var(--gold); cursor: pointer; margin-left: auto; transition: all 0.2s; white-space: nowrap; }
+.bag-sell:hover { border-color: var(--gold); background: rgba(255,200,0,0.1); }
 
 .r-common { border-color: #888; }
 .r-common .slot-rarity, .r-common.bag-item { border-color: #888; }
@@ -1581,16 +1583,22 @@ function updateInventory(s) {
     bagDiv.innerHTML = '<div class="inv-empty">No items yet. Complete tasks to find loot!</div>';
     return;
   }
+  var SELL_PRICE = {common: 10, uncommon: 20, rare: 40, epic: 80, legendary: 200};
   inventory.forEach(function(iid) {
     var it = ITEMS[iid];
     if (!it) return;
     var el = document.createElement('div');
     el.className = 'bag-item r-' + it.r;
     var actText = it.cons ? 'Click to use' : 'Click to equip';
+    var price = SELL_PRICE[it.r] || 10;
     el.innerHTML = '<span class="bag-icon">' + it.icon + '</span><span class="bag-name">' + it.name + '</span>';
+    var sellBtn = document.createElement('button');
+    sellBtn.className = 'bag-sell';
+    sellBtn.textContent = 'Sell ' + price + 'g';
     el.innerHTML += '<span class="slot-tip"><div class="tip-name">' + it.name + '</div><div class="tip-desc">' + it.desc + '</div><div class="tip-act">' + actText + '</div></span>';
-    (function(itemId, consumable) {
-      el.addEventListener('click', function() {
+    (function(itemId, consumable, rarity) {
+      el.addEventListener('click', function(e) {
+        if (e.target.classList.contains('bag-sell')) return;
         var endpoint = consumable ? '/api/use' : '/api/equip';
         var action = consumable ? 'Used' : 'Equipped';
         apiPost(endpoint, { item: itemId }).then(function(res) {
@@ -1598,7 +1606,15 @@ function updateInventory(s) {
           else { addToast('err', '\u274C', res.error || 'Failed'); }
         });
       });
-    })(iid, it.cons);
+      sellBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        apiPost('/api/sell', { item: itemId, rarity: rarity }).then(function(res) {
+          if (res.ok) { addToast('', '\uD83D\uDCB0', 'Sold ' + ITEMS[itemId].name + ' for ' + res.price + 'g'); poll(); }
+          else { addToast('err', '\u274C', res.error || 'Failed'); }
+        });
+      });
+    })(iid, it.cons, it.r);
+    el.appendChild(sellBtn);
     bagDiv.appendChild(el);
   });
 }

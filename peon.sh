@@ -2575,6 +2575,28 @@ class H(http.server.BaseHTTPRequestHandler):
             st['inventory'] = inv; st['equipped'] = eq
             self._save('.state.json', st)
             self._json(200, {'ok': True})
+        elif self.path == '/api/sell':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid in eq:
+                return self._json(400, {'error': 'Unequip it first'})
+            if iid not in inv:
+                return self._json(400, {'error': 'Item not in backpack'})
+            SELL_PRICE = {'common': 10, 'uncommon': 20, 'rare': 40, 'epic': 80, 'legendary': 200}
+            r = body.get('rarity', 'common')
+            price = SELL_PRICE.get(r, 10)
+            inv.remove(iid)
+            ec = st.setdefault('economy', {})
+            ec['gold'] = ec.get('gold', 0) + price
+            dur = st.get('item_durability', {})
+            dur.pop(iid, None)
+            st['inventory'] = inv
+            st['item_durability'] = dur
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'price': price, 'gold': ec['gold']})
         else:
             self._json(404, {'error': 'Not found'})
 socketserver.TCPServer.allow_reuse_address = True
@@ -4815,6 +4837,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
             st['inventory'] = inv; st['equipped'] = eq
             self._save('.state.json', st)
             self._json(200, {'ok': True})
+        elif self.path == '/api/sell':
+            iid = body.get('item', '')
+            st = self._load('.state.json')
+            inv = st.get('inventory', [])
+            eq = st.get('equipped', [])
+            if iid in eq:
+                return self._json(400, {'error': 'Unequip it first'})
+            if iid not in inv:
+                return self._json(400, {'error': 'Item not in backpack'})
+            SELL_PRICE = {'common': 10, 'uncommon': 20, 'rare': 40, 'epic': 80, 'legendary': 200}
+            r = body.get('rarity', 'common')
+            price = SELL_PRICE.get(r, 10)
+            inv.remove(iid)
+            ec = st.setdefault('economy', {})
+            ec['gold'] = ec.get('gold', 0) + price
+            dur = st.get('item_durability', {})
+            dur.pop(iid, None)
+            st['inventory'] = inv
+            st['item_durability'] = dur
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'price': price, 'gold': ec['gold']})
         else:
             self._json(404, {'error': 'Not found'})
 
