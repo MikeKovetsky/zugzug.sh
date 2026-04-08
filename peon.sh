@@ -2579,10 +2579,10 @@ class H(http.server.BaseHTTPRequestHandler):
             iid = body.get('item', '')
             st = self._load('.state.json')
             inv = st.get('inventory', [])
-            eq = st.get('equipped', [])
-            if iid in eq:
-                return self._json(400, {'error': 'Unequip it first'})
             if iid not in inv:
+                eq = st.get('equipped', [])
+                if iid in eq:
+                    return self._json(400, {'error': 'Unequip it first'})
                 return self._json(400, {'error': 'Item not in backpack'})
             SELL_PRICE = {'common': 10, 'uncommon': 20, 'rare': 40, 'epic': 80, 'legendary': 200}
             r = body.get('rarity', 'common')
@@ -4841,10 +4841,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             iid = body.get('item', '')
             st = self._load('.state.json')
             inv = st.get('inventory', [])
-            eq = st.get('equipped', [])
-            if iid in eq:
-                return self._json(400, {'error': 'Unequip it first'})
             if iid not in inv:
+                eq = st.get('equipped', [])
+                if iid in eq:
+                    return self._json(400, {'error': 'Unequip it first'})
                 return self._json(400, {'error': 'Item not in backpack'})
             SELL_PRICE = {'common': 10, 'uncommon': 20, 'rare': 40, 'epic': 80, 'legendary': 200}
             r = body.get('rarity', 'common')
