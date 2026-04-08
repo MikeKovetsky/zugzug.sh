@@ -245,15 +245,23 @@ function renderActiveBoss(boss) {
   var mod = boss.modifier || '';
   var modHtml = mod ? '<span class="boss-mod mod-' + mod + '">' + mod + '</span>' : '';
   var dl = boss.deadline || '';
-  var today = new Date().toISOString().split('T')[0];
-  var daysLeft = Math.max(0, Math.ceil((new Date(dl) - new Date(today)) / 86400000));
+  var dlDate = new Date(dl + 'T23:59:59');
+  var now = new Date();
+  var msLeft = Math.max(0, dlDate - now);
+  var dLeft = Math.floor(msLeft / 86400000);
+  var hLeft = Math.floor((msLeft % 86400000) / 3600000);
+  var mLeft = Math.floor((msLeft % 3600000) / 60000);
+  var timeStr = '';
+  if (dLeft > 0) timeStr += dLeft + 'd ';
+  if (hLeft > 0 || dLeft > 0) timeStr += hLeft + 'h ';
+  timeStr += mLeft + 'm';
   var dmg = boss.max_hp - boss.hp;
   var bossInfo = BOSSES[boss.id] || {};
   var html = '<div class="boss-header"><span class="boss-icon">' + (bossInfo.icon || '\u2694\uFE0F') + '</span><div><div class="boss-name">' + boss.name + modHtml + '</div></div></div>';
   html += '<div class="hp-bar-container"><div class="hp-bar-bg"><div class="hp-bar-fill ' + barClass + '" style="width:' + (pct * 100) + '%"></div><div class="hp-bar-text">' + boss.hp + ' / ' + boss.max_hp + ' HP</div></div></div>';
   html += '<div class="raid-stats">';
   html += '<div class="raid-stat"><div class="label">Damage Dealt</div><div class="value">' + dmg + '</div></div>';
-  html += '<div class="raid-stat"><div class="label">Days Left</div><div class="value">' + daysLeft + '</div></div>';
+  html += '<div class="raid-stat"><div class="label">Time Left</div><div class="value">' + timeStr + '</div></div>';
   html += '<div class="raid-stat"><div class="label">Deadline</div><div class="value" style="font-size:0.9em">' + dl + '</div></div>';
   if (mod) {
     html += '<div class="raid-stat"><div class="label">Modifier</div><div class="value" style="font-size:0.8em">' + (MOD_DESC[mod] || mod) + '</div></div>';
