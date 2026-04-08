@@ -49,10 +49,6 @@ a:hover { color: #e0c050; }
 .boss-icon img { width: 48px; height: 48px; image-rendering: pixelated; }
 .boss-name { font-family: 'Cinzel', serif; font-size: 1.6em; color: #fff; }
 .boss-mod { display: inline-block; font-size: 0.7em; padding: 2px 8px; border-radius: 4px; margin-left: 8px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
-.mod-enraged { background: var(--red); color: #fff; }
-.mod-armored { background: var(--blue); color: #fff; }
-.mod-cursed { background: var(--purple); color: #fff; }
-.mod-weakened { background: var(--green); color: #fff; }
 
 .hp-bar-container { margin: 12px 0; }
 .hp-bar-bg { background: #1a1a2a; border-radius: 6px; height: 32px; overflow: hidden; position: relative; border: 1px solid #333; }
@@ -191,7 +187,6 @@ var BOSSES = {
   archimonde: {name:'Archimonde',           hp:12000, days:7, kills:25, lvl:9, bld:['citadel'], fee:2000, loot:'epic',  gold:8000,  lumber:3000, icon: w3img('orc/chieftain.gif')}
 };
 
-var MOD_DESC = {enraged:'50% damage, 2x gold', armored:'2x HP, rare+ drop', cursed:'Drains 5g/task', weakened:'2x damage, 50% gold'};
 var pendingBoss = null;
 
 function $(id) { return document.getElementById(id); }
@@ -242,8 +237,6 @@ function render(s) {
 function renderActiveBoss(boss) {
   var pct = boss.hp / boss.max_hp;
   var barClass = pct > 0.5 ? 'hp-high' : pct > 0.2 ? 'hp-mid' : 'hp-low';
-  var mod = boss.modifier || '';
-  var modHtml = mod ? '<span class="boss-mod mod-' + mod + '">' + mod + '</span>' : '';
   var dl = boss.deadline || '';
   var dlDate = new Date(dl + 'T23:59:59');
   var now = new Date();
@@ -257,15 +250,12 @@ function renderActiveBoss(boss) {
   timeStr += mLeft + 'm';
   var dmg = boss.max_hp - boss.hp;
   var bossInfo = BOSSES[boss.id] || {};
-  var html = '<div class="boss-header"><span class="boss-icon">' + (bossInfo.icon || '\u2694\uFE0F') + '</span><div><div class="boss-name">' + boss.name + modHtml + '</div></div></div>';
+  var html = '<div class="boss-header"><span class="boss-icon">' + (bossInfo.icon || '\u2694\uFE0F') + '</span><div><div class="boss-name">' + boss.name + '</div></div></div>';
   html += '<div class="hp-bar-container"><div class="hp-bar-bg"><div class="hp-bar-fill ' + barClass + '" style="width:' + (pct * 100) + '%"></div><div class="hp-bar-text">' + boss.hp + ' / ' + boss.max_hp + ' HP</div></div></div>';
   html += '<div class="raid-stats">';
   html += '<div class="raid-stat"><div class="label">Damage Dealt</div><div class="value">' + dmg + '</div></div>';
   html += '<div class="raid-stat"><div class="label">Time Left</div><div class="value">' + timeStr + '</div></div>';
   html += '<div class="raid-stat"><div class="label">Deadline</div><div class="value" style="font-size:0.9em">' + dl + '</div></div>';
-  if (mod) {
-    html += '<div class="raid-stat"><div class="label">Modifier</div><div class="value" style="font-size:0.8em">' + (MOD_DESC[mod] || mod) + '</div></div>';
-  }
   html += '</div>';
   $('active-raid').innerHTML = html;
 }

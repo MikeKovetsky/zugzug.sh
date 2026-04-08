@@ -123,7 +123,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 import json, datetime
 s = json.load(open('$TEST_DIR/.state.json'))
 dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
-s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 1, 'max_hp': 30, 'deadline': dl, 'modifier': 'weakened', 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'counter_gold': 20}
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 1, 'max_hp': 30, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'counter_gold': 20}
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
   local gold_before
@@ -147,7 +147,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 import json, datetime
 s = json.load(open('$TEST_DIR/.state.json'))
 dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
-s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 1, 'max_hp': 30, 'deadline': dl, 'modifier': 'weakened', 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'counter_gold': 20}
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 1, 'max_hp': 30, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'counter_gold': 20}
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
@@ -161,7 +161,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 import json, datetime
 s = json.load(open('$TEST_DIR/.state.json'))
 dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
-s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 1, 'max_hp': 30, 'deadline': dl, 'modifier': 'weakened', 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'counter_gold': 20}
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 1, 'max_hp': 30, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'counter_gold': 20}
 s['inventory'] = []
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
