@@ -52,6 +52,37 @@ fi
 unset _local_config
 STATE="$PEON_DIR/.state.json"
 
+# Atomic state I/O helpers (Python). Prevents corruption from concurrent hook events.
+# - _load_state: tries main file, falls back to .bak
+# - _save_state: backs up, writes to temp, then atomic os.replace
+_PY_STATE_IO="
+import tempfile as _tf, shutil as _sh
+def _load_state(p):
+    for _f in (p, p + '.bak'):
+        try:
+            _d = json.load(open(_f))
+            if isinstance(_d, dict): return _d
+        except Exception: pass
+    return {}
+def _save_state(p, d, indent=None):
+    _dn = os.path.dirname(p) or '.'
+    os.makedirs(_dn, exist_ok=True)
+    if os.path.isfile(p):
+        try: _sh.copy2(p, p + '.bak')
+        except Exception: pass
+    _fd, _t = _tf.mkstemp(dir=_dn, suffix='.tmp')
+    try:
+        with os.fdopen(_fd, 'w') as _fh:
+            json.dump(d, _fh, indent=indent)
+            _fh.flush()
+            os.fsync(_fh.fileno())
+        os.replace(_t, p)
+    except Exception:
+        try: os.unlink(_t)
+        except Exception: pass
+        raise
+"
+
 # --- Resolve a bundled script from scripts/ (handles local + Homebrew/Cellar installs) ---
 # Prints the resolved path on success, prints nothing on failure.
 # Skips the BASH_SOURCE fallback in test mode to preserve "missing script" test cases.
@@ -1556,10 +1587,8 @@ for i, s in enumerate(sounds):
 import json, os
 state_file = '$STATE'
 config_path = '$CONFIG'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 try:
     cfg = json.load(open(config_path))
 except Exception:
@@ -1584,10 +1613,8 @@ if gold < 0:
     python3 -c "
 import json, os, time
 state_file = '$STATE'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 stats = state.get('stats', {})
 unlocked = stats.get('achievements_unlocked', {})
 defs = [
@@ -1627,10 +1654,8 @@ import json, os, sys, time
 state_file = '$STATE'
 config_path = '$CONFIG'
 arg = '${1:-list}'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 try:
     cfg = json.load(open(config_path))
 except Exception:
@@ -1700,8 +1725,7 @@ else:
     stats = state.get('stats', {})
     stats['buildings_built'] = len(buildings)
     state['stats'] = stats
-    os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-    json.dump(state, open(state_file, 'w'))
+    _save_state(state_file, state)
     print(f'Built {bname}! (-{gcost}g/-{lcost}l)')
     print('  ' + desc)
     print('  Gold: ' + str(econ['gold']) + ' | Lumber: ' + str(econ['lumber']))
@@ -1711,10 +1735,8 @@ else:
     python3 -c "
 import json, os, time
 state_file = '$STATE'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 buildings = state.get('buildings', {})
 if 'burrow' not in buildings:
     print('Build a Burrow first! (peon build burrow)')
@@ -1726,8 +1748,7 @@ if until > now:
     print(f'Already in bunker! {remaining} minutes remaining.')
     exit(0)
 state['bunker_until'] = now + 3600
-os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-json.dump(state, open(state_file, 'w'))
+_save_state(state_file, state)
 print('Peon hiding! Roasts suppressed for 1 hour.')
 "
     exit $? ;;
@@ -1735,10 +1756,8 @@ print('Peon hiding! Roasts suppressed for 1 hour.')
     python3 -c "
 import json, os, time, datetime
 state_file = '$STATE'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 buildings = state.get('buildings', {})
 if 'altar' not in buildings:
     print('Build an Altar of Storms first! (peon build altar)')
@@ -1751,8 +1770,7 @@ old_combo = state.get('combo_count', 0)
 best = state.get('stats', {}).get('max_combo', 0)
 state['combo_count'] = max(old_combo, best // 2)
 state['last_resurrect_date'] = today
-os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-json.dump(state, open(state_file, 'w'))
+_save_state(state_file, state)
 print(f'Peon call upon ancestors! Combo restored to {state[\"combo_count\"]}x.')
 "
     exit $? ;;
@@ -1760,10 +1778,8 @@ print(f'Peon call upon ancestors! Combo restored to {state[\"combo_count\"]}x.')
     python3 -c "
 import json, os, random
 state_file = '$STATE'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 buildings = state.get('buildings', {})
 if 'tavern' not in buildings:
     print('Build a Tavern first! (peon build tavern)')
@@ -1787,10 +1803,8 @@ print(random.choice(taunts))
     python3 -c "
 import json, os
 state_file = '$STATE'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 fatigue = state.get('fatigue', 0)
 if fatigue == 0:
     print('Peon not tired. Peon strong!')
@@ -1804,8 +1818,7 @@ if lumber < cost:
 econ['lumber'] = lumber - cost
 state['economy'] = econ
 state['fatigue'] = 0
-os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-json.dump(state, open(state_file, 'w'))
+_save_state(state_file, state)
 print(f'Peon rested! Fatigue reset to 0. (-{cost} lumber)')
 print(f'Lumber: {econ[\"lumber\"]}')
 "
@@ -1816,15 +1829,13 @@ print(f'Lumber: {econ[\"lumber\"]}')
 import json, os, sys
 state_file = '$STATE'
 target = '${1:-all}'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 econ = state.get('economy', {})
 gold = econ.get('gold', 0)
 equipped = state.get('equipped', [])
 durability = state.get('item_durability', {})
-REPAIR_COSTS = {'common': 25, 'uncommon': 50, 'rare': 100, 'epic': 200, 'legendary': 500}
+REPAIR_COSTS = {'common': 12, 'uncommon': 25, 'rare': 50, 'epic': 100, 'legendary': 250}
 ITEMS_R = {
     'claws_of_attack': 'common', 'gauntlets_of_str': 'common', 'ring_of_protection': 'common',
     'slippers_of_agility': 'common', 'circlet_of_nobility': 'common', 'mantle_of_intel': 'common',
@@ -1846,26 +1857,32 @@ for eid in equipped:
     if eid == 'mask_of_death':
         has_discount = True
         break
-broken = []
+damaged = []
 for eid in equipped:
-    if durability.get(eid, 999) <= 0:
-        broken.append(eid)
+    r = ITEMS_R.get(eid, 'common')
+    mx = MAX_DUR.get(r, 50)
+    cur = durability.get(eid, mx)
+    if cur < mx:
+        damaged.append(eid)
 if target != 'all':
-    if target in broken:
-        broken = [target]
-    elif target in equipped and durability.get(target, 999) > 0:
-        print(f'{target} is not broken.')
+    if target in damaged:
+        damaged = [target]
+    elif target in equipped:
+        print(f'{target} is at full durability.')
         exit(0)
     else:
         print(f'Item not found or not equipped: {target}')
         exit(1)
-if not broken:
+if not damaged:
     print('Nothing to repair. All items operational!')
     exit(0)
+was_broken = set(eid for eid in damaged if durability.get(eid, 0) <= 0)
 total_cost = 0
-for eid in broken:
+for eid in damaged:
     r = ITEMS_R.get(eid, 'common')
     c = REPAIR_COSTS.get(r, 25)
+    if eid in was_broken:
+        c *= 2
     if has_discount:
         c = c // 2
     total_cost += c
@@ -1873,19 +1890,19 @@ if gold < total_cost:
     print(f'Not enough gold! Need {total_cost}g, have {gold}g')
     exit(1)
 econ['gold'] = gold - total_cost
-for eid in broken:
+for eid in damaged:
     r = ITEMS_R.get(eid, 'common')
     durability[eid] = MAX_DUR.get(r, 50)
 state['economy'] = econ
 state['item_durability'] = durability
 stats = state.get('stats', {})
-stats['repairs_total'] = stats.get('repairs_total', 0) + len(broken)
+stats['repairs_total'] = stats.get('repairs_total', 0) + len(damaged)
 state['stats'] = stats
-os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-json.dump(state, open(state_file, 'w'))
-print(f'Repaired {len(broken)} item(s)! (-{total_cost}g)')
-for eid in broken:
-    print(f'  {eid} restored')
+_save_state(state_file, state)
+print(f'Repaired {len(damaged)} item(s)! (-{total_cost}g)')
+for eid in damaged:
+    tag = ' (broken - 2x cost)' if eid in was_broken else ''
+    print(f'  {eid} restored{tag}')
 print(f'Gold: {econ[\"gold\"]}')
 "
     exit $? ;;
@@ -1893,10 +1910,8 @@ print(f'Gold: {econ[\"gold\"]}')
     python3 -c "
 import json, os
 state_file = '$STATE'
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 inventory = state.get('inventory', [])
 equipped = state.get('equipped', [])
 ITEMS = {
@@ -1944,7 +1959,7 @@ ITEMS = {
     'wirts_leg':           ('Wirt\\'s Leg',           'legendary', 'Does absolutely nothing. Peon confused.'),
     'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', '+15 gold per task'),
     'unstoppable_force':   ('The Unstoppable Force',  'legendary', 'Combos never break from errors'),
-    'ashbringer':          ('Ashbringer',             'legendary', 'Debt is forgiven. Slate wiped clean.'),
+    'ashbringer':          ('Ashbringer',             'legendary', '2x achievement progress'),
     'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
 }
 rcolors = dict(common='', uncommon='\033[32m', rare='\033[34m', epic='\033[35m', legendary='\033[33m')
@@ -1981,10 +1996,8 @@ if not item_id:
     print('Usage: peon equip <item_id>')
     print('Run peon inventory to see item IDs')
     sys.exit(1)
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 inventory = state.get('inventory', [])
 equipped = state.get('equipped', [])
 if item_id not in inventory:
@@ -2000,8 +2013,7 @@ inventory.remove(item_id)
 equipped.append(item_id)
 state['inventory'] = inventory
 state['equipped'] = equipped
-os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-json.dump(state, open(state_file, 'w'))
+_save_state(state_file, state)
 print('Equipped: ' + item_id)
 "
     exit $? ;;
@@ -2014,10 +2026,8 @@ item_id = '${1:-}'
 if not item_id:
     print('Usage: peon unequip <item_id>')
     sys.exit(1)
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 inventory = state.get('inventory', [])
 equipped = state.get('equipped', [])
 if item_id not in equipped:
@@ -2027,8 +2037,7 @@ equipped.remove(item_id)
 inventory.append(item_id)
 state['inventory'] = inventory
 state['equipped'] = equipped
-os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-json.dump(state, open(state_file, 'w'))
+_save_state(state_file, state)
 print('Unequipped: ' + item_id)
 "
     exit $? ;;
@@ -2041,10 +2050,8 @@ item_id = '${1:-}'
 if not item_id:
     print('Usage: peon use <item_id>')
     sys.exit(1)
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_file)
 inventory = state.get('inventory', [])
 equipped = state.get('equipped', [])
 all_items = inventory + equipped
@@ -2071,9 +2078,61 @@ elif item_id in equipped:
     equipped.remove(item_id)
 state['inventory'] = inventory
 state['equipped'] = equipped
-os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-json.dump(state, open(state_file, 'w'))
+_save_state(state_file, state)
 print(msg)
+"
+    exit $? ;;
+  sell)
+    shift
+    python3 -c "
+import json, os, sys
+state_file = '$STATE'
+item_id = '${1:-}'
+if not item_id:
+    print('Usage: peon sell <item_id>')
+    print('Run peon inventory to see item IDs')
+    sys.exit(1)
+$_PY_STATE_IO
+state = _load_state(state_file)
+inventory = state.get('inventory', [])
+equipped = state.get('equipped', [])
+SELL_PRICE = {'common': 10, 'uncommon': 20, 'rare': 40, 'epic': 80, 'legendary': 200}
+ITEMS_R = {
+    'claws_of_attack': 'common', 'gauntlets_of_str': 'common', 'ring_of_protection': 'common',
+    'slippers_of_agility': 'common', 'circlet_of_nobility': 'common', 'mantle_of_intel': 'common',
+    'belt_of_str': 'common', 'gloves_of_haste': 'common', 'robe_of_magi': 'common',
+    'pendant_of_mana': 'common', 'boots_of_speed': 'common', 'tome_of_power': 'common',
+    'skull_shield': 'common', 'kelen_dagger': 'common', 'void_stone': 'common',
+    'scroll_of_tp': 'uncommon', 'potion_of_healing': 'uncommon', 'potion_of_mana': 'uncommon',
+    'tome_of_xp': 'uncommon', 'pendant_of_energy': 'uncommon', 'staff_of_negation': 'uncommon',
+    'helm_of_valor': 'rare', 'cloak_of_shadows': 'rare', 'orb_of_fire': 'rare',
+    'gem_of_seeing': 'rare', 'hood_of_cunning': 'rare', 'sobi_mask': 'rare',
+    'talisman_of_evasion': 'rare', 'ring_of_regen': 'rare', 'scourge_bone': 'rare',
+    'shadow_orb': 'rare', 'lion_horn': 'rare', 'medallion': 'rare',
+    'inv_potion': 'rare', 'periapt_of_vitality': 'rare',
+    'crown_of_kings': 'epic', 'mask_of_death': 'epic', 'amulet_of_spell': 'epic',
+    'khadgars_pipe': 'epic', 'ankh': 'epic',
+    'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
+    'unstoppable_force': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
+}
+if item_id in equipped:
+    print('Unequip it first: peon unequip ' + item_id)
+    sys.exit(1)
+if item_id not in inventory:
+    print('Item not in backpack: ' + item_id)
+    sys.exit(1)
+r = ITEMS_R.get(item_id, 'common')
+price = SELL_PRICE.get(r, 10)
+inventory.remove(item_id)
+econ = state.setdefault('economy', {})
+econ['gold'] = econ.get('gold', 0) + price
+dur = state.get('item_durability', {})
+dur.pop(item_id, None)
+state['inventory'] = inventory
+state['item_durability'] = dur
+_save_state(state_file, state)
+print(f'Sold {item_id} for {price}g.')
+print(f'Gold: {econ[\"gold\"]}')
 "
     exit $? ;;
   dashboard)
@@ -2088,7 +2147,7 @@ print(msg)
       if [ -f "$PEON_DIR/dashboard.html" ]; then
         echo "Starting dashboard server on port $_port..."
         nohup python3 -c "
-import http.server, json, os, socketserver, time, datetime
+import http.server, json, os, socketserver, time, datetime, tempfile, shutil
 PORT = $_port
 PEON_DIR = '$PEON_DIR'
 BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'citadel':(15000,6000)}
@@ -2101,12 +2160,31 @@ class H(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
     def _load(self, f):
-        try: return json.load(open(os.path.join(PEON_DIR, f)))
-        except: return {}
+        p = os.path.join(PEON_DIR, f)
+        for fp in (p, p + '.bak'):
+            try:
+                d = json.load(open(fp))
+                if isinstance(d, dict): return d
+            except Exception: pass
+        return {}
     def _save(self, f, d):
         p = os.path.join(PEON_DIR, f)
-        os.makedirs(os.path.dirname(p) or '.', exist_ok=True)
-        json.dump(d, open(p, 'w'), indent=2)
+        dn = os.path.dirname(p) or '.'
+        os.makedirs(dn, exist_ok=True)
+        if os.path.isfile(p):
+            try: shutil.copy2(p, p + '.bak')
+            except Exception: pass
+        fd, t = tempfile.mkstemp(dir=dn, suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w') as fh:
+                json.dump(d, fh, indent=2)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(t, p)
+        except Exception:
+            try: os.unlink(t)
+            except Exception: pass
+            raise
     def do_GET(self):
         if self.path == '/api/state':
             self._json(200, self._load('.state.json'))
@@ -2352,6 +2430,7 @@ WC3 Metagame:
   equip <item>         Equip an item from backpack (6 slots max)
   unequip <item>       Move equipped item back to backpack
   use <item>           Use a consumable item (scrolls, potions, tomes)
+  sell <item>          Sell an item from backpack for gold
   bunker               Suppress roasts for 1 hour (requires Burrow)
   resurrect            Restore combo streak (requires Altar, once/day)
   taunt                Play a random roast (requires Tavern)
@@ -2453,10 +2532,8 @@ if not trainer_cfg.get('enabled', False):
 
 exercises = trainer_cfg.get('exercises', {'pushups': 300, 'squats': 300})
 
-try:
-    state = json.load(open(state_path))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_path)
 
 trainer_state = state.get('trainer', {})
 today = datetime.date.today().isoformat()
@@ -2465,7 +2542,7 @@ today = datetime.date.today().isoformat()
 if trainer_state.get('date', '') != today:
     trainer_state = {'date': today, 'reps': {k: 0 for k in exercises}, 'last_reminder_ts': 0}
     state['trainer'] = trainer_state
-    json.dump(state, open(state_path, 'w'), indent=2)
+    _save_state(state_path, state, indent=2)
 
 reps = trainer_state.get('reps', {})
 
@@ -2519,10 +2596,8 @@ if exercise not in exercises:
 
 goal = exercises[exercise]
 
-try:
-    state = json.load(open(state_path))
-except Exception:
-    state = {}
+$_PY_STATE_IO
+state = _load_state(state_path)
 
 trainer_state = state.get('trainer', {})
 today = datetime.date.today().isoformat()
@@ -2536,7 +2611,7 @@ reps[exercise] = reps.get(exercise, 0) + count
 trainer_state['reps'] = reps
 trainer_state['date'] = today
 state['trainer'] = trainer_state
-json.dump(state, open(state_path, 'w'), indent=2)
+_save_state(state_path, state, indent=2)
 
 done = reps[exercise]
 pct = min(done / goal, 1.0) if goal > 0 else 0
@@ -2649,6 +2724,7 @@ PAUSED=false
 eval "$(python3 -c "
 import sys, json, os, re, random, time, shlex
 q = shlex.quote
+$_PY_STATE_IO
 
 config_path = '$CONFIG'
 state_file = '$STATE'
@@ -2690,6 +2766,14 @@ for c in ['session.start','task.acknowledge','task.complete','task.error','input
 event_data = json.load(sys.stdin)
 raw_event = event_data.get('hook_event_name', '')
 
+# Debug log: write every incoming event to .event_log for diagnosis
+try:
+    _elog = os.path.join(peon_dir, '.event_log')
+    with open(_elog, 'a') as _ef:
+        _ef.write(f'{time.time():.0f} raw={raw_event} keys={sorted(event_data.keys())}\n')
+except Exception:
+    pass
+
 # Cursor IDE sends lowercase camelCase event names via its Third-party skills
 # (Claude Code compatibility) mode. Map them to the PascalCase names used below.
 # Claude Code's own PascalCase names pass through unchanged via dict.get fallback.
@@ -2698,13 +2782,16 @@ _cursor_event_map = {
     'sessionEnd': 'SessionEnd',
     'beforeSubmitPrompt': 'UserPromptSubmit',
     'stop': 'Stop',
-    'preToolUse': 'UserPromptSubmit',
-    'postToolUse': 'Stop',
+    'preToolUse': '_skip',
+    'postToolUse': '_skip',
     'subagentStop': 'Stop',
     'subagentStart': 'SubagentStart',
     'preCompact': 'PreCompact',
 }
 event = _cursor_event_map.get(raw_event, raw_event)
+if event == '_skip':
+    print('PEON_EXIT=true')
+    sys.exit(0)
 
 ntype = event_data.get('notification_type', '')
 # Cursor sends workspace_roots[] instead of cwd
@@ -2715,10 +2802,7 @@ perm_mode = event_data.get('permission_mode', '')
 session_source = event_data.get('source', '')
 
 # --- Load state ---
-try:
-    state = json.load(open(state_file))
-except Exception:
-    state = {}
+state = _load_state(state_file)
 
 # --- Agent detection ---
 _agent_silent = False
@@ -2732,8 +2816,7 @@ if perm_mode and perm_mode in agent_modes:
         _agent_silent = True
     else:
         print('PEON_EXIT=true')
-        os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-        json.dump(state, open(state_file, 'w'))
+        _save_state(state_file, state)
         sys.exit(0)
 elif session_id in agent_sessions:
     if _has_barracks:
@@ -2852,9 +2935,9 @@ else:
     active_pack = cfg.get('active_pack', 'peon')
 
 # --- Level overrides pack (level determines sounds + overlay icon) ---
-_LVL_PACKS = {1:'peon', 2:'peasant', 3:'peon', 4:'peasant', 5:'peon',
+_LVL_PACKS = {1:'peon', 2:'peasant', 3:'wc3_grunt', 4:'wc3_knight', 5:'wc3_farseer',
               6:'wc3_jaina', 7:'dota2_witch_doctor', 8:'wc3_corrupted_arthas',
-              9:'', 10:'murloc'}
+              9:'wc3_brewmaster', 10:'murloc'}
 _cur_lvl = state.get('stats', {}).get('level', 1)
 _lvl_pack = _LVL_PACKS.get(_cur_lvl, '')
 if _lvl_pack:
@@ -2965,8 +3048,7 @@ elif event == 'SubagentStart':
     # Record parent's pack so spawned subagent sessions inherit it, then stay silent
     state['pending_subagent_pack'] = dict(ts=time.time(), pack=active_pack)
     state_dirty = True
-    os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-    json.dump(state, open(state_file, 'w'))
+    _save_state(state_file, state)
     print('PEON_EXIT=true')
     sys.exit(0)
 elif event == 'PreCompact':
@@ -2983,8 +3065,7 @@ elif event == 'SessionEnd':
     agent_sessions.discard(session_id)
     state['agent_sessions'] = list(agent_sessions)
     state_dirty = True
-    os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-    json.dump(state, open(state_file, 'w'))
+    _save_state(state_file, state)
     print('PEON_EXIT=true')
     sys.exit(0)
 else:
@@ -3225,14 +3306,22 @@ if game_on:
     has_war_mill = 'war_mill' in buildings
     combo_text = ''
     if combo_on and has_war_mill:
+        combo_idle = time.time() - state.get('combo_ts', 0)
+        if combo > 0 and combo_idle >= 3600:
+            if combo >= 2:
+                combo_text = f'Combo broken at {combo}x.'
+            combo = 0
         if category == 'task.complete' and event == 'Stop':
-            combo += 1
-            if combo >= 20:
+            combo = min(combo + 1, 100)
+            state['combo_ts'] = time.time()
+            if combo >= 100:
                 combo_text = 'GODLIKE!'
-            elif combo >= 10:
+            elif combo >= 50:
                 combo_text = 'UNSTOPPABLE!'
-            elif combo >= 5:
+            elif combo >= 10:
                 combo_text = 'Mega kill!'
+            elif combo >= 5:
+                combo_text = 'Killing spree!'
             elif combo >= 3:
                 combo_text = 'Triple kill!'
             elif combo >= 2:
@@ -3378,13 +3467,13 @@ if game_on:
     _LEVELS = [
         (0,       1,  'Peon',          'peon'),
         (25,      2,  'Peasant',       'peasant'),
-        (100,     3,  'Grunt',         'peon'),
-        (250,     4,  'Knight',        'peasant'),
-        (500,     5,  'Far Seer',      'peon'),
+        (100,     3,  'Grunt',         'wc3_grunt'),
+        (250,     4,  'Knight',        'wc3_knight'),
+        (500,     5,  'Far Seer',      'wc3_farseer'),
         (1000,    6,  'Jaina',         'wc3_jaina'),
         (2500,    7,  'Witch Doctor',  'dota2_witch_doctor'),
         (5000,    8,  'Arthas',        'wc3_corrupted_arthas'),
-        (10000,   9,  'Brewmaster',    ''),
+        (10000,   9,  'Brewmaster',    'wc3_brewmaster'),
         (1000000, 10, 'Murloc',        'murloc'),
     ]
     _LEVEL_FLAVORS = {
@@ -3410,6 +3499,7 @@ if game_on:
             lvl_pack = lpack
     prev_lvl = stats.get('level', 0)
     level_up_text = ''
+    lvl_pack_missing = ''
     if prev_lvl and cur_lvl > prev_lvl:
         flavor = _LEVEL_FLAVORS.get(cur_lvl, '')
         level_up_text = f'LEVEL UP! Lvl {cur_lvl} \u2014 {cur_title}: {flavor}'
@@ -3418,6 +3508,8 @@ if game_on:
             lp_manifest = os.path.join(lp_dir, 'openpeon.json')
             if not os.path.isfile(lp_manifest):
                 lp_manifest = os.path.join(lp_dir, 'manifest.json')
+            if not os.path.isfile(lp_manifest):
+                lvl_pack_missing = lvl_pack
             if os.path.isfile(lp_manifest):
                 try:
                     lm = json.load(open(lp_manifest))
@@ -3543,18 +3635,18 @@ if game_on:
         'wirts_leg':           dict(name='Wirt\'s Leg',            r='legendary', e='none',             v=0,    desc='Does absolutely nothing. Peon confused.'),
         'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='gold_bonus', v=15, desc='+15 gold per task. Did someone say Thunderfury?'),
         'unstoppable_force':   dict(name='The Unstoppable Force',  r='legendary', e='combo_persist',    v=1,    desc='Combos never break from errors'),
-        'ashbringer':          dict(name='Ashbringer',             r='legendary', e='purge_debt',       v=1,    desc='Debt is forgiven. Slate wiped clean.'),
+        'ashbringer':          dict(name='Ashbringer',             r='legendary', e='xp_boost',         v=2,    desc='2x achievement progress'),
         'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Suppress roasts for 2 hours (consumable)'),
         'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='revive',   desc='Undo last base raid (consumable)'),
         'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 1000 gold + 500 lumber. Mmm.'),
     }
 
     _DROP_TABLE = {
-        'common':    dict(weight=60,  chance=0.05),
-        'uncommon':  dict(weight=25,  chance=0.03),
-        'rare':      dict(weight=10,  chance=0.015),
-        'epic':      dict(weight=4,   chance=0.008),
-        'legendary': dict(weight=1,   chance=0.0001),
+        'common':    dict(weight=300),
+        'uncommon':  dict(weight=125),
+        'rare':      dict(weight=50),
+        'epic':      dict(weight=20),
+        'legendary': dict(weight=1),
     }
 
     inventory = state.get('inventory', [])
@@ -3594,13 +3686,12 @@ if game_on:
         return 0
 
     def _roll_drop(force_rarity=None):
-        owned = set(inventory) | set(equipped)
         if force_rarity:
-            pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity and k not in owned]
+            pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity]
         else:
             avail = {r: [] for r in _DROP_TABLE}
             for k, v in _ITEMS.items():
-                if k not in owned and v['r'] in avail:
+                if v['r'] in avail:
                     avail[v['r']].append(k)
             weights = [(r, d['weight']) for r, d in _DROP_TABLE.items() if avail.get(r)]
             if not weights:
@@ -3648,9 +3739,13 @@ if game_on:
             if random.random() < _has_effect('crit_chance') / 100.0:
                 gold_delta *= 3
                 game_subtitle = (game_subtitle + ' CRITICAL STRIKE! 3x gold!' if game_subtitle else 'CRITICAL STRIKE! 3x gold!')
-        if _has_effect('purge_debt') and gold < 0:
-            gold_delta += abs(gold)
-            econ['debt_interest'] = False
+        xp = _has_effect('xp_boost')
+        if xp:
+            if category == 'task.complete':
+                stats['tasks_completed'] = stats.get('tasks_completed', 0) + (xp - 1)
+                stats['fatigue_total'] = stats.get('fatigue_total', 0) + (xp - 1)
+            elif category == 'user.spam' or event == 'UserPromptSubmit':
+                stats['prompts_total'] = stats.get('prompts_total', 0) + (xp - 1)
 
     # Apply roast/combo item effects
     if equipped:
@@ -3695,12 +3790,14 @@ if game_on:
     drop_chance = 0
     if category == 'task.complete':
         drop_chance = 0.05
+        if combo >= 100:
+            drop_chance *= 2.0
+        elif combo >= 50:
+            drop_chance *= 1.5
+        elif combo >= 10:
+            drop_chance *= 1.2
     elif new_achiev:
         drop_chance = 0.5
-    elif combo >= 5 and combo_text and 'kill' in combo_text.lower():
-        drop_chance = 0.2
-    elif combo >= 10:
-        drop_chance = 0.4
     if 'citadel' in buildings and drop_chance > 0:
         drop_chance = min(1.0, drop_chance * 2)
 
@@ -3827,8 +3924,7 @@ if trainer_cfg.get('enabled', False):
 
 # --- Write state once ---
 if state_dirty:
-    os.makedirs(os.path.dirname(state_file) or '.', exist_ok=True)
-    json.dump(state, open(state_file, 'w'))
+    _save_state(state_file, state)
 
 # --- iTerm2 tab color mapping ---
 # Configurable via config.json: tab_color.enabled (default true),
@@ -3877,6 +3973,7 @@ print('TAB_COLOR_RGB=' + q(tab_color_rgb))
 print('GAME_NOTIFY=' + q(game_notify))
 print('GAME_SUBTITLE=' + q(game_subtitle))
 print('LEVELUP_SOUND=' + q(levelup_sound if game_on else ''))
+print('LEVELUP_DOWNLOAD=' + q(lvl_pack_missing if game_on else ''))
 " <<< "$INPUT" 2>/dev/null)"
 
 # If Python signalled early exit (disabled, agent, unknown event), bail out
@@ -4011,7 +4108,7 @@ _maybe_spawn_dashboard() {
       return
     fi
     nohup python3 -c "
-import http.server, json, os, sys, socketserver, time, datetime
+import http.server, json, os, sys, socketserver, time, datetime, tempfile, shutil
 
 PORT = $_dashboard_port
 PEON_DIR = '$PEON_DIR'
@@ -4026,12 +4123,31 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
     def _load(self, f):
-        try: return json.load(open(os.path.join(PEON_DIR, f)))
-        except: return {}
+        p = os.path.join(PEON_DIR, f)
+        for fp in (p, p + '.bak'):
+            try:
+                d = json.load(open(fp))
+                if isinstance(d, dict): return d
+            except Exception: pass
+        return {}
     def _save(self, f, d):
         p = os.path.join(PEON_DIR, f)
-        os.makedirs(os.path.dirname(p) or '.', exist_ok=True)
-        json.dump(d, open(p, 'w'), indent=2)
+        dn = os.path.dirname(p) or '.'
+        os.makedirs(dn, exist_ok=True)
+        if os.path.isfile(p):
+            try: shutil.copy2(p, p + '.bak')
+            except Exception: pass
+        fd, t = tempfile.mkstemp(dir=dn, suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w') as fh:
+                json.dump(d, fh, indent=2)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(t, p)
+        except Exception:
+            try: os.unlink(t)
+            except Exception: pass
+            raise
     def do_GET(self):
         if self.path == '/api/state':
             self._json(200, self._load('.state.json'))
@@ -4278,6 +4394,14 @@ if [ -n "${TRAINER_SOUND:-}" ] && [ -f "$TRAINER_SOUND" ]; then
       fi
     ) & disown 2>/dev/null
   fi
+fi
+
+# --- Level-up: auto-download missing pack in background ---
+if [ -n "${LEVELUP_DOWNLOAD:-}" ]; then
+  (
+    _pack_dl="$(resolve_pack_download 2>/dev/null)" || exit 0
+    bash "$_pack_dl" --dir="$PEON_DIR" --packs="$LEVELUP_DOWNLOAD" >/dev/null 2>&1
+  ) & disown 2>/dev/null
 fi
 
 # --- Level-up sound (from matching pack) ---

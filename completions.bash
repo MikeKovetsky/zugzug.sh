@@ -55,7 +55,7 @@ _peon_completions() {
   fi
 
   # Top-level commands
-  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay economy achievements build inventory equip unequip use bunker resurrect taunt dashboard preview update trainer help" -- "$cur") )
+  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay economy achievements build inventory equip unequip use sell bunker resurrect taunt dashboard preview update trainer help" -- "$cur") )
   return 0
 }
 

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Peon-Ping — WC3 Base Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%230d1a2e' stroke='%234488cc' stroke-width='2.5'/><circle cx='32' cy='26' r='14' fill='%234488ff' opacity='0.15'/><path d='M19 56C19 34 23 20 32 14C41 20 45 34 45 56' fill='%231a3a6a'/><path d='M23 54C23 36 26 24 32 18C38 24 41 36 41 54' fill='%230d2244'/><ellipse cx='32' cy='33' rx='7' ry='8' fill='%23f0d0a0'/><path d='M25 31C25 23 32 18 32 18C32 18 39 23 39 31' fill='%23e8c030'/><path d='M25 31C23 37 24 43 25 46' stroke='%23e8c030' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M39 31C41 37 40 43 39 46' stroke='%23e8c030' stroke-width='3' fill='none' stroke-linecap='round'/><ellipse cx='29' cy='33' rx='1.5' ry='1.2' fill='%2366ccff'/><ellipse cx='35' cy='33' rx='1.5' ry='1.2' fill='%2366ccff'/><path d='M30 37Q32 38.5 34 37' stroke='%23c8a080' stroke-width='0.8' fill='none'/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -751,11 +752,11 @@ body {
       </div>
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/warmill.png" class="w3i" alt=""> Combos</div>
-        <div class="help-text">Consecutive task completions (requires War Mill). Higher combos = better item drops. Broken by exhaustion or context limits. Altar restores combos once/day.</div>
+        <div class="help-text">Consecutive task completions (requires War Mill, caps at 100). Higher combos = better item drops. Broken by exhaustion, context limits, or 1 hour of silence. Altar restores combos once/day.</div>
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F6E0;&#xFE0F; Durability</div>
-        <div class="help-text">Equipped items lose 1 durability per task. At 0 they break and their effect stops. Use <code>peon repair</code> or click Repair to fix (costs gold). Blacksmith halves durability loss.</div>
+        <div class="help-text">Equipped items lose 1 durability per task. At 0 they break and their effect stops. Use <code>peon repair</code> to fix damaged items. Broken items cost 2x. Blacksmith halves durability loss. Mask of Death halves repair cost.<br><b>Repair costs:</b> Common 12g &middot; Uncommon 25g &middot; Rare 50g &middot; Epic 100g &middot; Legendary 250g</div>
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F525; Sass</div>
@@ -1142,7 +1143,7 @@ function updateStats(s) {
   $('sessions').textContent = st.sessions_total || 0;
   var combo = s.combo_count || 0, pc = prev ? (prev.combo_count || 0) : 0;
   var cel = $('combo');
-  cel.textContent = combo > 0 ? combo + 'x' : '\u2014';
+  cel.textContent = combo > 0 ? combo + ' / 100' : '\u2014';
   if (combo > pc && prev) {
     cel.classList.remove('combo-bump');
     void cel.offsetWidth;
@@ -1378,32 +1379,39 @@ function updateActions(s) {
   }
   var dur = s.item_durability || {};
   var eq = s.equipped || [];
-  var broken = eq.filter(function(e) { return (dur[e] != null && dur[e] <= 0); });
-  if (broken.length > 0) {
-    var RCOST = {common:25,uncommon:50,rare:100,epic:200,legendary:500};
+  var damaged = eq.filter(function(e) {
+    var it = ITEMS[e]; var r = it ? it.r : 'common';
+    var mx = MAX_DUR[r] || 50; var d = dur[e] != null ? dur[e] : mx;
+    return d < mx;
+  });
+  if (damaged.length > 0) {
+    var RCOST = {common:12,uncommon:25,rare:50,epic:100,legendary:250};
     var hasDisc = eq.indexOf('mask_of_death') >= 0 && (dur['mask_of_death'] == null || dur['mask_of_death'] > 0);
-    var cost = 0, rarities = {};
-    broken.forEach(function(e) {
+    var cost = 0, rarities = {}, nBroken = 0;
+    damaged.forEach(function(e) {
       var it = ITEMS[e];
       var r = it ? it.r : 'common';
       rarities[e] = r;
       var c = RCOST[r] || 25;
+      if (dur[e] != null && dur[e] <= 0) { c *= 2; nBroken++; }
       if (hasDisc) c = Math.floor(c / 2);
       cost += c;
     });
     var rpbtn = document.createElement('button');
     rpbtn.className = 'act-btn';
     var ec2 = s.economy || {};
+    var lbl = damaged.length + ' item' + (damaged.length > 1 ? 's' : '');
+    if (nBroken > 0) lbl += ' (' + nBroken + ' broken)';
     if (ec2.gold >= cost) {
-      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair (' + broken.length + ') \u2014 ' + cost + 'g';
+      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair ' + lbl + ' \u2014 ' + cost + 'g';
       rpbtn.addEventListener('click', function() {
-        apiPost('/api/repair', {items: broken, rarities: rarities, cost: cost}).then(function(res) {
+        apiPost('/api/repair', {items: damaged, rarities: rarities, cost: cost}).then(function(res) {
           if (res.ok) { addToast('', '\u{1F6E0}\uFE0F', 'Repaired ' + res.repaired + ' item(s)! -' + res.cost + 'g'); poll(); }
           else { addToast('err', '\u274C', res.error || 'Failed'); }
         });
       });
     } else {
-      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair \u2014 ' + cost + 'g';
+      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair ' + lbl + ' \u2014 ' + cost + 'g';
       rpbtn.disabled = true;
     }
     div.appendChild(rpbtn);
@@ -1491,7 +1499,7 @@ function updateInventory(s) {
       var lbl = it.name.split(' ')[0] + (broken ? ' \u{1F6E0}\uFE0F' : '');
       slot.innerHTML = '<span class="slot-rarity"></span><span class="slot-icon">' + it.icon + '</span><span class="slot-lbl">' + lbl + '</span>';
       slot.innerHTML += '<div class="dur-bar"><div class="dur-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>';
-      var tipExtra = broken ? '<div class="tip-broken">BROKEN \u2014 peon repair to fix</div>' : '<div class="tip-dur">' + d + '/' + mx + ' durability</div>';
+      var tipExtra = broken ? '<div class="tip-broken">BROKEN \u2014 2x repair cost</div>' : '<div class="tip-dur">' + d + '/' + mx + ' durability</div>';
       slot.innerHTML += '<span class="slot-tip"><div class="tip-name">' + it.name + '</div><div class="tip-desc">' + it.desc + '</div>' + tipExtra + '<div class="tip-act">Click to unequip</div></span>';
       (function(itemId) {
         slot.addEventListener('click', function() {

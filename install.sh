@@ -117,8 +117,9 @@ detect_platform() {
 PLATFORM=$(detect_platform)
 
 # --- Detect update vs fresh install ---
+# Check for peon.sh (-f follows symlinks; -L catches broken symlinks) or existing state
 UPDATING=false
-if [ -f "$INSTALL_DIR/peon.sh" ]; then
+if [ -f "$INSTALL_DIR/peon.sh" ] || [ -L "$INSTALL_DIR/peon.sh" ] || [ -f "$INSTALL_DIR/.state.json" ]; then
   UPDATING=true
 fi
 
@@ -855,7 +856,7 @@ if isinstance(hooks, list):
     hooks = converted
 
 # Main sound hooks via cursor adapter
-cursor_events = ['stop', 'beforeShellExecution', 'afterFileEdit']
+cursor_events = ['stop']
 for evt in cursor_events:
     hook_entry = {
         'command': 'bash ' + adapter + ' ' + evt,

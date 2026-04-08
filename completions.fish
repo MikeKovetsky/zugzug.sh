@@ -42,6 +42,7 @@ complete -c peon -n __peon_no_subcommand -a inventory -d "View items and equipme
 complete -c peon -n __peon_no_subcommand -a equip -d "Equip an item"
 complete -c peon -n __peon_no_subcommand -a unequip -d "Unequip an item"
 complete -c peon -n __peon_no_subcommand -a use -d "Use a consumable item"
+complete -c peon -n __peon_no_subcommand -a sell -d "Sell an item for gold"
 complete -c peon -n __peon_no_subcommand -a dashboard -d "Open WC3 base dashboard"
 complete -c peon -n __peon_no_subcommand -a help -d "Show help message"
 

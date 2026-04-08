@@ -26,17 +26,9 @@ case "$CURSOR_EVENT" in
   stop)
     EVENT="Stop"
     ;;
-  beforeShellExecution)
-    EVENT="UserPromptSubmit"
-    ;;
-  beforeMCPExecution)
-    EVENT="UserPromptSubmit"
-    ;;
-  afterFileEdit)
-    EVENT="Stop"
-    ;;
-  beforeReadFile)
-    # Too noisy — skip
+  beforeShellExecution|afterFileEdit|beforeMCPExecution|beforeReadFile)
+    # Cursor compatibility mode already handles these via native stop/beforeSubmitPrompt.
+    # Firing here too causes double sounds and inflated stats.
     exit 0
     ;;
   *)
