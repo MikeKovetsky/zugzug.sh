@@ -3433,10 +3433,10 @@ if game_on:
 
     daily_tasks = econ.get('daily_tasks', 0)
 
-    _fatigue_thresh = 20
+    _fatigue_thresh = 60
     if 'tavern' in buildings:
-        _fatigue_thresh += 10
-    _fatigue_exhaust = _fatigue_thresh + 10
+        _fatigue_thresh += 30
+    _fatigue_exhaust = _fatigue_thresh + 30
 
     if econ_on:
         if category == 'task.complete' or event == 'Stop':
@@ -3903,7 +3903,7 @@ if game_on:
             _durability[_eid] = _MAX_DUR.get(_r, 50)
 
     if (category == 'task.complete' or event == 'Stop') and equipped:
-        _dur_step = 2 if _has_blacksmith else 1
+        _dur_step = 4 if _has_blacksmith else 2
         _dur_tick = state.get('_dur_tick', 0) + 1
         state['_dur_tick'] = _dur_tick
         if _dur_tick % _dur_step == 0:
@@ -4111,7 +4111,7 @@ if game_on:
                     _cgold *= 2
                     for _eid in equipped:
                         if _eid in _durability and _durability[_eid] > 0:
-                            _durability[_eid] = max(0, _durability[_eid] - 2)
+                            _durability[_eid] = max(0, _durability[_eid] - 1)
                     state['item_durability'] = _durability
                 _armor_pct = _sum_effect('boss_armor')
                 if _armor_pct:

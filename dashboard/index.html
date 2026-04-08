@@ -749,11 +749,11 @@ body {
       </div>
       <div class="help-block">
         <div class="help-heading">💤 Fatigue</div>
-        <div class="help-text">+1 per task completed. At 20: tired (half gold). At 30: exhausted (no gold, combos break). Use <code>peon rest</code> (20 lumber) or click Rest to reset. Tavern raises thresholds by 10.</div>
+        <div class="help-text">+1 per task completed. At 60: tired (half gold). At 90: exhausted (no gold, combos break). Use <code>peon rest</code> (20 lumber) or click Rest to reset. Tavern raises thresholds by 30.</div>
       </div>
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/greathall.png" class="w3i" alt=""> Buildings</div>
-        <div class="help-text">13 structures, each with a unique perk. Click empty tiles on the base map to place. Highlights: Tavern (+10 fatigue threshold), Blacksmith (+50% item effects, halves durability loss), Citadel (2x item drops).</div>
+        <div class="help-text">13 structures, each with a unique perk. Click empty tiles on the base map to place. Highlights: Tavern (+30 fatigue threshold), Blacksmith (+50% item effects, halves durability loss), Citadel (2x item drops).</div>
       </div>
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/warmill.png" class="w3i" alt=""> Combos</div>
@@ -761,7 +761,7 @@ body {
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F6E0;&#xFE0F; Durability</div>
-        <div class="help-text">Equipped items lose 1 durability per task. At 0 they break and their effect stops. Use <code>peon repair</code> to fix damaged items. Broken items cost 2x. Blacksmith halves durability loss. Mask of Death halves repair cost.<br><b>Repair costs:</b> Common 12g &middot; Uncommon 25g &middot; Rare 50g &middot; Epic 100g &middot; Legendary 250g</div>
+        <div class="help-text">Equipped items lose 1 durability per 2 tasks. At 0 they break and their effect stops. Use <code>peon repair</code> to fix damaged items. Broken items cost 2x. Blacksmith halves durability loss. Mask of Death halves repair cost.<br><b>Repair costs:</b> Common 12g &middot; Uncommon 25g &middot; Rare 50g &middot; Epic 100g &middot; Legendary 250g</div>
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F525; Sass</div>
@@ -894,7 +894,7 @@ var BLDS = {
   war_mill:        { icon: w3i('orc/warmill.png'), name: 'War Mill', g: 1000, l: 500, desc: 'Unlocks combo system (multi-kill tracking).' },
   altar:           { icon: w3i('orc/altarofstorms.png'), name: 'Altar of Storms', g: 1500, l: 750, desc: 'Enables Resurrect \u2014 restore combo once/day.' },
   lumber_mill:     { icon: w3i('common/lumber.png'), name: 'Lumber Mill', g: 1500, l: 500, desc: '2x lumber from all sources.' },
-  tavern:          { icon: w3i('neutral/tavern.png'), name: 'Tavern', g: 2000, l: 1000, desc: 'Taunt on demand. +10 fatigue threshold.' },
+  tavern:          { icon: w3i('neutral/tavern.png'), name: 'Tavern', g: 2000, l: 1000, desc: 'Taunt on demand. +30 fatigue threshold.' },
   stronghold:      { icon: w3i('orc/stronghold.png'), name: 'Stronghold', g: 2500, l: 1000, desc: 'Rank upgrade. Unlocks random events.' },
   spirit_lodge:    { icon: w3i('orc/spiritlodge.png'), name: 'Spirit Lodge', g: 2500, l: 1000, desc: 'Unlocks idle peon wisdom notifications.' },
   barracks:        { icon: w3i('orc/barracks.png'), name: 'Barracks', g: 3000, l: 1200, desc: 'Subagent sessions count toward stats.' },
@@ -1167,8 +1167,8 @@ function updateRes(s) {
   gb.classList.toggle('hidden', s.goblin_discount_date !== today());
   var fat = s.fatigue || 0;
   var hasTavern = (s.buildings || {}).tavern != null;
-  var thresh = hasTavern ? 30 : 20;
-  var exhaust = thresh + 10;
+  var thresh = hasTavern ? 90 : 60;
+  var exhaust = thresh + 30;
   var wrap = $('fatigue-wrap');
   wrap.style.display = fat > 0 ? 'flex' : 'none';
   if (fat > 0) {
