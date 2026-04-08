@@ -257,6 +257,30 @@ function renderActiveBoss(boss) {
   html += '<div class="raid-stat"><div class="label">Time Left</div><div class="value">' + timeStr + '</div></div>';
   html += '<div class="raid-stat"><div class="label">Deadline</div><div class="value" style="font-size:0.9em">' + dl + '</div></div>';
   html += '</div>';
+  var log = boss.log || [];
+  var hits = log.filter(function(e) { return e.dmg > 0 && !e.counter; });
+  if (hits.length > 0) {
+    var totals = {base:0, combo:0, items:0, bloodstone:0, smith:0, execute:0, crit:0, tired:0};
+    hits.forEach(function(e) {
+      var b = e.bk || {};
+      for (var k in totals) { totals[k] += (b[k] || 0); }
+    });
+    var total = hits.reduce(function(s,e){return s+e.dmg;}, 0);
+    html += '<div style="margin-top:16px;font-size:0.85em;color:var(--text-dim)">';
+    html += '<div style="margin-bottom:6px;color:var(--gold);font-weight:700">Damage Breakdown (' + total + ' total from ' + hits.length + ' hits)</div>';
+    var parts = [];
+    if (totals.base) parts.push('Base: ' + totals.base);
+    if (totals.combo) parts.push('Combo: +' + totals.combo);
+    if (totals.items) parts.push('Items: +' + totals.items);
+    if (totals.bloodstone) parts.push('Bloodstone: +' + totals.bloodstone);
+    if (totals.smith) parts.push('Blacksmith: +' + totals.smith);
+    if (totals.execute) parts.push('Execute: +' + totals.execute);
+    if (totals.crit) parts.push('Crits: +' + totals.crit);
+    if (totals.tired) parts.push('<span style="color:var(--red)">Fatigue: ' + totals.tired + '</span>');
+    html += parts.join(' &middot; ');
+    if (hits.length > 0) html += ' &middot; Avg: ' + (total / hits.length).toFixed(1) + '/hit';
+    html += '</div>';
+  }
   $('active-raid').innerHTML = html;
 }
 
@@ -274,7 +298,21 @@ function renderBattleLog(boss) {
     var dmgStr = e.dmg > 0 ? '-' + e.dmg + ' HP' : '0 dmg';
     var comboStr = e.combo ? ' <span class="blog-combo">x' + e.combo + '</span>' : '';
     var counterStr = e.counter ? ' <span class="blog-counter">' + e.counter + '</span>' : '';
-    html += '<div class="blog-entry"><span class="blog-ts">' + ts + '</span><span class="' + dmgClass + '">' + dmgStr + '</span><span class="blog-hp">' + e.hp + '/' + boss.max_hp + ' HP</span>' + comboStr + counterStr + '</div>';
+    var bkStr = '';
+    if (e.bk && e.dmg > 0) {
+      var bp = [];
+      if (e.bk.base) bp.push(e.bk.base);
+      if (e.bk.combo) bp.push('+' + e.bk.combo + ' combo');
+      if (e.bk.items) bp.push('+' + e.bk.items + ' items');
+      if (e.bk.bloodstone) bp.push('+' + e.bk.bloodstone + ' bloodstone');
+      if (e.bk.smith) bp.push('+' + e.bk.smith + ' smith');
+      if (e.bk.crit) bp.push('+' + e.bk.crit + ' crit');
+      if (e.bk.execute) bp.push('+' + e.bk.execute + ' exec');
+      if (e.bk.tired) bp.push('<span style="color:var(--red)">' + e.bk.tired + ' tired</span>');
+      if (e.bk.exhausted) bp = ['<span style="color:var(--red)">exhausted</span>'];
+      bkStr = ' <span style="color:var(--text-dim);font-size:0.85em">(' + bp.join(' ') + ')</span>';
+    }
+    html += '<div class="blog-entry"><span class="blog-ts">' + ts + '</span><span class="' + dmgClass + '">' + dmgStr + '</span><span class="blog-hp">' + e.hp + '/' + boss.max_hp + ' HP</span>' + comboStr + bkStr + counterStr + '</div>';
   });
   el.innerHTML = html;
 }

@@ -4051,11 +4051,17 @@ if game_on:
             
             _bdmg = 0
             _bcounter = ''
+            _bk = {}
             if category == 'task.complete' or event == 'Stop':
                 _bdmg = 1
+                _bk['base'] = 1
                 if combo > 0:
-                    _bdmg += combo // 10
-                _bdmg += _sum_effect('boss_dmg')
+                    _cb = combo // 10
+                    _bdmg += _cb
+                    if _cb: _bk['combo'] = _cb
+                _bi = _sum_effect('boss_dmg')
+                _bdmg += _bi
+                if _bi: _bk['items'] = _bi
                 if _ITEMS.get('black_arrow', {}).get('e') == 'boss_dot':
                     ba_dmg = _sum_effect('boss_dot')
                     if ba_dmg:
@@ -4063,26 +4069,38 @@ if game_on:
                             it = _ITEMS.get(eid)
                             if it and it['e'] == 'boss_dot' and eid == 'black_arrow' and _durability.get(eid, 1) > 0:
                                 _bdmg += 1
+                                _bk['items'] = _bk.get('items', 0) + 1
                 _bcombo = _sum_effect('boss_combo_dmg')
                 if _bcombo and combo > 0:
-                    _bdmg += _bcombo * (combo // 10)
+                    _bc2 = _bcombo * (combo // 10)
+                    _bdmg += _bc2
+                    if _bc2: _bk['bloodstone'] = _bc2
                 if _has_blacksmith:
+                    _pre = _bdmg
                     _bdmg = int(_bdmg * 1.5)
+                    if _bdmg > _pre: _bk['smith'] = _bdmg - _pre
                 if _sum_effect('boss_dmg_mult'):
                     _bdmg *= _sum_effect('boss_dmg_mult')
                 if _boss['hp'] <= _boss['max_hp'] * 0.2:
                     _bexec = _sum_effect('boss_execute')
                     if _bexec:
+                        _pre = _bdmg
                         _bdmg *= _bexec
+                        _bk['execute'] = _bdmg - _pre
                 crit_pct = _has_effect('crit_chance') + _sum_effect('boss_crit')
                 if crit_pct and random.random() < crit_pct / 100.0:
+                    _pre = _bdmg
                     _bdmg *= 3
+                    _bk['crit'] = _bdmg - _pre
                     _bcounter += ' CRIT!'
                 if fatigue >= _fatigue_exhaust:
                     _bdmg = 0
+                    _bk = {'exhausted': True}
                     _bcounter += ' EXHAUSTED! 0 dmg'
                 elif fatigue >= _fatigue_thresh:
+                    _lost = _bdmg - max(1, _bdmg // 2)
                     _bdmg = max(1, _bdmg // 2)
+                    _bk['tired'] = -_lost
                     _bcounter += ' Tired! Half dmg'
                 _boss_gold = _sum_effect('boss_gold')
                 if _boss_gold and econ_on:
@@ -4107,7 +4125,7 @@ if game_on:
                     _bdmg += _dot
             _boss['hp'] = max(0, _boss['hp'] - _bdmg)
             _blog = _boss.get('log', [])
-            _bentry = dict(t=int(time.time()), dmg=_bdmg, hp=_boss['hp'])
+            _bentry = dict(t=int(time.time()), dmg=_bdmg, hp=_boss['hp'], bk=_bk)
             if _bcounter:
                 _bentry['counter'] = _bcounter.strip()
             if _bdmg > 0 and combo > 0:
