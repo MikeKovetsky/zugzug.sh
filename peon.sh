@@ -4088,6 +4088,12 @@ if game_on:
                     _bdmg = max(1, _bdmg // 2)
                 elif _mod == 'weakened':
                     _bdmg *= 2
+                if fatigue >= _fatigue_exhaust:
+                    _bdmg = 0
+                    _bcounter += ' EXHAUSTED! 0 dmg'
+                elif fatigue >= _fatigue_thresh:
+                    _bdmg = max(1, _bdmg // 2)
+                    _bcounter += ' Tired! Half dmg'
                 if _mod == 'cursed' and econ_on:
                     gold_delta -= 5
                 _boss_gold = _sum_effect('boss_gold')
