@@ -1643,7 +1643,7 @@ defs = [
     ('hoarder', 'Hoarder', 'Own 12+ items total'),
     ('lunch_raider', 'Lunch Raider', 'Hit a boss during lunch hour'),
     ('boss_slayer', 'Boss Slayer', 'Defeat all 10 unique bosses'),
-    ('speedrun', 'Speed Run', 'Kill any boss in under 50% of deadline'),
+    ('speedrun', 'Speed Run', 'Kill any boss in under 5 minutes'),
     ('speed_archimonde', 'Archimonde Any%', 'Kill Archimonde in under 4 days'),
     ('archimondes_bane', 'Archimonde\\'s Bane', 'Defeat Archimonde'),
 ]
@@ -3647,7 +3647,7 @@ if game_on:
         ('hoarder',          lambda: len(state.get('inventory', [])) + len(state.get('equipped', [])) >= 12, 'Hoarder', 'Where peon put all this stuff?!'),
         ('lunch_raider',     lambda: _hour == 12 and state.get('active_boss') is not None and category == 'task.complete', 'Lunch Raider', 'Human raid during lunch. Very dedicated. Very hungry.'),
         ('boss_slayer',      lambda: len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]) >= 10, 'Boss Slayer', 'Every boss defeated at least once. Peon... genuinely in awe.'),
-        ('speedrun',         lambda: stats.get('fastest_kill_pct', 1.0) <= 0.5, 'Speed Run', 'Boss dead in half the time?! Peon blink and missed it.'),
+        ('speedrun',         lambda: 0 < stats.get('fastest_kill_secs', 99999) <= 300, 'Speed Run', 'Boss dead in 5 minutes?! Peon blink and missed it.'),
         ('speed_archimonde', lambda: stats.get('fastest_archimonde_pct', 1.0) <= 0.5, 'Archimonde Any%', 'Archimonde in under 4 days. Speedrun.com wants your replay.'),
         ('archimondes_bane', lambda: state.get('boss_kills', {}).get('archimonde', 0) >= 1, 'Archimonde\'s Bane', 'The Defiler is no more. Peon... legendary.'),
     ]
@@ -3689,7 +3689,7 @@ if game_on:
         'hoarder':          [len(state.get('inventory', [])) + len(state.get('equipped', [])), 12],
         'lunch_raider':     [1 if 'lunch_raider' in unlocked else 0, 1],
         'boss_slayer':      [len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]), 10],
-        'speedrun':         [1 if stats.get('fastest_kill_pct', 1.0) <= 0.5 else 0, 1],
+        'speedrun':         [1 if 0 < stats.get('fastest_kill_secs', 99999) <= 300 else 0, 1],
         'speed_archimonde': [1 if stats.get('fastest_archimonde_pct', 1.0) <= 0.5 else 0, 1],
         'archimondes_bane': [state.get('boss_kills', {}).get('archimonde', 0), 1],
     }
@@ -3933,13 +3933,14 @@ if game_on:
                 return v
         return 0
 
+    _TROPHY_IDS = {'kobold_candle', 'troll_totem', 'ogre_scepter', 'infernal_core', 'mannoroths_blood', 'crown_of_eredar'}
     def _roll_drop(force_rarity=None):
         if force_rarity:
-            pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity]
+            pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity and k not in _TROPHY_IDS]
         else:
             avail = {r: [] for r in _DROP_TABLE}
             for k, v in _ITEMS.items():
-                if v['r'] in avail:
+                if v['r'] in avail and k not in _TROPHY_IDS:
                     avail[v['r']].append(k)
             weights = [(r, d['weight']) for r, d in _DROP_TABLE.items() if avail.get(r)]
             if not weights:
@@ -4176,6 +4177,8 @@ if game_on:
                 _pct_used = _kill_time / _deadline_secs if _deadline_secs > 0 else 1.0
                 if _pct_used < stats.get('fastest_kill_pct', 1.0):
                     stats['fastest_kill_pct'] = round(_pct_used, 3)
+                if _kill_time < stats.get('fastest_kill_secs', 99999):
+                    stats['fastest_kill_secs'] = int(_kill_time)
                 if bid == 'archimonde' and _pct_used < stats.get('fastest_archimonde_pct', 1.0):
                     stats['fastest_archimonde_pct'] = round(_pct_used, 3)
                 hist = state.get('boss_history', [])
