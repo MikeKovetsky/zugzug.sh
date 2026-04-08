@@ -1635,6 +1635,9 @@ defs = [
     ('stop_clicking', 'Stop Clicking Me!', '500 lifetime prompts'),
     ('peon_union_rep', 'Peon Union Rep', 'Fatigue hits 50 in one session'),
     ('touch_grass', 'Touch Grass', 'Code past 3 AM on a weekend'),
+    ('first_kill', 'First Kill', 'Defeat your first boss'),
+    ('raid_leader', 'Raid Leader', 'Defeat 10 bosses'),
+    ('archimondes_bane', 'Archimonde\\'s Bane', 'Defeat Archimonde'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
 print()
@@ -1680,6 +1683,7 @@ BUILDINGS = {
     'blacksmith':      (4000, 1500, 'Equipped items get +50% effect values.'),
     'arcane_sanctum':  (7500, 3000, 'Unlocks peon prophecies on session start.'),
     'fortress':        (10000, 4000, 'Max rank. Unlocks leaderboard title.'),
+    'dark_portal':     (12000, 5000, 'Open the Dark Portal. Raid bosses await beyond.'),
     'citadel':         (15000, 6000, 'Prestige rank. Boosts item drop rate.'),
 }
 if arg == 'list':
@@ -1842,14 +1846,20 @@ ITEMS_R = {
     'belt_of_str': 'common', 'gloves_of_haste': 'common', 'robe_of_magi': 'common',
     'pendant_of_mana': 'common', 'hood_of_cunning': 'common', 'medallion': 'common',
     'tome_of_power': 'common', 'skull_shield': 'common', 'kelen_dagger': 'common', 'void_stone': 'common',
+    'war_axe': 'common', 'iron_shield': 'common', 'kobold_candle': 'common',
     'boots_of_speed': 'uncommon', 'periapt_of_vitality': 'uncommon', 'pendant_of_energy': 'uncommon',
+    'serrated_blade': 'uncommon', 'venom_orb': 'uncommon', 'troll_totem': 'uncommon',
     'helm_of_valor': 'rare', 'cloak_of_shadows': 'rare', 'orb_of_fire': 'rare',
     'gem_of_seeing': 'rare', 'staff_of_negation': 'rare', 'sobi_mask': 'rare',
     'talisman_of_evasion': 'rare', 'ring_of_regen': 'rare', 'scourge_bone': 'rare',
     'shadow_orb': 'rare', 'lion_horn': 'rare',
+    'bloodstone': 'rare', 'runed_gauntlets': 'rare', 'executioners_blade': 'rare',
+    'ogre_scepter': 'rare', 'infernal_core': 'rare',
     'crown_of_kings': 'epic', 'mask_of_death': 'epic', 'amulet_of_spell': 'epic', 'khadgars_pipe': 'epic',
+    'doom_hammer': 'epic', 'black_arrow': 'epic', 'mannoroths_blood': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
     'unstoppable_force': 'legendary', 'ashbringer': 'legendary',
+    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary',
 }
 MAX_DUR = {'common': 50, 'uncommon': 75, 'rare': 100, 'epic': 150, 'legendary': 200}
 has_discount = False
@@ -1961,6 +1971,22 @@ ITEMS = {
     'unstoppable_force':   ('The Unstoppable Force',  'legendary', 'Combos never break from errors'),
     'ashbringer':          ('Ashbringer',             'legendary', '2x achievement progress'),
     'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
+    'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
+    'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
+    'serrated_blade':      ('Serrated Blade',         'uncommon',  '+2 raid damage per task'),
+    'venom_orb':           ('Venom Orb',              'uncommon',  'Poison: 1 damage per event during raids'),
+    'bloodstone':          ('Bloodstone',             'rare',      '+1 damage per 10 combo in raids'),
+    'runed_gauntlets':     ('Runed Gauntlets',        'rare',      '+15% crit chance vs bosses'),
+    'executioners_blade':  ('Executioner\\'s Blade',  'rare',      '3x damage when boss below 20% HP'),
+    'doom_hammer':         ('Doom Hammer',            'epic',      '+5 raid damage per task'),
+    'black_arrow':         ('Black Arrow',            'epic',      '+3 poison per event + 1 flat raid damage'),
+    'sulfuras':            ('Sulfuras, Hand of Ragnaros', 'legendary', '+10 raid damage. Overkill carries to next boss.'),
+    'kobold_candle':       ('Kobold\\'s Candle',      'common',    '+3g per task during boss fights'),
+    'troll_totem':         ('Troll Regeneration Totem', 'uncommon', 'Repair 1 durability per 5 tasks'),
+    'ogre_scepter':        ('Ogre Magi Scepter',      'rare',      '2x damage to bosses'),
+    'infernal_core':       ('Infernal Core',          'rare',      'Counter-attacks deal 50% less gold damage'),
+    'mannoroths_blood':    ('Mannoroth\\'s Blood',    'epic',      '+10 fatigue threshold'),
+    'crown_of_eredar':     ('Crown of the Eredar',    'legendary', 'Bosses drop 2 items instead of 1'),
 }
 rcolors = dict(common='', uncommon='\033[32m', rare='\033[34m', epic='\033[35m', legendary='\033[33m')
 reset = '\033[0m'
@@ -2103,17 +2129,23 @@ ITEMS_R = {
     'belt_of_str': 'common', 'gloves_of_haste': 'common', 'robe_of_magi': 'common',
     'pendant_of_mana': 'common', 'boots_of_speed': 'common', 'tome_of_power': 'common',
     'skull_shield': 'common', 'kelen_dagger': 'common', 'void_stone': 'common',
+    'war_axe': 'common', 'iron_shield': 'common', 'kobold_candle': 'common',
     'scroll_of_tp': 'uncommon', 'potion_of_healing': 'uncommon', 'potion_of_mana': 'uncommon',
     'tome_of_xp': 'uncommon', 'pendant_of_energy': 'uncommon', 'staff_of_negation': 'uncommon',
+    'serrated_blade': 'uncommon', 'venom_orb': 'uncommon', 'troll_totem': 'uncommon',
     'helm_of_valor': 'rare', 'cloak_of_shadows': 'rare', 'orb_of_fire': 'rare',
     'gem_of_seeing': 'rare', 'hood_of_cunning': 'rare', 'sobi_mask': 'rare',
     'talisman_of_evasion': 'rare', 'ring_of_regen': 'rare', 'scourge_bone': 'rare',
     'shadow_orb': 'rare', 'lion_horn': 'rare', 'medallion': 'rare',
     'inv_potion': 'rare', 'periapt_of_vitality': 'rare',
+    'bloodstone': 'rare', 'runed_gauntlets': 'rare', 'executioners_blade': 'rare',
+    'ogre_scepter': 'rare', 'infernal_core': 'rare',
     'crown_of_kings': 'epic', 'mask_of_death': 'epic', 'amulet_of_spell': 'epic',
     'khadgars_pipe': 'epic', 'ankh': 'epic',
+    'doom_hammer': 'epic', 'black_arrow': 'epic', 'mannoroths_blood': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
     'unstoppable_force': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
+    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary',
 }
 if item_id in equipped:
     print('Unequip it first: peon unequip ' + item_id)
@@ -2135,6 +2167,127 @@ print(f'Sold {item_id} for {price}g.')
 print(f'Gold: {econ[\"gold\"]}')
 "
     exit $? ;;
+  raid)
+    shift
+    python3 -c "
+import json, os, sys, time, random, datetime
+state_file = '$STATE'
+arg = '${1:-status}'
+$_PY_STATE_IO
+state = _load_state(state_file)
+buildings = state.get('buildings', {})
+if 'dark_portal' not in buildings:
+    print('Build a Dark Portal first! (peon build dark_portal)')
+    sys.exit(1)
+econ = state.get('economy', {})
+gold = econ.get('gold', 0)
+stats = state.get('stats', {})
+boss_kills = state.get('boss_kills', {})
+bk_total = state.get('boss_kills_total', 0)
+lvl = stats.get('level', 1)
+BOSSES = {
+    'kobold':    dict(name='Kobold Taskmaster',     hp=30,    days=1, unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,    loot='common',    gold_r=50,   lumber_r=25,  counter_g=20),
+    'troll':     dict(name='Forest Troll Warlord',  hp=200,   days=2, unlock_kills=1,  unlock_lvl=0, unlock_bld=[], fee=100,  loot='uncommon',  gold_r=200,  lumber_r=100, counter_g=40),
+    'ogre':      dict(name='Ogre Magi',             hp=600,   days=3, unlock_kills=3,  unlock_lvl=0, unlock_bld=[], fee=250,  loot='rare',      gold_r=500,  lumber_r=250, counter_g=60),
+    'infernal':  dict(name='Infernal',              hp=2000,  days=4, unlock_kills=6,  unlock_lvl=6, unlock_bld=[], fee=500,  loot='rare',      gold_r=1200, lumber_r=500, counter_g=80),
+    'mannoroth': dict(name='Pit Lord Mannoroth',    hp=5000,  days=5, unlock_kills=12, unlock_lvl=8, unlock_bld=['citadel'], fee=1000, loot='epic', gold_r=3000, lumber_r=1200, counter_g=100),
+    'archimonde':dict(name='Archimonde',            hp=12000, days=7, unlock_kills=25, unlock_lvl=9, unlock_bld=['citadel'], fee=2000, loot='epic', gold_r=8000, lumber_r=3000, counter_g=100),
+}
+MODIFIERS = ['enraged', 'armored', 'cursed', 'weakened']
+MOD_DESC = {'enraged': '50% damage, 2x gold reward', 'armored': '2x HP, guaranteed rare+ drop', 'cursed': 'Drains 5g per task', 'weakened': '2x damage, 50% gold reward'}
+TROPHY_MAP = {'kobold': 'kobold_candle', 'troll': 'troll_totem', 'ogre': 'ogre_scepter', 'infernal': 'infernal_core', 'mannoroth': 'mannoroths_blood', 'archimonde': 'crown_of_eredar'}
+boss = state.get('active_boss')
+if boss and boss.get('deadline'):
+    if datetime.date.fromisoformat(boss['deadline']) < datetime.date.today():
+        fee = boss.get('entry_fee', 0)
+        penalty = fee // 2
+        econ['gold'] = econ.get('gold', 0) - penalty
+        hist = state.get('boss_history', [])
+        hist.append(dict(id=boss['id'], name=boss['name'], result='escaped', penalty=penalty, t=int(time.time())))
+        if len(hist) > 30: hist = hist[-30:]
+        state['boss_history'] = hist
+        state['economy'] = econ
+        print(f'{boss[\"name\"]} escaped! -{penalty}g penalty.')
+        state['active_boss'] = None
+        boss = None
+        _save_state(state_file, state)
+if arg == 'status':
+    if boss:
+        pct = boss['hp'] / boss['max_hp']
+        bar_len = 20
+        filled = int(pct * bar_len)
+        bar = chr(9608) * filled + chr(9617) * (bar_len - filled)
+        dl = boss['deadline']
+        days_left = (datetime.date.fromisoformat(dl) - datetime.date.today()).days
+        mod_str = f' [{boss[\"modifier\"].upper()}]' if boss.get('modifier') else ''
+        print(f'{boss[\"name\"]}{mod_str}')
+        print(f'  [{bar}] {boss[\"hp\"]}/{boss[\"max_hp\"]} HP')
+        print(f'  Deadline: {dl} ({days_left} day{\"s\" if days_left != 1 else \"\"} left)')
+        print(f'  Damage dealt: {boss[\"max_hp\"] - boss[\"hp\"]}')
+    else:
+        print('No active raid. Available bosses:')
+        print()
+        for bid, b in BOSSES.items():
+            locked = False
+            reqs = []
+            if bk_total < b['unlock_kills']:
+                locked = True
+                reqs.append(f'{b[\"unlock_kills\"]} boss kills (have {bk_total})')
+            if lvl < b['unlock_lvl']:
+                locked = True
+                reqs.append(f'Level {b[\"unlock_lvl\"]}+ (at {lvl})')
+            for rb in b.get('unlock_bld', []):
+                if rb not in buildings:
+                    locked = True
+                    reqs.append(f'Build {rb}')
+            kills = boss_kills.get(bid, 0)
+            tag = f' (defeated {kills}x)' if kills else ''
+            if locked:
+                print(f'  [LOCKED] {b[\"name\"]}{tag}  \u2014 requires: {\" + \".join(reqs)}')
+            else:
+                fee_str = f'{b[\"fee\"]}g' if b['fee'] else 'free'
+                print(f'  {bid:12s} {b[\"name\"]}{tag}  \u2014 {b[\"hp\"]} HP / {b[\"days\"]}d / entry: {fee_str}')
+elif arg in BOSSES:
+    if boss:
+        print(f'Already fighting {boss[\"name\"]}! Finish or wait for deadline.')
+        sys.exit(1)
+    b = BOSSES[arg]
+    if bk_total < b['unlock_kills']:
+        print(f'Locked! Need {b[\"unlock_kills\"]} boss kills (have {bk_total}).')
+        sys.exit(1)
+    if lvl < b['unlock_lvl']:
+        print(f'Locked! Need Level {b[\"unlock_lvl\"]}+ (at {lvl}).')
+        sys.exit(1)
+    for rb in b.get('unlock_bld', []):
+        if rb not in buildings:
+            print(f'Locked! Need to build {rb} first.')
+            sys.exit(1)
+    if gold < b['fee']:
+        print(f'Not enough gold! Entry fee: {b[\"fee\"]}g, have {gold}g.')
+        sys.exit(1)
+    mod = random.choice(MODIFIERS)
+    hp = b['hp']
+    if mod == 'armored':
+        hp *= 2
+    econ['gold'] = gold - b['fee']
+    deadline = (datetime.date.today() + datetime.timedelta(days=b['days'])).isoformat()
+    carryover = state.get('boss_carryover', 0)
+    if carryover > 0:
+        hp = max(1, hp - carryover)
+        state['boss_carryover'] = 0
+    state['active_boss'] = dict(id=arg, name=b['name'], hp=hp, max_hp=hp, deadline=deadline, spawned_at=int(time.time()), modifier=mod, loot_tier=b['loot'], entry_fee=b['fee'], gold_reward=b['gold_r'], lumber_reward=b['lumber_r'], counter_gold=b['counter_g'])
+    state['economy'] = econ
+    _save_state(state_file, state)
+    fee_str = f' (-{b[\"fee\"]}g)' if b['fee'] else ''
+    print(f'RAID STARTED: {b[\"name\"]}!{fee_str}')
+    print(f'  HP: {hp} | Deadline: {deadline} | Modifier: {mod.upper()} ({MOD_DESC[mod]})')
+    print(f'  No retreat. No surrender. Fight until victory or timeout.')
+else:
+    print(f'Unknown boss tier: {arg}')
+    print('Available: ' + ', '.join(BOSSES.keys()))
+    sys.exit(1)
+"
+    exit $? ;;
   dashboard)
     _port=${PEON_DASHBOARD_PORT:-19997}
     _pid_file="$PEON_DIR/.dashboard.pid"
@@ -2150,7 +2303,7 @@ print(f'Gold: {econ[\"gold\"]}')
 import http.server, json, os, socketserver, time, datetime, tempfile, shutil
 PORT = $_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'citadel':(15000,6000)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000)}
 class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _json(self, code, data):
@@ -2206,6 +2359,13 @@ class H(http.server.BaseHTTPRequestHandler):
             try: data = open(os.path.join(PEON_DIR,'dashboard.html')).read()
             except: data = '<h1>Not found</h1>'
             self.wfile.write(data.encode())
+        elif self.path == '/raid':
+            self.send_response(200)
+            self.send_header('Content-Type','text/html')
+            self.end_headers()
+            try: data = open(os.path.join(PEON_DIR,'raid.html')).read()
+            except: data = '<h1>Raid page not found</h1>'
+            self.wfile.write(data.encode())
         else:
             self.send_response(404)
             self.end_headers()
@@ -2218,7 +2378,43 @@ class H(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         n = int(self.headers.get('Content-Length', 0))
         body = json.loads(self.rfile.read(n)) if n else {}
-        if self.path == '/api/build':
+        if self.path == '/api/raid':
+            import random as _rr
+            bid = body.get('boss', '')
+            st = self._load('.state.json')
+            BOSSES = {'kobold': dict(hp=30,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=50,lumber_r=25,counter_g=20,name='Kobold Taskmaster'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=100,loot='uncommon',gold_r=200,lumber_r=100,counter_g=40,name='Forest Troll Warlord'), 'ogre': dict(hp=600,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=250,loot='rare',gold_r=500,lumber_r=250,counter_g=60,name='Ogre Magi'), 'infernal': dict(hp=2000,days=4,unlock_kills=6,unlock_lvl=6,unlock_bld=[],fee=500,loot='rare',gold_r=1200,lumber_r=500,counter_g=80,name='Infernal'), 'mannoroth': dict(hp=5000,days=5,unlock_kills=12,unlock_lvl=8,unlock_bld=['citadel'],fee=1000,loot='epic',gold_r=3000,lumber_r=1200,counter_g=100,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=12000,days=7,unlock_kills=25,unlock_lvl=9,unlock_bld=['citadel'],fee=2000,loot='epic',gold_r=8000,lumber_r=3000,counter_g=100,name='Archimonde')}
+            MODS = ['enraged','armored','cursed','weakened']
+            if st.get('active_boss'):
+                return self._json(400, {'error': 'Already in a raid'})
+            if 'dark_portal' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build Dark Portal first'})
+            if bid not in BOSSES:
+                return self._json(400, {'error': 'Unknown boss'})
+            b = BOSSES[bid]
+            bk = st.get('boss_kills_total', 0)
+            lvl = st.get('stats', {}).get('level', 1)
+            if bk < b['unlock_kills'] or lvl < b['unlock_lvl']:
+                return self._json(400, {'error': 'Boss locked'})
+            for rb in b.get('unlock_bld', []):
+                if rb not in st.get('buildings', {}):
+                    return self._json(400, {'error': f'Need {rb}'})
+            ec = st.setdefault('economy', {})
+            g = ec.get('gold', 0)
+            if g < b['fee']:
+                return self._json(400, {'error': f'Need {b[\"fee\"]}g'})
+            ec['gold'] = g - b['fee']
+            mod = _rr.choice(MODS)
+            hp = b['hp'] * (2 if mod == 'armored' else 1)
+            co = st.get('boss_carryover', 0)
+            if co > 0:
+                hp = max(1, hp - co)
+                st['boss_carryover'] = 0
+            dl = (datetime.date.today() + datetime.timedelta(days=b['days'])).isoformat()
+            st['active_boss'] = dict(id=bid, name=b['name'], hp=hp, max_hp=hp, deadline=dl, spawned_at=int(time.time()), modifier=mod, loot_tier=b['loot'], entry_fee=b['fee'], gold_reward=b['gold_r'], lumber_reward=b['lumber_r'], counter_gold=b['counter_g'])
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'boss': st['active_boss'], 'gold': ec['gold']})
+        elif self.path == '/api/build':
             bname = body.get('building', '')
             if bname not in BCOSTS:
                 return self._json(400, {'error': 'Unknown building'})
@@ -2431,6 +2627,7 @@ WC3 Metagame:
   unequip <item>       Move equipped item back to backpack
   use <item>           Use a consumable item (scrolls, potions, tomes)
   sell <item>          Sell an item from backpack for gold
+  raid [status|<boss>] Start or check boss raids (requires Dark Portal)
   bunker               Suppress roasts for 1 hour (requires Burrow)
   resurrect            Restore combo streak (requires Altar, once/day)
   taunt                Play a random roast (requires Tavern)
@@ -3429,6 +3626,9 @@ if game_on:
         ('stop_clicking',    lambda: stats.get('prompts_total', 0) >= 500, 'Stop Clicking Me!', 'Me busy! Leave me alone!'),
         ('peon_union_rep',   lambda: fatigue >= 50, 'Peon Union Rep', 'Peon demand hazard pay!'),
         ('touch_grass',      lambda: _hour >= 3 and _hour < 5 and _weekday >= 5, 'Touch Grass', 'Why human code now?! Go outside!'),
+        ('first_kill',       lambda: state.get('boss_kills_total', 0) >= 1, 'First Kill', 'Peon... actually killed something?!'),
+        ('raid_leader',      lambda: state.get('boss_kills_total', 0) >= 10, 'Raid Leader', 'LFM ICC 25 Heroic, link achievement.'),
+        ('archimondes_bane', lambda: state.get('boss_kills', {}).get('archimonde', 0) >= 1, 'Archimonde\'s Bane', 'The Defiler is no more. Peon... legendary.'),
     ]
     if achiev_on:
         for aid, check_fn, aname, aflavor in _achiev_defs:
@@ -3460,6 +3660,9 @@ if game_on:
         'stop_clicking':    [stats.get('prompts_total', 0), 500],
         'peon_union_rep':   [fatigue, 50],
         'touch_grass':      [1 if 'touch_grass' in unlocked else 0, 1],
+        'first_kill':       [state.get('boss_kills_total', 0), 1],
+        'raid_leader':      [state.get('boss_kills_total', 0), 10],
+        'archimondes_bane': [state.get('boss_kills', {}).get('archimonde', 0), 1],
     }
     stats['achievements_progress'] = _ach_progress
 
@@ -3639,6 +3842,22 @@ if game_on:
         'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Suppress roasts for 2 hours (consumable)'),
         'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='revive',   desc='Undo last base raid (consumable)'),
         'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 1000 gold + 500 lumber. Mmm.'),
+        'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
+        'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less gold lost from counter-attacks'),
+        'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=2,    desc='+2 raid damage per task'),
+        'venom_orb':           dict(name='Venom Orb',              r='uncommon',  e='boss_dot',        v=1,    desc='Poison: 1 damage per event during raids'),
+        'bloodstone':          dict(name='Bloodstone',             r='rare',      e='boss_combo_dmg',  v=1,    desc='+1 damage per 10 combo in raids'),
+        'runed_gauntlets':     dict(name='Runed Gauntlets',        r='rare',      e='boss_crit',       v=15,   desc='+15% crit chance vs bosses'),
+        'executioners_blade':  dict(name='Executioner\'s Blade',    r='rare',      e='boss_execute',    v=3,    desc='3x damage when boss below 20% HP'),
+        'doom_hammer':         dict(name='Doom Hammer',            r='epic',      e='boss_dmg',        v=5,    desc='+5 raid damage per task'),
+        'black_arrow':         dict(name='Black Arrow',            r='epic',      e='boss_dot',        v=3,    desc='+3 poison per event + 1 flat raid damage'),
+        'sulfuras':            dict(name='Sulfuras, Hand of Ragnaros', r='legendary', e='boss_dmg',    v=10,   desc='+10 raid damage. Overkill carries to next boss.'),
+        'kobold_candle':       dict(name='Kobold\'s Candle',        r='common',    e='boss_gold',       v=3,    desc='+3g per task during boss fights'),
+        'troll_totem':         dict(name='Troll Regeneration Totem', r='uncommon', e='boss_regen',     v=1,    desc='Repair 1 durability per 5 tasks'),
+        'ogre_scepter':        dict(name='Ogre Magi Scepter',      r='rare',      e='boss_dmg_mult',   v=2,    desc='2x damage to bosses'),
+        'infernal_core':       dict(name='Infernal Core',          r='rare',      e='boss_armor',      v=50,   desc='Counter-attacks deal 50% less gold damage'),
+        'mannoroths_blood':    dict(name='Mannoroth\'s Blood',      r='epic',      e='fatigue_resist',  v=10,   desc='+10 fatigue threshold'),
+        'crown_of_eredar':     dict(name='Crown of the Eredar',    r='legendary', e='boss_double_loot', v=1,   desc='Bosses drop 2 items instead of 1'),
     }
 
     _DROP_TABLE = {
@@ -3773,6 +3992,178 @@ if game_on:
     if 'lumber_mill' in buildings and lumber_delta > 0:
         lumber_delta *= 2
 
+    def _sum_effect(eff):
+        total = 0
+        for eid in equipped:
+            if _durability.get(eid, 1) <= 0:
+                continue
+            it = _ITEMS.get(eid)
+            if it and it['e'] == eff:
+                v = it['v']
+                if _has_blacksmith and isinstance(v, (int, float)) and v > 0:
+                    v = int(v * 1.5)
+                total += v
+        return total
+
+    # --- Boss raid combat ---
+    import datetime as _dt
+    _boss = state.get('active_boss')
+    boss_text = ''
+    _TROPHY_MAP = {'kobold': 'kobold_candle', 'troll': 'troll_totem', 'ogre': 'ogre_scepter', 'infernal': 'infernal_core', 'mannoroth': 'mannoroths_blood', 'archimonde': 'crown_of_eredar'}
+    if _boss and 'dark_portal' in buildings:
+        _boss_dl = _dt.date.fromisoformat(_boss['deadline'])
+        _boss_today = _dt.date.today()
+        _days_left = (_boss_dl - _boss_today).days
+        if _boss_dl < _boss_today:
+            penalty = _boss.get('entry_fee', 0) // 2
+            gold_delta -= penalty
+            boss_text = f'{_boss[\"name\"]} escaped! -{penalty}g'
+            hist = state.get('boss_history', [])
+            hist.append(dict(id=_boss['id'], name=_boss['name'], result='escaped', penalty=penalty, t=int(time.time())))
+            if len(hist) > 30: hist = hist[-30:]
+            state['boss_history'] = hist
+            state['active_boss'] = None
+            _boss = None
+            state_dirty = True
+        elif category:
+            _mod = _boss.get('modifier', '')
+            _bdmg = 0
+            _bcounter = ''
+            if category == 'task.complete' or event == 'Stop':
+                _bdmg = 1
+                if combo > 0:
+                    _bdmg += combo // 10
+                _bdmg += _sum_effect('boss_dmg')
+                if _ITEMS.get('black_arrow', {}).get('e') == 'boss_dot':
+                    ba_dmg = _sum_effect('boss_dot')
+                    if ba_dmg:
+                        for eid in equipped:
+                            it = _ITEMS.get(eid)
+                            if it and it['e'] == 'boss_dot' and eid == 'black_arrow' and _durability.get(eid, 1) > 0:
+                                _bdmg += 1
+                _bcombo = _sum_effect('boss_combo_dmg')
+                if _bcombo and combo > 0:
+                    _bdmg += _bcombo * (combo // 10)
+                if _has_blacksmith:
+                    _bdmg = int(_bdmg * 1.5)
+                if _sum_effect('boss_dmg_mult'):
+                    _bdmg *= _sum_effect('boss_dmg_mult')
+                if _boss['hp'] <= _boss['max_hp'] * 0.2:
+                    _bexec = _sum_effect('boss_execute')
+                    if _bexec:
+                        _bdmg *= _bexec
+                crit_pct = _has_effect('crit_chance') + _sum_effect('boss_crit')
+                if crit_pct and random.random() < crit_pct / 100.0:
+                    _bdmg *= 3
+                    _bcounter += ' CRIT!'
+                if _mod == 'enraged':
+                    _bdmg = max(1, _bdmg // 2)
+                elif _mod == 'weakened':
+                    _bdmg *= 2
+                if _mod == 'cursed' and econ_on:
+                    gold_delta -= 5
+                _boss_gold = _sum_effect('boss_gold')
+                if _boss_gold and econ_on:
+                    gold_delta += _boss_gold
+            elif category in ('task.error', 'resource.limit'):
+                _cgold = _boss.get('counter_gold', 50)
+                if category == 'resource.limit':
+                    _cgold *= 2
+                    for _eid in equipped:
+                        if _eid in _durability and _durability[_eid] > 0:
+                            _durability[_eid] = max(0, _durability[_eid] - 2)
+                    state['item_durability'] = _durability
+                _armor_pct = _sum_effect('boss_armor')
+                if _armor_pct:
+                    _cgold = int(_cgold * (100 - min(_armor_pct, 90)) / 100)
+                if econ_on:
+                    gold_delta -= _cgold
+                _bcounter = f' Counter-attack! -{_cgold}g'
+            else:
+                _dot = _sum_effect('boss_dot')
+                if _dot:
+                    _bdmg += _dot
+            _boss['hp'] = max(0, _boss['hp'] - _bdmg)
+            _blog = _boss.get('log', [])
+            _bentry = dict(t=int(time.time()), dmg=_bdmg, hp=_boss['hp'])
+            if _bcounter:
+                _bentry['counter'] = _bcounter.strip()
+            if _bdmg > 0 and combo > 0:
+                _bentry['combo'] = combo
+            _blog.append(_bentry)
+            if len(_blog) > 50:
+                _blog = _blog[-50:]
+            _boss['log'] = _blog
+            state['active_boss'] = _boss
+            state_dirty = True
+            if _boss['hp'] <= 0:
+                _reward_g = _boss.get('gold_reward', 100)
+                _reward_l = _boss.get('lumber_reward', 50)
+                if _mod == 'enraged':
+                    _reward_g *= 2
+                elif _mod == 'weakened':
+                    _reward_g //= 2
+                if econ_on:
+                    gold_delta += _reward_g
+                    lumber_delta += _reward_l
+                boss_kills = state.get('boss_kills', {})
+                bid = _boss['id']
+                boss_kills[bid] = boss_kills.get(bid, 0) + 1
+                state['boss_kills'] = boss_kills
+                state['boss_kills_total'] = state.get('boss_kills_total', 0) + 1
+                loot_tier = _boss.get('loot_tier', 'common')
+                if _mod == 'armored':
+                    tier_up = {'common': 'rare', 'uncommon': 'rare', 'rare': 'rare', 'epic': 'epic', 'legendary': 'legendary'}
+                    loot_tier = tier_up.get(loot_tier, loot_tier)
+                dropped_boss = _roll_drop(force_rarity=loot_tier)
+                drop_names = []
+                if dropped_boss:
+                    inventory.append(dropped_boss)
+                    drop_names.append(_ITEMS[dropped_boss]['name'])
+                has_double = _has_effect('boss_double_loot')
+                if has_double and dropped_boss:
+                    d2 = _roll_drop(force_rarity=loot_tier)
+                    if d2:
+                        inventory.append(d2)
+                        drop_names.append(_ITEMS[d2]['name'])
+                trophy = _TROPHY_MAP.get(bid)
+                if trophy and random.random() < 0.3:
+                    inventory.append(trophy)
+                    drop_names.append(_ITEMS[trophy]['name'] + ' (TROPHY)')
+                state['inventory'] = inventory
+                overkill = abs(_boss['hp'])
+                has_cleave = any(_ITEMS.get(eid, {}).get('e') == 'boss_dmg' and eid == 'sulfuras' and _durability.get(eid, 1) > 0 for eid in equipped)
+                if has_cleave and overkill > 0:
+                    state['boss_carryover'] = overkill
+                hist = state.get('boss_history', [])
+                hist.append(dict(id=bid, name=_boss['name'], result='victory', gold=_reward_g, lumber=_reward_l, drops=drop_names, t=int(time.time())))
+                if len(hist) > 30: hist = hist[-30:]
+                state['boss_history'] = hist
+                state['active_boss'] = None
+                drops_str = ', '.join(drop_names) if drop_names else 'none'
+                boss_text = f'{_boss[\"name\"]} DEFEATED! +{_reward_g}g +{_reward_l}l | Drops: {drops_str}'
+            else:
+                pct = _boss['hp'] / _boss['max_hp']
+                bar_len = 12
+                filled = int(pct * bar_len)
+                bar = chr(9608) * filled + chr(9617) * (bar_len - filled)
+                dmg_str = f' -{_bdmg} HP' if _bdmg > 0 else ''
+                boss_text = f'{_boss[\"name\"]} [{bar}] {_boss[\"hp\"]}/{_boss[\"max_hp\"]}{dmg_str}{_bcounter} ({_days_left}d left)'
+            _tregen = _sum_effect('boss_regen')
+            if _tregen:
+                _regen_tick = state.get('_boss_regen_tick', 0) + 1
+                state['_boss_regen_tick'] = _regen_tick
+                if _regen_tick % 5 == 0:
+                    for _eid in equipped:
+                        if _eid in _durability:
+                            _r = _ITEMS.get(_eid, {}).get('r', 'common')
+                            _mx = _MAX_DUR.get(_r, 50)
+                            if _durability[_eid] < _mx:
+                                _durability[_eid] = min(_mx, _durability[_eid] + _tregen)
+                    state['item_durability'] = _durability
+    elif _boss and 'dark_portal' not in buildings:
+        pass
+
     # --- Finalize gold/lumber (after item effects) ---
     if econ_on:
         gold += gold_delta
@@ -3839,6 +4230,8 @@ if game_on:
 
     # --- Compose game notification ---
     parts = []
+    if boss_text:
+        parts.append(boss_text)
     if level_up_text:
         parts.append(level_up_text)
     if item_drop:
@@ -4112,7 +4505,7 @@ import http.server, json, os, sys, socketserver, time, datetime, tempfile, shuti
 
 PORT = $_dashboard_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'citadel':(15000,6000)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000)}
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -4171,6 +4564,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except Exception:
                 data = '<h1>Dashboard not found</h1>'
             self.wfile.write(data.encode())
+        elif self.path == '/raid':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            try: data = open(os.path.join(PEON_DIR, 'raid.html')).read()
+            except: data = '<h1>Raid page not found</h1>'
+            self.wfile.write(data.encode())
         else:
             self.send_response(404)
             self.end_headers()
@@ -4183,7 +4583,43 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         n = int(self.headers.get('Content-Length', 0))
         body = json.loads(self.rfile.read(n)) if n else {}
-        if self.path == '/api/build':
+        if self.path == '/api/raid':
+            import random as _rr
+            bid = body.get('boss', '')
+            st = self._load('.state.json')
+            BOSSES = {'kobold': dict(hp=30,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot='common',gold_r=50,lumber_r=25,counter_g=20,name='Kobold Taskmaster'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=100,loot='uncommon',gold_r=200,lumber_r=100,counter_g=40,name='Forest Troll Warlord'), 'ogre': dict(hp=600,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=250,loot='rare',gold_r=500,lumber_r=250,counter_g=60,name='Ogre Magi'), 'infernal': dict(hp=2000,days=4,unlock_kills=6,unlock_lvl=6,unlock_bld=[],fee=500,loot='rare',gold_r=1200,lumber_r=500,counter_g=80,name='Infernal'), 'mannoroth': dict(hp=5000,days=5,unlock_kills=12,unlock_lvl=8,unlock_bld=['citadel'],fee=1000,loot='epic',gold_r=3000,lumber_r=1200,counter_g=100,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=12000,days=7,unlock_kills=25,unlock_lvl=9,unlock_bld=['citadel'],fee=2000,loot='epic',gold_r=8000,lumber_r=3000,counter_g=100,name='Archimonde')}
+            MODS = ['enraged','armored','cursed','weakened']
+            if st.get('active_boss'):
+                return self._json(400, {'error': 'Already in a raid'})
+            if 'dark_portal' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build Dark Portal first'})
+            if bid not in BOSSES:
+                return self._json(400, {'error': 'Unknown boss'})
+            b = BOSSES[bid]
+            bk = st.get('boss_kills_total', 0)
+            lvl = st.get('stats', {}).get('level', 1)
+            if bk < b['unlock_kills'] or lvl < b['unlock_lvl']:
+                return self._json(400, {'error': 'Boss locked'})
+            for rb in b.get('unlock_bld', []):
+                if rb not in st.get('buildings', {}):
+                    return self._json(400, {'error': f'Need {rb}'})
+            ec = st.setdefault('economy', {})
+            g = ec.get('gold', 0)
+            if g < b['fee']:
+                return self._json(400, {'error': f'Need {b[\"fee\"]}g'})
+            ec['gold'] = g - b['fee']
+            mod = _rr.choice(MODS)
+            hp = b['hp'] * (2 if mod == 'armored' else 1)
+            co = st.get('boss_carryover', 0)
+            if co > 0:
+                hp = max(1, hp - co)
+                st['boss_carryover'] = 0
+            dl = (datetime.date.today() + datetime.timedelta(days=b['days'])).isoformat()
+            st['active_boss'] = dict(id=bid, name=b['name'], hp=hp, max_hp=hp, deadline=dl, spawned_at=int(time.time()), modifier=mod, loot_tier=b['loot'], entry_fee=b['fee'], gold_reward=b['gold_r'], lumber_reward=b['lumber_r'], counter_gold=b['counter_g'])
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'boss': st['active_boss'], 'gold': ec['gold']})
+        elif self.path == '/api/build':
             bname = body.get('building', '')
             if bname not in BCOSTS:
                 return self._json(400, {'error': 'Unknown building'})

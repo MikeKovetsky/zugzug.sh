@@ -712,6 +712,10 @@ body {
       <div class="fatigue-bar"><div class="fatigue-fill" id="fatigue-fill"></div></div>
       <span class="fatigue-lbl" id="fatigue-lbl">0</span>
     </div>
+    <a href="/raid" id="raid-mini" style="display:none;text-decoration:none;margin-left:auto;background:#1a1230;border:1px solid #4a2060;border-radius:6px;padding:4px 10px;font-size:13px;color:#c0c8d0;cursor:pointer">
+      <span id="raid-mini-icon">&#x2694;&#xFE0F;</span>
+      <span id="raid-mini-text"></span>
+    </a>
     <div class="res-right">
       <span class="goblin-badge hidden" id="goblin-badge"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/neutral/goblinmerchant.png" class="w3i" style="width:14px;height:14px" alt=""> 50% OFF</span>
       <span id="streak" class="streak-badge"></span>
@@ -725,6 +729,7 @@ body {
     <button class="tab" data-page="inventory">Inventory</button>
     <button class="tab" data-page="achievements">Achievements</button>
     <button class="tab" data-page="stats">Stats</button>
+    <button class="tab" onclick="window.location='/raid'">&#x2694;&#xFE0F; Raids</button>
   </div>
 
   <!-- Page: How It Works -->
@@ -896,6 +901,7 @@ var BLDS = {
   blacksmith:      { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Blacksmith', g: 4000, l: 1500, desc: '+50% item effects. Halves durability loss.' },
   arcane_sanctum:  { icon: w3i('orc/voodoolounge.png'), name: 'Arcane Sanctum', g: 7500, l: 3000, desc: 'Unlocks peon prophecies on session start.' },
   fortress:        { icon: w3i('orc/fortress.png'), name: 'Fortress', g: 10000, l: 4000, desc: 'Max rank. Unlocks leaderboard title.' },
+  dark_portal:     { icon: w3i('neutral/pitlord.gif'), name: 'Dark Portal', g: 12000, l: 5000, desc: 'Open the Dark Portal. Raid bosses await beyond.' },
   citadel:         { icon: w3i('orc/taurentotem.png'), name: 'Citadel', g: 15000, l: 6000, desc: 'Prestige rank. 2x item drop rate.' },
 };
 
@@ -1015,6 +1021,22 @@ var ITEMS = {
   cheese:              { icon: w3i('orc/healingsalve.png'), name: 'Cheese', r: 'legendary', desc: '+1000g +500l (use)', cons: true },
   thorium_blade:       { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Thorium Blade', r: 'legendary', desc: '+20 gold per task' },
   goblin_rocket:       { icon: w3i('neutral/goblinlaboratory.png'), name: 'Goblin Rocket Launcher', r: 'legendary', desc: 'Ignore gold mine depletion' },
+  war_axe:             { icon: w3i('orc/steelmeleeweapons.png'), name: 'War Axe', r: 'common', desc: '+1 raid damage' },
+  iron_shield:         { icon: w3i('orc/steelarmor.png'), name: 'Iron Shield', r: 'common', desc: '-25% counter-attack' },
+  kobold_candle:       { icon: w3i('neutral/scrollofthenight.gif'), name: "Kobold's Candle", r: 'common', desc: '+3g in boss fights' },
+  serrated_blade:      { icon: w3i('orc/ironmeleeweapons.png'), name: 'Serrated Blade', r: 'uncommon', desc: '+2 raid damage' },
+  venom_orb:           { icon: w3i('orc/envenomedspears.gif'), name: 'Venom Orb', r: 'uncommon', desc: 'Poison: 1 dmg/event' },
+  troll_totem:         { icon: w3i('orc/trollregeneration.png'), name: 'Troll Regen Totem', r: 'uncommon', desc: 'Repair 1 dur/5 tasks' },
+  bloodstone:          { icon: w3i('orc/bloodlust.png'), name: 'Bloodstone', r: 'rare', desc: '+1 dmg per 10 combo' },
+  runed_gauntlets:     { icon: w3i('orc/reinforceddefense.png'), name: 'Runed Gauntlets', r: 'rare', desc: '+15% boss crit' },
+  executioners_blade:  { icon: w3i('orc/arcanitemeleeweapons.png'), name: "Executioner's Blade", r: 'rare', desc: '3x dmg below 20% HP' },
+  ogre_scepter:        { icon: w3i('orc/ogremagiupgrade.png'), name: 'Ogre Magi Scepter', r: 'rare', desc: '2x boss damage' },
+  infernal_core:       { icon: w3i('orc/bloodlustoff.png'), name: 'Infernal Core', r: 'rare', desc: '-50% counter-attack' },
+  doom_hammer:         { icon: w3i('orc/pulverizedamageincrease.png'), name: 'Doom Hammer', r: 'epic', desc: '+5 raid damage' },
+  black_arrow:         { icon: w3i('orc/shadowmeldoff.png'), name: 'Black Arrow', r: 'epic', desc: '+3 poison +1 dmg' },
+  mannoroths_blood:    { icon: w3i('orc/berserkerupgrade.png'), name: "Mannoroth's Blood", r: 'epic', desc: '+10 fatigue threshold' },
+  sulfuras:            { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Sulfuras', r: 'legendary', desc: '+10 dmg, overkill carries' },
+  crown_of_eredar:     { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Crown of the Eredar', r: 'legendary', desc: 'Boss double loot' },
 };
 
 var prev = null, curState = null, cfg = null, packs = [];
@@ -1130,6 +1152,19 @@ function updateRes(s) {
     fill.style.background = fat >= exhaust ? '#c44' : fat >= thresh ? '#ca2' : '#4a4';
     $('fatigue-lbl').textContent = fat;
     $('fatigue-lbl').style.color = fat >= exhaust ? '#c44' : fat >= thresh ? '#ca2' : 'var(--muted)';
+  }
+  var boss = s.active_boss;
+  var rmini = $('raid-mini');
+  if (boss && boss.hp > 0) {
+    rmini.style.display = '';
+    var rpct = Math.round(boss.hp / boss.max_hp * 100);
+    $('raid-mini-text').textContent = boss.name + ' ' + boss.hp + '/' + boss.max_hp + ' HP';
+  } else if ((s.buildings || {}).dark_portal) {
+    rmini.style.display = '';
+    $('raid-mini-icon').innerHTML = '\uD83D\uDD2E';
+    $('raid-mini-text').textContent = 'Raid';
+  } else {
+    rmini.style.display = 'none';
   }
 }
 

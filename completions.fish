@@ -43,6 +43,7 @@ complete -c peon -n __peon_no_subcommand -a equip -d "Equip an item"
 complete -c peon -n __peon_no_subcommand -a unequip -d "Unequip an item"
 complete -c peon -n __peon_no_subcommand -a use -d "Use a consumable item"
 complete -c peon -n __peon_no_subcommand -a sell -d "Sell an item for gold"
+complete -c peon -n __peon_no_subcommand -a raid -d "Start or check boss raids"
 complete -c peon -n __peon_no_subcommand -a dashboard -d "Open WC3 base dashboard"
 complete -c peon -n __peon_no_subcommand -a help -d "Show help message"
 
@@ -102,6 +103,21 @@ complete -c peon -n "__peon_using_subcommand build" -a watch_tower -d "Early con
 complete -c peon -n "__peon_using_subcommand build" -a altar -d "Combo resurrect (300g/150l)"
 complete -c peon -n "__peon_using_subcommand build" -a spirit_lodge -d "Idle thoughts (500g/200l)"
 complete -c peon -n "__peon_using_subcommand build" -a tavern -d "On-demand taunts (400g/200l)"
+complete -c peon -n "__peon_using_subcommand build" -a dark_portal -d "Boss raids (12000g/5000l)"
+complete -c peon -n "__peon_using_subcommand build" -a blacksmith -d "Item effects +50% (4000g/1500l)"
+complete -c peon -n "__peon_using_subcommand build" -a arcane_sanctum -d "Peon prophecies (7500g/3000l)"
+complete -c peon -n "__peon_using_subcommand build" -a lumber_mill -d "2x lumber (1500g/500l)"
+complete -c peon -n "__peon_using_subcommand build" -a barracks -d "Subagent stats (3000g/1200l)"
+complete -c peon -n "__peon_using_subcommand build" -a citadel -d "2x item drops (15000g/6000l)"
+
+# raid subcommands
+complete -c peon -n "__peon_using_subcommand raid" -a status -d "Show active raid status"
+complete -c peon -n "__peon_using_subcommand raid" -a kobold -d "Kobold Taskmaster (30 HP, 1 day)"
+complete -c peon -n "__peon_using_subcommand raid" -a troll -d "Forest Troll Warlord (200 HP, 2 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a ogre -d "Ogre Magi (600 HP, 3 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a infernal -d "Infernal (2000 HP, 4 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a mannoroth -d "Pit Lord Mannoroth (5000 HP, 5 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a archimonde -d "Archimonde (12000 HP, 7 days)"
 
 # rotation subcommands
 complete -c peon -n "__peon_using_subcommand rotation" -a random -d "Pick a random pack each session (default)"

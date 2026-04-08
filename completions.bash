@@ -47,7 +47,12 @@ _peon_completions() {
         return 0 ;;
       build)
         if [ "$cword" -eq 2 ]; then
-          COMPREPLY=( $(compgen -W "list stronghold fortress burrow war_mill watch_tower altar spirit_lodge tavern" -- "$cur") )
+          COMPREPLY=( $(compgen -W "list stronghold fortress burrow war_mill watch_tower altar spirit_lodge tavern dark_portal blacksmith arcane_sanctum barracks lumber_mill citadel" -- "$cur") )
+        fi
+        return 0 ;;
+      raid)
+        if [ "$cword" -eq 2 ]; then
+          COMPREPLY=( $(compgen -W "status kobold troll ogre infernal mannoroth archimonde" -- "$cur") )
         fi
         return 0 ;;
     esac
@@ -55,7 +60,7 @@ _peon_completions() {
   fi
 
   # Top-level commands
-  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay economy achievements build inventory equip unequip use sell bunker resurrect taunt dashboard preview update trainer help" -- "$cur") )
+  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay economy achievements build inventory equip unequip use sell raid bunker resurrect taunt dashboard preview update trainer help" -- "$cur") )
   return 0
 }
 

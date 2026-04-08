@@ -325,6 +325,9 @@ if [ -n "$SCRIPT_DIR" ]; then
   if [ -f "$SCRIPT_DIR/dashboard/index.html" ]; then
     cp "$SCRIPT_DIR/dashboard/index.html" "$INSTALL_DIR/dashboard.html"
   fi
+  if [ -f "$SCRIPT_DIR/dashboard/raid.html" ]; then
+    cp "$SCRIPT_DIR/dashboard/raid.html" "$INSTALL_DIR/raid.html"
+  fi
   if [ "$UPDATING" = false ]; then
     cp "$SCRIPT_DIR/config.json" "$INSTALL_DIR/"
   fi
@@ -352,6 +355,7 @@ else
   mkdir -p "$INSTALL_DIR/docs"
   curl -fsSL "$REPO_BASE/docs/peon-icon.png" -o "$INSTALL_DIR/docs/peon-icon.png" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/dashboard/index.html" -o "$INSTALL_DIR/dashboard.html" 2>/dev/null || true
+  curl -fsSL "$REPO_BASE/dashboard/raid.html" -o "$INSTALL_DIR/raid.html" 2>/dev/null || true
   if [ "$UPDATING" = false ]; then
     curl -fsSL "$REPO_BASE/config.json" -o "$INSTALL_DIR/config.json"
   fi
