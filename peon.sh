@@ -1643,6 +1643,8 @@ defs = [
     ('hoarder', 'Hoarder', 'Own 12+ items total'),
     ('lunch_raider', 'Lunch Raider', 'Hit a boss during lunch hour'),
     ('boss_slayer', 'Boss Slayer', 'Defeat all 10 unique bosses'),
+    ('speedrun', 'Speed Run', 'Kill any boss in under 50% of deadline'),
+    ('speed_archimonde', 'Archimonde Any%', 'Kill Archimonde in under 4 days'),
     ('archimondes_bane', 'Archimonde\\'s Bane', 'Defeat Archimonde'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
@@ -3644,6 +3646,8 @@ if game_on:
         ('hoarder',          lambda: len(state.get('inventory', [])) + len(state.get('equipped', [])) >= 12, 'Hoarder', 'Where peon put all this stuff?!'),
         ('lunch_raider',     lambda: _hour == 12 and state.get('active_boss') is not None and category == 'task.complete', 'Lunch Raider', 'Human raid during lunch. Very dedicated. Very hungry.'),
         ('boss_slayer',      lambda: len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]) >= 10, 'Boss Slayer', 'Every boss defeated at least once. Peon... genuinely in awe.'),
+        ('speedrun',         lambda: stats.get('fastest_kill_pct', 1.0) <= 0.5, 'Speed Run', 'Boss dead in half the time?! Peon blink and missed it.'),
+        ('speed_archimonde', lambda: stats.get('fastest_archimonde_pct', 1.0) <= 0.5, 'Archimonde Any%', 'Archimonde in under 4 days. Speedrun.com wants your replay.'),
         ('archimondes_bane', lambda: state.get('boss_kills', {}).get('archimonde', 0) >= 1, 'Archimonde\'s Bane', 'The Defiler is no more. Peon... legendary.'),
     ]
     if achiev_on:
@@ -3684,6 +3688,8 @@ if game_on:
         'hoarder':          [len(state.get('inventory', [])) + len(state.get('equipped', [])), 12],
         'lunch_raider':     [1 if 'lunch_raider' in unlocked else 0, 1],
         'boss_slayer':      [len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]), 10],
+        'speedrun':         [1 if stats.get('fastest_kill_pct', 1.0) <= 0.5 else 0, 1],
+        'speed_archimonde': [1 if stats.get('fastest_archimonde_pct', 1.0) <= 0.5 else 0, 1],
         'archimondes_bane': [state.get('boss_kills', {}).get('archimonde', 0), 1],
     }
     stats['achievements_progress'] = _ach_progress
@@ -4157,8 +4163,16 @@ if game_on:
                 has_cleave = any(_ITEMS.get(eid, {}).get('e') == 'boss_dmg' and eid == 'sulfuras' and _durability.get(eid, 1) > 0 for eid in equipped)
                 if has_cleave and overkill > 0:
                     state['boss_carryover'] = overkill
+                _kill_time = time.time() - _boss.get('spawned_at', time.time())
+                _deadline_secs = (_boss.get('days', 1) if isinstance(_boss.get('days'), int) else int(_boss['deadline'][:10].replace('-','')) - int(str(_boss.get('spawned_at',0))[:10])) * 86400
+                _deadline_secs = max(1, int((_dt.date.fromisoformat(_boss['deadline']) - _dt.date.fromtimestamp(_boss.get('spawned_at', time.time()))).days) * 86400)
+                _pct_used = _kill_time / _deadline_secs if _deadline_secs > 0 else 1.0
+                if _pct_used < stats.get('fastest_kill_pct', 1.0):
+                    stats['fastest_kill_pct'] = round(_pct_used, 3)
+                if bid == 'archimonde' and _pct_used < stats.get('fastest_archimonde_pct', 1.0):
+                    stats['fastest_archimonde_pct'] = round(_pct_used, 3)
                 hist = state.get('boss_history', [])
-                hist.append(dict(id=bid, name=_boss['name'], result='victory', gold=_reward_g, lumber=_reward_l, drops=drop_names, t=int(time.time())))
+                hist.append(dict(id=bid, name=_boss['name'], result='victory', gold=_reward_g, lumber=_reward_l, drops=drop_names, t=int(time.time()), pct=round(_pct_used, 3)))
                 if len(hist) > 30: hist = hist[-30:]
                 state['boss_history'] = hist
                 state['active_boss'] = None
