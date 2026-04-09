@@ -1998,6 +1998,12 @@ ITEMS = {
     'azzinoth_blades':     ('Warglaives of Azzinoth', 'legendary', '+2 combo per task. You are not prepared.'),
     'ashbringer':          ('Ashbringer',             'legendary', '2x achievement progress'),
     'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
+    'goblin_sapper':       ('Goblin Sapper Charge',   'uncommon',  'Deal 10 damage to active boss (consumable)'),
+    'demolisher_shot':     ('Demolisher Shot',        'rare',      'Deal 50 damage to active boss (consumable)'),
+    'thunder_clap':        ('Thunder Clap',           'rare',      'Deal 75 damage to active boss (consumable)'),
+    'chain_lightning':     ('Chain Lightning',        'epic',      'Deal 200 damage to active boss (consumable)'),
+    'death_coil':          ('Death Coil',             'epic',      'Deal 500 damage to active boss (consumable)'),
+    'doom':                ('Doom',                   'legendary', 'Deal 2000 damage to active boss (consumable)'),
     'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
     'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
     'serrated_blade':      ('Serrated Blade',         'uncommon',  '+2 raid damage per task'),
@@ -2120,6 +2126,37 @@ consumables = {
     'ankh':             ('Base raid undone! Gold restored.', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
     'cheese':           ('Mmm. +1000g +500l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+1000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+500))),
 }
+boss_items = {
+    'goblin_sapper': 10, 'demolisher_shot': 50, 'thunder_clap': 75,
+    'chain_lightning': 200, 'death_coil': 500, 'doom': 2000,
+}
+if item_id in boss_items:
+    boss = state.get('active_boss')
+    if not boss or boss.get('hp', 0) <= 0:
+        print('No active boss! Start a raid first: peon raid <boss>')
+        sys.exit(1)
+    dmg = boss_items[item_id]
+    boss['hp'] = max(0, boss['hp'] - dmg)
+    log = boss.get('log', [])
+    log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}})
+    if len(log) > 50: log = log[-50:]
+    boss['log'] = log
+    if item_id in inventory: inventory.remove(item_id)
+    elif item_id in equipped: equipped.remove(item_id)
+    state['inventory'] = inventory
+    state['equipped'] = equipped
+    if boss['hp'] <= 0:
+        state['active_boss'] = None
+        print(f'BOOM! -{dmg} HP! {boss[\"name\"]} DEFEATED!')
+    else:
+        pct = boss['hp'] / boss['max_hp']
+        bar_len = 12
+        filled = int(pct * bar_len)
+        bar = chr(9608) * filled + chr(9617) * (bar_len - filled)
+        state['active_boss'] = boss
+        print(f'BOOM! -{dmg} HP! {boss[\"name\"]} [{bar}] {boss[\"hp\"]}/{boss[\"max_hp\"]} HP')
+    _save_state(state_file, state)
+    sys.exit(0)
 if item_id not in consumables:
     print('That item is not consumable. Equip it instead: peon equip ' + item_id)
     sys.exit(1)
@@ -2157,6 +2194,7 @@ ITEMS_R = {
     'pendant_of_mana': 'common', 'boots_of_speed': 'common', 'tome_of_power': 'common',
     'skull_shield': 'common', 'kelen_dagger': 'common', 'void_stone': 'common',
     'war_axe': 'common', 'iron_shield': 'common', 'kobold_candle': 'common',
+    'goblin_sapper': 'uncommon',
     'scroll_of_tp': 'uncommon', 'potion_of_healing': 'uncommon', 'potion_of_mana': 'uncommon',
     'tome_of_xp': 'uncommon', 'pendant_of_energy': 'uncommon', 'staff_of_negation': 'uncommon',
     'serrated_blade': 'uncommon', 'venom_orb': 'uncommon', 'troll_totem': 'uncommon',
@@ -2165,14 +2203,16 @@ ITEMS_R = {
     'talisman_of_evasion': 'rare', 'ring_of_regen': 'rare', 'scourge_bone': 'rare',
     'shadow_orb': 'rare', 'lion_horn': 'rare', 'medallion': 'rare',
     'inv_potion': 'rare', 'periapt_of_vitality': 'rare',
+    'demolisher_shot': 'rare', 'thunder_clap': 'rare',
     'bloodstone': 'rare', 'runed_gauntlets': 'rare', 'executioners_blade': 'rare',
     'ogre_scepter': 'rare', 'infernal_core': 'rare',
     'crown_of_kings': 'epic', 'mask_of_death': 'epic', 'amulet_of_spell': 'epic',
     'khadgars_pipe': 'epic', 'ankh': 'epic',
     'doom_hammer': 'epic', 'black_arrow': 'epic', 'mannoroths_blood': 'epic',
+    'chain_lightning': 'epic', 'death_coil': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
     'unstoppable_force': 'legendary', 'azzinoth_blades': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
-    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary',
+    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary', 'doom': 'legendary',
 }
 if item_id in equipped:
     print('Unequip it first: peon unequip ' + item_id)
@@ -2749,6 +2789,27 @@ class H(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
+            boss_items = {'goblin_sapper':10,'demolisher_shot':50,'thunder_clap':75,'chain_lightning':200,'death_coil':500,'doom':2000}
+            if iid in boss_items:
+                boss = st.get('active_boss')
+                if not boss or boss.get('hp', 0) <= 0:
+                    return self._json(400, {'error': 'No active boss'})
+                dmg = boss_items[iid]
+                boss['hp'] = max(0, boss['hp'] - dmg)
+                log = boss.get('log', [])
+                log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}})
+                if len(log) > 50: log = log[-50:]
+                boss['log'] = log
+                if iid in inv: inv.remove(iid)
+                elif iid in eq: eq.remove(iid)
+                st['inventory'] = inv; st['equipped'] = eq
+                if boss['hp'] <= 0:
+                    st['active_boss'] = None
+                else:
+                    st['active_boss'] = boss
+                self._save('.state.json', st)
+                self._json(200, {'ok': True, 'dmg': dmg, 'hp': boss['hp'], 'killed': boss['hp'] <= 0})
+                return
             cons = {
                 'scroll_of_tp':      lambda: st.update(combo_count=max(st.get('combo_count',0), st.get('stats',{}).get('max_combo',0)//2)),
                 'potion_of_healing':  lambda: ec.update(gold=ec.get('gold',0)+200),
@@ -4111,6 +4172,12 @@ if game_on:
         'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Pause fatigue for 2 hours (consumable)'),
         'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='revive',   desc='Undo last base raid (consumable)'),
         'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 1000 gold + 500 lumber. Mmm.'),
+        'goblin_sapper':       dict(name='Goblin Sapper Charge',   r='uncommon',  e='consumable',      v='boss_10',    desc='Deal 10 damage to active boss (consumable)'),
+        'demolisher_shot':     dict(name='Demolisher Shot',        r='rare',      e='consumable',      v='boss_50',    desc='Deal 50 damage to active boss (consumable)'),
+        'thunder_clap':        dict(name='Thunder Clap',           r='rare',      e='consumable',      v='boss_75',    desc='Deal 75 damage to active boss (consumable)'),
+        'chain_lightning':     dict(name='Chain Lightning',        r='epic',      e='consumable',      v='boss_200',   desc='Deal 200 damage to active boss (consumable)'),
+        'death_coil':          dict(name='Death Coil',             r='epic',      e='consumable',      v='boss_500',   desc='Deal 500 damage to active boss (consumable)'),
+        'doom':                dict(name='Doom',                   r='legendary', e='consumable',      v='boss_2000',  desc='Deal 2000 damage to active boss (consumable)'),
         'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
         'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less gold lost from counter-attacks'),
         'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=2,    desc='+2 raid damage per task'),
@@ -5079,6 +5146,27 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
+            boss_items = {'goblin_sapper':10,'demolisher_shot':50,'thunder_clap':75,'chain_lightning':200,'death_coil':500,'doom':2000}
+            if iid in boss_items:
+                boss = st.get('active_boss')
+                if not boss or boss.get('hp', 0) <= 0:
+                    return self._json(400, {'error': 'No active boss'})
+                dmg = boss_items[iid]
+                boss['hp'] = max(0, boss['hp'] - dmg)
+                log = boss.get('log', [])
+                log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}})
+                if len(log) > 50: log = log[-50:]
+                boss['log'] = log
+                if iid in inv: inv.remove(iid)
+                elif iid in eq: eq.remove(iid)
+                st['inventory'] = inv; st['equipped'] = eq
+                if boss['hp'] <= 0:
+                    st['active_boss'] = None
+                else:
+                    st['active_boss'] = boss
+                self._save('.state.json', st)
+                self._json(200, {'ok': True, 'dmg': dmg, 'hp': boss['hp'], 'killed': boss['hp'] <= 0})
+                return
             cons = {
                 'scroll_of_tp':      lambda: st.update(combo_count=max(st.get('combo_count',0), st.get('stats',{}).get('max_combo',0)//2)),
                 'potion_of_healing':  lambda: ec.update(gold=ec.get('gold',0)+200),

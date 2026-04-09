@@ -668,6 +668,177 @@ body {
   .inv-slots { grid-template-columns: repeat(3, 1fr); }
   .ach-grid { grid-template-columns: 1fr; }
 }
+/* Raids page */
+.raid-active {
+  background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
+  border: 1px solid var(--border); border-radius: 4px; padding: 20px; margin-bottom: 20px;
+}
+.raid-boss-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.raid-boss-header .w3i { width: 44px; height: 44px; }
+.raid-boss-name { font-size: 20px; font-weight: 900; color: #fff; }
+
+.raid-hp-bg {
+  background: rgba(0,0,0,0.4); border-radius: 6px; height: 28px;
+  overflow: hidden; position: relative; border: 1px solid var(--border); margin: 10px 0;
+}
+.raid-hp-fill { height: 100%; transition: width 0.5s; border-radius: 5px; }
+.raid-hp-fill.hp-high { background: linear-gradient(90deg, #4a8, #6ca); }
+.raid-hp-fill.hp-mid { background: linear-gradient(90deg, var(--dark-gold), var(--gold)); }
+.raid-hp-fill.hp-low { background: linear-gradient(90deg, #c44, #e66); }
+.raid-hp-text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-weight: 700; font-size: 13px; color: #fff; text-shadow: 0 1px 3px #000;
+}
+
+.raid-stats { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+.raid-stat { text-align: center; }
+.raid-stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+.raid-stat-val { font-size: 18px; font-weight: 700; color: var(--gold); }
+.raid-breakdown { margin-top: 14px; font-size: 13px; color: var(--muted); }
+.raid-breakdown b { color: var(--gold); }
+
+.raid-blog {
+  background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
+  border: 1px solid var(--border); border-radius: 4px; padding: 14px;
+  max-height: 280px; overflow-y: auto; font-size: 13px; font-family: 'Courier New', monospace;
+  margin-bottom: 20px;
+}
+.raid-blog-entry { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; gap: 10px; }
+.raid-blog-entry:last-child { border-bottom: none; }
+.raid-blog-ts { color: var(--muted); min-width: 55px; }
+.raid-blog-dmg { color: var(--green); min-width: 65px; }
+.raid-blog-dmg.zero { color: var(--muted); }
+.raid-blog-hp { color: var(--text); min-width: 85px; }
+.raid-blog-counter { color: var(--red); }
+.raid-blog-combo { color: var(--gold); font-size: 12px; }
+
+.raid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.raid-card {
+  background: #12121f; border: 1px solid var(--border); border-radius: 4px;
+  padding: 14px; cursor: pointer; transition: all 0.2s;
+}
+.raid-card:hover:not(.raid-locked) { border-color: var(--gold); transform: translateY(-2px); }
+.raid-locked { opacity: 0.35; cursor: not-allowed; }
+.raid-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.raid-card-top .w3i { width: 32px; height: 32px; }
+.raid-card-name { font-weight: 700; font-size: 14px; }
+.raid-card-stats { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.raid-card-stats span { color: var(--text); }
+.raid-card-lock { font-size: 11px; color: var(--red); margin-top: 4px; }
+.raid-card-kills { font-size: 11px; color: var(--green); margin-top: 3px; }
+.raid-loot-common { color: var(--text); }
+.raid-loot-uncommon { color: #4a8; }
+.raid-loot-rare { color: #48f; }
+.raid-loot-epic { color: #a4e; }
+.raid-loot-legendary { color: #f80; }
+
+.raid-no-portal { text-align: center; padding: 12px 18px; color: var(--muted); background: #12121f; border: 1px solid var(--border); border-radius: 4px; }
+.raid-no-portal strong { color: var(--gold); }
+
+.raid-history { width: 100%; border-collapse: collapse; font-size: 13px; }
+.raid-history th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 400; text-transform: uppercase; font-size: 11px; }
+.raid-history td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.raid-victory { color: var(--green); font-weight: 700; }
+.raid-escaped { color: var(--red); font-weight: 700; }
+
+.raid-confirm-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center;
+}
+.raid-confirm-overlay.active { display: flex; }
+.raid-confirm-box {
+  background: var(--panel); border: 2px solid var(--gold); border-radius: 8px;
+  padding: 28px; max-width: 400px; text-align: center;
+}
+.raid-confirm-box h3 { font-size: 18px; color: var(--gold); margin-bottom: 10px; }
+.raid-confirm-box p { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+.raid-confirm-box .warn { color: var(--red); font-weight: 700; }
+
+/* Army page */
+.army-food-wrap {
+  background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
+  border: 1px solid var(--border); border-radius: 4px; padding: 14px 18px; margin-bottom: 20px;
+}
+.army-food-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.army-food-lbl { font-size: 14px; color: var(--muted); min-width: 70px; }
+.army-food-bg {
+  flex: 1; background: rgba(0,0,0,0.4); border-radius: 6px; height: 22px;
+  overflow: hidden; position: relative; border: 1px solid var(--border); min-width: 180px;
+}
+.army-food-fill { height: 100%; border-radius: 5px; transition: width 0.4s; background: linear-gradient(90deg, #4a8, #6ca); }
+.army-food-fill.high { background: linear-gradient(90deg, var(--dark-gold), var(--gold)); }
+.army-food-fill.full { background: linear-gradient(90deg, #c44, #e66); }
+.army-food-text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-weight: 700; font-size: 13px; color: #fff; text-shadow: 0 1px 3px #000;
+}
+.army-summary { display: flex; gap: 18px; margin-top: 10px; flex-wrap: wrap; font-size: 13px; }
+.army-summary span { color: var(--muted); }
+.army-summary b { color: var(--text); }
+
+.army-roster { margin-bottom: 20px; }
+.army-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  background: #12121f; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px;
+}
+.army-row .w3i { width: 28px; height: 28px; }
+.army-row-name { font-weight: 700; min-width: 120px; }
+.army-row-count { color: var(--gold); font-weight: 700; min-width: 40px; }
+.army-row-stats { font-size: 12px; color: var(--muted); flex: 1; }
+.army-row-stats span { color: var(--text); }
+.army-dismiss {
+  background: none; color: var(--red); border: 1px solid rgba(204,68,68,0.3); border-radius: 3px;
+  padding: 3px 10px; cursor: pointer; font-size: 12px; font-weight: 700; font-family: inherit;
+}
+.army-dismiss:hover { border-color: var(--red); background: rgba(204,68,68,0.1); }
+
+.army-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.army-card {
+  background: #12121f; border: 1px solid var(--border); border-radius: 4px;
+  padding: 12px; cursor: pointer; transition: all 0.2s;
+}
+.army-card:hover:not(.army-card-off) { border-color: var(--gold); transform: translateY(-2px); }
+.army-card-off { opacity: 0.35; cursor: not-allowed; }
+.army-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.army-card-top .w3i { width: 28px; height: 28px; }
+.army-card-name { font-size: 14px; font-weight: 700; }
+.army-card-cost { font-size: 12px; margin-top: 1px; }
+.army-card-cost .gc { color: var(--gold); }
+.army-card-cost .lc { color: var(--green); }
+.army-card-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.army-card-warn { font-size: 11px; color: var(--red); margin-top: 3px; }
+
+.army-hire-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center;
+}
+.army-hire-overlay.active { display: flex; }
+.army-hire-box {
+  background: var(--panel); border: 2px solid var(--gold); border-radius: 8px;
+  padding: 28px; max-width: 380px; text-align: center;
+}
+.army-hire-box h3 { font-size: 18px; color: var(--gold); margin-bottom: 10px; }
+.army-hire-box p { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.army-qty-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 14px 0; }
+.army-qty-btn {
+  background: #1a1a2e; color: var(--text); border: 1px solid var(--border);
+  border-radius: 3px; width: 30px; height: 30px; cursor: pointer;
+  font-size: 16px; font-weight: 700; font-family: inherit;
+}
+.army-qty-btn:hover { border-color: var(--gold); color: var(--gold); }
+.army-qty-val { font-size: 20px; font-weight: 700; color: var(--gold); min-width: 36px; text-align: center; }
+.army-hire-cost { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+.army-hire-cost .gc { color: var(--gold); }
+.army-hire-cost .lc { color: var(--green); }
+.army-btn { padding: 7px 18px; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 13px; font-family: inherit; }
+.army-btn-go { background: var(--gold); color: #0a0a14; }
+.army-btn-go:hover { background: #e0c050; }
+.army-btn-cancel { background: #1a1a2e; color: var(--muted); border: 1px solid var(--border); margin-left: 6px; }
+.army-btn-cancel:hover { border-color: var(--gold); color: var(--text); }
+.army-empty { font-size: 14px; color: var(--muted); padding: 12px 0; }
+.army-locked { text-align: center; padding: 12px 18px; color: var(--muted); background: #12121f; border: 1px solid var(--border); border-radius: 4px; }
+.army-locked strong { color: var(--gold); }
+
 .w3i { image-rendering: pixelated; vertical-align: middle; width: 1em; height: 1em; border-radius: 2px; }
 .res-icon .w3i { width: 26px; height: 26px; }
 .portrait-frame .w3i { width: 40px; height: 40px; }
@@ -710,7 +881,7 @@ body {
       <div class="fatigue-bar"><div class="fatigue-fill" id="fatigue-fill"></div></div>
       <span class="fatigue-lbl" id="fatigue-lbl">0</span>
     </div>
-    <a href="/raid" id="raid-mini" style="display:none;text-decoration:none;margin-left:auto;background:#1a1230;border:1px solid #4a2060;border-radius:6px;padding:4px 10px;font-size:13px;color:#c0c8d0;cursor:pointer">
+    <a href="javascript:void(0)" onclick="switchPage('raids')" id="raid-mini" style="display:none;text-decoration:none;margin-left:auto;background:#1a1230;border:1px solid #4a2060;border-radius:6px;padding:4px 10px;font-size:13px;color:#c0c8d0;cursor:pointer">
       <span id="raid-mini-icon">&#x2694;&#xFE0F;</span>
       <span id="raid-mini-text"></span>
     </a>
@@ -727,8 +898,8 @@ body {
     <button class="tab" data-page="inventory">Inventory</button>
     <button class="tab" data-page="achievements">Achievements</button>
     <button class="tab" data-page="stats">Stats</button>
-    <button class="tab" onclick="window.location='/raid'">&#x2694;&#xFE0F; Raids</button>
-    <button class="tab" onclick="window.location='/army'">&#x1F6E1;&#xFE0F; Army</button>
+    <button class="tab" data-page="raids">&#x2694;&#xFE0F; Raids</button>
+    <button class="tab" data-page="army">&#x1F6E1;&#xFE0F; Army</button>
   </div>
 
   <!-- Page: How It Works -->
@@ -872,6 +1043,84 @@ body {
         <div class="sec-title">Activity</div>
         <div id="activity"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Page: Raids -->
+  <div class="page" id="page-raids">
+    <div id="raid-no-portal" class="raid-no-portal" style="display:none">
+      <p>&#x1F512; Build the <strong>Dark Portal</strong> to unlock boss raids. (12,000g / 5,000l &middot; Requires Fortress)</p>
+    </div>
+    <div id="raid-active-section" style="display:none">
+      <div class="sec-title">Active Raid</div>
+      <div class="raid-active" id="raid-active"></div>
+    </div>
+    <div id="raid-log-section" style="display:none">
+      <div class="sec-title">Battle Log</div>
+      <div class="raid-blog" id="raid-blog"></div>
+    </div>
+    <div id="raid-select-section">
+      <div class="sec-title">Choose Your Boss</div>
+      <div class="raid-grid" id="raid-grid"></div>
+    </div>
+    <div id="raid-history-section" style="display:none">
+      <div class="sec-title">Raid History</div>
+      <table class="raid-history">
+        <thead><tr><th>Boss</th><th>Result</th><th>Reward / Penalty</th><th>Drops</th><th>Date</th></tr></thead>
+        <tbody id="raid-history-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Page: Army -->
+  <div class="page" id="page-army">
+    <div id="army-locked" class="army-locked" style="display:none">
+      <p>&#x1F512; Build the <strong>Barracks</strong> to recruit units. (3,000g / 1,200l)</p>
+    </div>
+    <div id="army-content" style="display:none">
+      <div class="army-food-wrap">
+        <div class="army-food-row">
+          <span class="army-food-lbl">&#x1F356; Food</span>
+          <div class="army-food-bg">
+            <div class="army-food-fill" id="army-food-fill"></div>
+            <div class="army-food-text" id="army-food-text">0 / 12</div>
+          </div>
+        </div>
+        <div class="army-summary" id="army-summary"></div>
+      </div>
+      <div class="army-roster">
+        <div class="sec-title">Your Army</div>
+        <div id="army-roster"></div>
+      </div>
+      <div>
+        <div class="sec-title">Recruit Units</div>
+        <div class="army-grid" id="army-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="raid-confirm-overlay" id="raid-confirm-overlay">
+    <div class="raid-confirm-box">
+      <h3 id="raid-confirm-name"></h3>
+      <p id="raid-confirm-details"></p>
+      <p class="warn">No retreat. No surrender.</p>
+      <button class="army-btn army-btn-go" id="raid-confirm-go">Begin Raid</button>
+      <button class="army-btn army-btn-cancel" id="raid-confirm-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="army-hire-overlay" id="army-hire-overlay">
+    <div class="army-hire-box">
+      <h3 id="army-hire-name"></h3>
+      <p id="army-hire-desc"></p>
+      <div class="army-qty-row">
+        <button class="army-qty-btn" id="army-qty-minus">&minus;</button>
+        <span class="army-qty-val" id="army-qty-val">1</span>
+        <button class="army-qty-btn" id="army-qty-plus">+</button>
+      </div>
+      <div class="army-hire-cost" id="army-hire-cost"></div>
+      <button class="army-btn army-btn-go" id="army-hire-go">Hire</button>
+      <button class="army-btn army-btn-cancel" id="army-hire-cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -1040,6 +1289,12 @@ var ITEMS = {
   cheese:              { icon: w3i('orc/healingsalve.png'), name: 'Cheese', r: 'legendary', desc: '+1000g +500l (use)', cons: true },
   thorium_blade:       { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Thorium Blade', r: 'legendary', desc: '+20 gold per task' },
   goblin_rocket:       { icon: w3i('neutral/goblinlaboratory.png'), name: 'Goblin Rocket Launcher', r: 'legendary', desc: 'Ignore gold mine depletion' },
+  goblin_sapper:       { icon: w3i('neutral/goblinsapper.gif'), name: 'Goblin Sapper Charge', r: 'uncommon', desc: '-10 HP to boss (use)', cons: true },
+  demolisher_shot:     { icon: w3i('neutral/demolisher.gif'), name: 'Demolisher Shot', r: 'rare', desc: '-50 HP to boss (use)', cons: true },
+  thunder_clap:        { icon: w3i('orc/thunderclap.png'), name: 'Thunder Clap', r: 'rare', desc: '-75 HP to boss (use)', cons: true },
+  chain_lightning:     { icon: w3i('orc/chainlightning.png'), name: 'Chain Lightning', r: 'epic', desc: '-200 HP to boss (use)', cons: true },
+  death_coil:          { icon: w3i('orc/deathcoil.gif'), name: 'Death Coil', r: 'epic', desc: '-500 HP to boss (use)', cons: true },
+  doom:                { icon: w3i('orc/doom.gif'), name: 'Doom', r: 'legendary', desc: '-2000 HP to boss (use)', cons: true },
   war_axe:             { icon: w3i('orc/steelmeleeweapons.png'), name: 'War Axe', r: 'common', desc: '+1 raid damage' },
   iron_shield:         { icon: w3i('orc/steelarmor.png'), name: 'Iron Shield', r: 'common', desc: '-25% counter-attack' },
   kobold_candle:       { icon: w3i('orc/liquidfire.gif'), name: "Kobold's Candle", r: 'common', desc: '+3g in boss fights' },
@@ -1668,6 +1923,349 @@ function updateCharacter(s) {
   }
 }
 
+/* --- Raids --- */
+
+var RAID_BOSSES = {
+  kobold:     {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:30,     lumber:15,    atk_min:0, atk_max:0, icon: w3i('neutral/goblinsapper.gif')},
+  mud_golem:  {name:'Mud Golem',            hp:60,     days:2,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:60,     lumber:30,    atk_min:0, atk_max:0, icon: w3i('neutral/mudgolem.gif')},
+  troll:      {name:'Forest Troll Warlord', hp:150,    days:3,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:150,    lumber:75,    atk_min:0, atk_max:1, icon: w3i('neutral/foresttrollberserker.gif')},
+  ogre:       {name:'Ogre Magi',            hp:400,    days:3,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:400,    lumber:200,   atk_min:0, atk_max:1, icon: w3i('neutral/ogremauler.gif')},
+  naga:       {name:'Naga Sea Witch',       hp:1000,   days:4,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:800,    lumber:400,   atk_min:0, atk_max:2, icon: w3i('neutral/nagaseawitch.gif')},
+  infernal:   {name:'Infernal',             hp:2500,   days:5,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:1500,   lumber:600,   atk_min:0, atk_max:2, icon: w3i('orc/burningoil.gif')},
+  brewmaster: {name:'Pandaren Brewmaster',  hp:6000,   days:5,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:3000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3i('neutral/pandarenbrewmaster.gif')},
+  mannoroth:  {name:'Pit Lord Mannoroth',   hp:15000,  days:7,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:8000,   lumber:3000,  atk_min:1, atk_max:4, icon: w3i('neutral/pitlord.gif')},
+  blademaster:{name:'Blademaster',          hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3i('orc/blademaster.gif')},
+  archimonde: {name:'Archimonde',           hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'epic', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3i('orc/chieftain.gif')}
+};
+
+var raidPendingBoss = null;
+
+function updateRaids(s) {
+  var bld = s.buildings || {};
+  var boss = s.active_boss;
+  var bk = s.boss_kills || {};
+  var bkTotal = s.boss_kills_total || 0;
+  var lvl = (s.stats || {}).level || 1;
+  var ec = s.economy || {};
+  var hasPortal = !!bld.dark_portal;
+
+  $('raid-no-portal').style.display = hasPortal ? 'none' : '';
+
+  if (hasPortal && boss && boss.hp > 0) {
+    $('raid-active-section').style.display = '';
+    $('raid-select-section').style.display = 'none';
+    $('raid-log-section').style.display = '';
+    raidRenderActive(boss);
+    raidRenderLog(boss);
+  } else {
+    $('raid-active-section').style.display = 'none';
+    $('raid-log-section').style.display = 'none';
+    $('raid-select-section').style.display = '';
+    raidRenderGrid(bld, bk, bkTotal, lvl, ec, hasPortal);
+  }
+
+  var hist = s.boss_history || [];
+  $('raid-history-section').style.display = hist.length > 0 ? '' : 'none';
+  if (hist.length > 0) raidRenderHistory(hist);
+}
+
+function raidRenderActive(boss) {
+  var pct = boss.hp / boss.max_hp;
+  var barCls = pct > 0.5 ? 'hp-high' : pct > 0.2 ? 'hp-mid' : 'hp-low';
+  var dl = boss.deadline || '';
+  var dlDate = new Date(dl + 'T23:59:59'), now = new Date();
+  var ms = Math.max(0, dlDate - now);
+  var dL = Math.floor(ms / 86400000), hL = Math.floor((ms % 86400000) / 3600000), mL = Math.floor((ms % 3600000) / 60000);
+  var ts = ''; if (dL > 0) ts += dL + 'd '; if (hL > 0 || dL > 0) ts += hL + 'h '; ts += mL + 'm';
+  var dmg = boss.max_hp - boss.hp;
+  var bi = RAID_BOSSES[boss.id] || {};
+  var h = '<div class="raid-boss-header">' + (bi.icon || '\u2694\uFE0F') + '<div><div class="raid-boss-name">' + boss.name + '</div></div></div>';
+  h += '<div class="raid-hp-bg"><div class="raid-hp-fill ' + barCls + '" style="width:' + (pct * 100) + '%"></div><div class="raid-hp-text">' + boss.hp.toLocaleString() + ' / ' + boss.max_hp.toLocaleString() + ' HP</div></div>';
+  h += '<div class="raid-stats">';
+  h += '<div class="raid-stat"><div class="raid-stat-lbl">Damage</div><div class="raid-stat-val">' + dmg.toLocaleString() + '</div></div>';
+  h += '<div class="raid-stat"><div class="raid-stat-lbl">Time Left</div><div class="raid-stat-val">' + ts + '</div></div>';
+  h += '<div class="raid-stat"><div class="raid-stat-lbl">Deadline</div><div class="raid-stat-val" style="font-size:14px">' + dl + '</div></div>';
+  h += '</div>';
+  var log = boss.log || [];
+  var hits = log.filter(function(e) { return e.dmg > 0 && !e.counter; });
+  if (hits.length > 0) {
+    var totals = {base:0,combo:0,items:0,army:0,bloodstone:0,smith:0,execute:0,crit:0,tired:0};
+    hits.forEach(function(e) { var b = e.bk || {}; for (var k in totals) totals[k] += (b[k] || 0); });
+    var total = hits.reduce(function(s,e){return s+e.dmg;}, 0);
+    h += '<div class="raid-breakdown"><b>Damage Breakdown</b> (' + total.toLocaleString() + ' total, ' + hits.length + ' hits) &mdash; ';
+    var ps = [];
+    if (totals.base) ps.push('Base: ' + totals.base);
+    if (totals.combo) ps.push('Combo: +' + totals.combo);
+    if (totals.items) ps.push('Items: +' + totals.items);
+    if (totals.army) ps.push('Army: +' + totals.army);
+    if (totals.bloodstone) ps.push('Bloodstone: +' + totals.bloodstone);
+    if (totals.smith) ps.push('Blacksmith: +' + totals.smith);
+    if (totals.execute) ps.push('Execute: +' + totals.execute);
+    if (totals.crit) ps.push('Crits: +' + totals.crit);
+    if (totals.tired) ps.push('<span style="color:var(--red)">Fatigue: ' + totals.tired + '</span>');
+    h += ps.join(' &middot; ');
+    h += ' &middot; Avg: ' + (total / hits.length).toFixed(1) + '/hit</div>';
+  }
+  $('raid-active').innerHTML = h;
+}
+
+function raidRenderLog(boss) {
+  var log = boss.log || [];
+  var el = $('raid-blog');
+  if (log.length === 0) { el.innerHTML = '<div style="color:var(--muted)">No combat yet. Complete tasks to deal damage.</div>'; return; }
+  var h = '';
+  log.slice().reverse().forEach(function(e) {
+    var t = e.t ? new Date(e.t * 1000).toLocaleTimeString() : '';
+    var dc = e.dmg > 0 ? 'raid-blog-dmg' : 'raid-blog-dmg zero';
+    var ds = e.dmg > 0 ? '-' + e.dmg + ' HP' : '0 dmg';
+    var combo = e.combo ? ' <span class="raid-blog-combo">x' + e.combo + '</span>' : '';
+    var ctr = e.counter ? ' <span class="raid-blog-counter">' + e.counter + '</span>' : '';
+    if (e.boss_atk) ctr += ' <span class="raid-blog-counter">\u2620 -' + e.boss_atk + ' units</span>';
+    var bk = '';
+    if (e.bk && e.dmg > 0) {
+      var bp = [];
+      if (e.bk.base) bp.push(e.bk.base);
+      if (e.bk.combo) bp.push('+' + e.bk.combo + ' combo');
+      if (e.bk.items) bp.push('+' + e.bk.items + ' items');
+      if (e.bk.army) bp.push('+' + e.bk.army + ' army');
+      if (e.bk.bloodstone) bp.push('+' + e.bk.bloodstone + ' bloodstone');
+      if (e.bk.smith) bp.push('+' + e.bk.smith + ' smith');
+      if (e.bk.crit) bp.push('+' + e.bk.crit + ' crit');
+      if (e.bk.execute) bp.push('+' + e.bk.execute + ' exec');
+      if (e.bk.tired) bp.push('<span style="color:var(--red)">' + e.bk.tired + ' tired</span>');
+      if (e.bk.exhausted) bp = ['<span style="color:var(--red)">exhausted</span>'];
+      bk = ' <span style="color:var(--muted);font-size:0.85em">(' + bp.join(' ') + ')</span>';
+    }
+    h += '<div class="raid-blog-entry"><span class="raid-blog-ts">' + t + '</span><span class="' + dc + '">' + ds + '</span><span class="raid-blog-hp">' + e.hp + '/' + boss.max_hp + ' HP</span>' + combo + bk + ctr + '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function raidRenderGrid(bld, bk, bkTotal, lvl, ec, hasPortal) {
+  var grid = $('raid-grid');
+  grid.innerHTML = '';
+  var gold = ec.gold || 0;
+  Object.keys(RAID_BOSSES).forEach(function(bid) {
+    var b = RAID_BOSSES[bid];
+    var locked = false, reasons = [];
+    if (!hasPortal) { locked = true; reasons.push('Build Dark Portal'); }
+    if (bkTotal < b.kills) { locked = true; reasons.push(b.kills + ' boss kills (have ' + bkTotal + ')'); }
+    if (lvl < b.lvl) { locked = true; reasons.push('Level ' + b.lvl + '+ (at ' + lvl + ')'); }
+    b.bld.forEach(function(rb) { if (!bld[rb]) { locked = true; reasons.push('Build ' + rb); } });
+    var card = document.createElement('div');
+    card.className = 'raid-card' + (locked ? ' raid-locked' : '');
+    var kills = bk[bid] || 0;
+    var feeStr = b.fee ? b.fee + 'g' : 'free';
+    var canAfford = gold >= b.fee;
+    var h = '<div class="raid-card-top">' + b.icon + '<div><div class="raid-card-name">' + b.name + '</div></div></div>';
+    h += '<div class="raid-card-stats"><span>' + b.hp.toLocaleString() + '</span> HP &middot; <span>' + b.days + '</span> day' + (b.days > 1 ? 's' : '') + ' &middot; Entry: <span>' + feeStr + '</span> &middot; Loot: <span class="raid-loot-' + b.loot + '">' + b.loot + '</span></div>';
+    var penalty = Math.floor(b.fee / 2);
+    var atkStr = b.atk_max > 0 ? ' &middot; Attack: <span style="color:var(--red)">' + b.atk_min + '-' + b.atk_max + ' kills/turn</span>' : '';
+    h += '<div class="raid-card-stats" style="margin-top:2px">Reward: <span style="color:var(--gold)">' + b.gold.toLocaleString() + 'g</span> + <span style="color:var(--green)">' + b.lumber.toLocaleString() + 'l</span>' + atkStr + (penalty > 0 ? ' &middot; Fail: <span style="color:var(--red)">-' + penalty + 'g</span>' : '') + '</div>';
+    if (kills > 0) h += '<div class="raid-card-kills">\u2694 Defeated ' + kills + 'x</div>';
+    if (locked) h += '<div class="raid-card-lock">\uD83D\uDD12 ' + reasons.join(' + ') + '</div>';
+    else if (!canAfford) h += '<div class="raid-card-lock">Not enough gold (' + gold + '/' + b.fee + 'g)</div>';
+    card.innerHTML = h;
+    if (!locked && canAfford) {
+      card.addEventListener('click', function() {
+        raidPendingBoss = bid;
+        $('raid-confirm-name').textContent = b.name;
+        var pen = Math.floor(b.fee / 2);
+        var atkInfo = b.atk_max > 0 ? '<br>Boss attack: ' + b.atk_min + '-' + b.atk_max + ' unit kills per turn' : '';
+        $('raid-confirm-details').innerHTML = b.hp.toLocaleString() + ' HP &middot; ' + b.days + ' day' + (b.days > 1 ? 's' : '') + (b.fee ? ' &middot; Entry: ' + b.fee + 'g' : '') + '<br>Reward: ' + b.gold.toLocaleString() + 'g + ' + b.lumber.toLocaleString() + 'l &middot; Loot: ' + b.loot + ' drop' + atkInfo + (pen > 0 ? '<br>Fail penalty: -' + pen + 'g' : '');
+        $('raid-confirm-overlay').classList.add('active');
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+
+function raidRenderHistory(hist) {
+  var body = $('raid-history-body');
+  body.innerHTML = '';
+  hist.slice().reverse().forEach(function(h) {
+    var tr = document.createElement('tr');
+    var cls = h.result === 'victory' ? 'raid-victory' : 'raid-escaped';
+    var reward = h.result === 'victory' ? '+' + (h.gold || 0) + 'g +' + (h.lumber || 0) + 'l' : '-' + (h.penalty || 0) + 'g';
+    var drops = (h.drops || []).join(', ') || '\u2014';
+    var dt = h.t ? new Date(h.t * 1000).toLocaleDateString() : '';
+    tr.innerHTML = '<td>' + h.name + '</td><td class="' + cls + '">' + h.result.toUpperCase() + '</td><td>' + reward + '</td><td>' + drops + '</td><td>' + dt + '</td>';
+    body.appendChild(tr);
+  });
+}
+
+$('raid-confirm-go').addEventListener('click', function() {
+  if (!raidPendingBoss) return;
+  $('raid-confirm-overlay').classList.remove('active');
+  var bid = raidPendingBoss;
+  raidPendingBoss = null;
+  apiPost('/api/raid', {boss: bid}).then(function(res) {
+    if (res.ok) { addToast('', '\u2694\uFE0F', 'Raid started: ' + RAID_BOSSES[bid].name); poll(); }
+    else addToast('err', '\u274C', res.error || 'Failed');
+  }).catch(function() { addToast('err', '\u274C', 'Request failed'); });
+});
+
+$('raid-confirm-cancel').addEventListener('click', function() {
+  $('raid-confirm-overlay').classList.remove('active');
+  raidPendingBoss = null;
+});
+
+/* --- Army --- */
+
+var ARMY_UNITS = {
+  grunt:  {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, desc:'+1 raid damage.',             icon: w3i('orc/grunt.gif')},
+  raider: {name:'Raider',         gold:400,  lumber:100, food:3, dmg:4,  armor:0,  heal:0, desc:'+4 raid damage.',             icon: w3i('orc/raider.gif')},
+  tauren: {name:'Tauren Warrior', gold:1000, lumber:400, food:5, dmg:10, armor:0,  heal:0, desc:'+10 raid damage (elite).',    icon: w3i('orc/tauren.gif')},
+  shaman: {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:25, heal:2, desc:'-2 casualties, 25% armor.',   icon: w3i('orc/shaman.gif')}
+};
+
+var armyPendingUnit = null, armyHireQty = 1;
+
+function armyFoodCap(bld) {
+  return 12 + (bld.fortress ? 8 : 0) + (bld.citadel ? 10 : 0);
+}
+
+function armyFoodUsed(army) {
+  var n = 0;
+  for (var uid in army) if (ARMY_UNITS[uid]) n += ARMY_UNITS[uid].food * army[uid];
+  return n;
+}
+
+function updateArmy(s) {
+  var bld = s.buildings || {};
+  var army = s.army || {};
+  var ec = s.economy || {};
+  var hasBarracks = !!bld.barracks;
+  $('army-locked').style.display = hasBarracks ? 'none' : '';
+  $('army-content').style.display = hasBarracks ? '' : 'none';
+  if (!hasBarracks) return;
+
+  var fc = armyFoodCap(bld), fu = armyFoodUsed(army);
+  var pct = Math.min(100, fu / fc * 100);
+  var fill = $('army-food-fill');
+  fill.style.width = pct + '%';
+  fill.className = 'army-food-fill' + (pct >= 100 ? ' full' : pct >= 75 ? ' high' : '');
+  $('army-food-text').textContent = fu + ' / ' + fc;
+
+  var totalUnits = 0, totalDmg = 0, totalArmor = 0, totalHeal = 0, upkeep = 0;
+  for (var uid in army) {
+    var u = ARMY_UNITS[uid];
+    if (!u) continue;
+    var cnt = army[uid];
+    totalUnits += cnt; totalDmg += u.dmg * cnt;
+    totalArmor += u.armor * cnt; totalHeal += u.heal * cnt;
+    upkeep += Math.floor(u.gold / 10) * cnt;
+  }
+  totalArmor = Math.min(50, totalArmor);
+  var sh = '';
+  sh += '<span>Units: <b>' + totalUnits + '</b></span>';
+  sh += '<span>Raid dmg: <b>+' + totalDmg + '</b></span>';
+  if (totalArmor > 0) sh += '<span>Counter armor: <b>-' + totalArmor + '%</b></span>';
+  if (totalHeal > 0) sh += '<span>Heal: <b>-' + totalHeal + ' casualties</b></span>';
+  if (upkeep > 0) sh += '<span>Daily upkeep: <b>' + upkeep + 'g</b></span>';
+  $('army-summary').innerHTML = sh;
+
+  renderArmyRoster(army);
+  renderArmyGrid(ec, bld, army, fc, fu);
+}
+
+function renderArmyRoster(army) {
+  var el = $('army-roster');
+  var keys = Object.keys(army).filter(function(k) { return army[k] > 0 && ARMY_UNITS[k]; });
+  if (keys.length === 0) { el.innerHTML = '<div class="army-empty">No units hired yet. Recruit below!</div>'; return; }
+  var h = '';
+  keys.forEach(function(uid) {
+    var u = ARMY_UNITS[uid], cnt = army[uid];
+    h += '<div class="army-row">' + u.icon;
+    h += '<span class="army-row-name">' + u.name + '</span>';
+    h += '<span class="army-row-count">x' + cnt + '</span>';
+    h += '<span class="army-row-stats">+<span>' + (u.dmg * cnt) + '</span> dmg &middot; <span>' + (u.food * cnt) + '</span> food</span>';
+    h += '<button class="army-dismiss" data-uid="' + uid + '">Dismiss</button></div>';
+  });
+  el.innerHTML = h;
+  el.querySelectorAll('.army-dismiss').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var uid = this.getAttribute('data-uid');
+      apiPost('/api/dismiss', {unit: uid, count: 1}).then(function(res) {
+        if (res.ok) { addToast('', '\u{1F6E1}\uFE0F', 'Dismissed 1 ' + ARMY_UNITS[uid].name); poll(); }
+        else addToast('err', '\u274C', res.error || 'Failed');
+      });
+    });
+  });
+}
+
+function renderArmyGrid(ec, bld, army, fc, fu) {
+  var grid = $('army-grid');
+  grid.innerHTML = '';
+  var gold = ec.gold || 0, lumber = ec.lumber || 0;
+  Object.keys(ARMY_UNITS).forEach(function(uid) {
+    var u = ARMY_UNITS[uid];
+    var afford = gold >= u.gold && lumber >= u.lumber;
+    var hasFood = fu + u.food <= fc;
+    var off = !afford || !hasFood;
+    var card = document.createElement('div');
+    card.className = 'army-card' + (off ? ' army-card-off' : '');
+    var cost = '<span class="gc">' + u.gold + 'g</span>';
+    if (u.lumber > 0) cost += ' / <span class="lc">' + u.lumber + 'l</span>';
+    cost += ' &middot; ' + u.food + ' food';
+    var h = '<div class="army-card-top">' + u.icon + '<div><div class="army-card-name">' + u.name + '</div><div class="army-card-cost">' + cost + '</div></div></div>';
+    h += '<div class="army-card-desc">' + u.desc + '</div>';
+    if (!afford) h += '<div class="army-card-warn">Not enough resources</div>';
+    else if (!hasFood) h += '<div class="army-card-warn">Not enough food</div>';
+    card.innerHTML = h;
+    if (!off) {
+      card.addEventListener('click', function() {
+        armyPendingUnit = uid; armyHireQty = 1;
+        $('army-hire-name').textContent = u.name;
+        $('army-hire-desc').textContent = u.desc;
+        armyUpdateHireCost(uid);
+        $('army-hire-overlay').classList.add('active');
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+
+function armyUpdateHireCost(uid) {
+  var u = ARMY_UNITS[uid];
+  var ec = curState ? (curState.economy || {}) : {};
+  var bld = curState ? (curState.buildings || {}) : {};
+  var army = curState ? (curState.army || {}) : {};
+  var gold = ec.gold || 0, lumber = ec.lumber || 0;
+  var fc = armyFoodCap(bld), fu = armyFoodUsed(army);
+  var maxG = u.gold > 0 ? Math.floor(gold / u.gold) : 99;
+  var maxL = u.lumber > 0 ? Math.floor(lumber / u.lumber) : 99;
+  var maxF = u.food > 0 ? Math.floor((fc - fu) / u.food) : 99;
+  var mx = Math.max(1, Math.min(maxG, maxL, maxF, 20));
+  armyHireQty = Math.max(1, Math.min(armyHireQty, mx));
+  $('army-qty-val').textContent = armyHireQty;
+  var cs = '<span class="gc">' + (u.gold * armyHireQty) + 'g</span>';
+  if (u.lumber > 0) cs += ' / <span class="lc">' + (u.lumber * armyHireQty) + 'l</span>';
+  cs += ' &middot; ' + (u.food * armyHireQty) + ' food';
+  $('army-hire-cost').innerHTML = 'Cost: ' + cs;
+}
+
+$('army-qty-minus').addEventListener('click', function() {
+  if (armyHireQty > 1) { armyHireQty--; armyUpdateHireCost(armyPendingUnit); }
+});
+$('army-qty-plus').addEventListener('click', function() {
+  armyHireQty++; armyUpdateHireCost(armyPendingUnit);
+});
+$('army-hire-go').addEventListener('click', function() {
+  if (!armyPendingUnit) return;
+  $('army-hire-overlay').classList.remove('active');
+  var uid = armyPendingUnit, qty = armyHireQty;
+  armyPendingUnit = null;
+  apiPost('/api/hire', {unit: uid, count: qty}).then(function(res) {
+    if (res.ok) { addToast('', '\u{1F6E1}\uFE0F', 'Hired ' + qty + 'x ' + ARMY_UNITS[uid].name); poll(); }
+    else addToast('err', '\u274C', res.error || 'Failed');
+  }).catch(function() { addToast('err', '\u274C', 'Request failed'); });
+});
+$('army-hire-cancel').addEventListener('click', function() {
+  $('army-hire-overlay').classList.remove('active');
+  armyPendingUnit = null;
+});
+
 function detectToasts(s) {
   var log = s.activity_log || [];
   var maxTs = 0;
@@ -1760,6 +2358,8 @@ function update(state) {
   updateActions(state);
   updateAchs(state);
   updateInventory(state);
+  updateRaids(state);
+  updateArmy(state);
   updateLog(state);
   prev = JSON.parse(JSON.stringify(state));
   curState = state;
