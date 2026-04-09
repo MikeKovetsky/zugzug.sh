@@ -1172,10 +1172,11 @@ var ACHS = [
   { id: 'combo_god', icon: '\u{1F525}', name: 'Combo God', how: 'Reach 100 combo', tgt: 100 },
   { id: 'hoarder', icon: '\u{1F9F3}', name: 'Hoarder', how: 'Own 40+ items total', tgt: 40 },
   { id: 'lunch_raider', icon: '\u{1F354}', name: 'Lunch Raider', how: 'Hit a boss during lunch hour', tgt: 1, secret: true },
-  { id: 'boss_slayer', icon: '\u{1F3C6}', name: 'Boss Slayer', how: 'Defeat all 10 unique bosses', tgt: 10 },
+  { id: 'boss_slayer', icon: '\u{1F3C6}', name: 'Boss Slayer', how: 'Defeat all 11 unique bosses', tgt: 11 },
   { id: 'speedrun', icon: '\u23F1\uFE0F', name: 'Speed Run', how: 'Kill any boss in under 5 minutes', tgt: 1 },
-  { id: 'speed_archimonde', icon: '\u{1F3CE}\uFE0F', name: 'Archimonde Any%', how: 'Kill Archimonde in under 4 days', tgt: 1, secret: true },
-  { id: 'archimondes_bane', icon: '\u{1F480}', name: "Archimonde's Bane", how: 'Defeat Archimonde', tgt: 1, secret: true },
+  { id: 'leeroy', icon: '\u{1F414}', name: 'LEEEEROY JENKINS!', how: 'Lose to Whelps below 20% HP', tgt: 1 },
+  { id: 'speed_lich_king', icon: '\u{1F3CE}\uFE0F', name: 'Lich King Any%', how: 'Kill The Lich King in under 4 days', tgt: 1, secret: true },
+  { id: 'lich_kings_end', icon: '\u{1F480}', name: "Arthas's End", how: 'Defeat The Lich King', tgt: 1, secret: true },
 ];
 
 var EVT_LABELS = {
@@ -1311,6 +1312,7 @@ var ITEMS = {
   mannoroths_blood:    { icon: w3i('orc/berserkerupgrade.png'), name: "Mannoroth's Blood", r: 'epic', desc: '+10 fatigue threshold' },
   sulfuras:            { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Sulfuras', r: 'legendary', desc: '+10 dmg, overkill carries' },
   crown_of_eredar:     { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Crown of the Eredar', r: 'legendary', desc: 'Boss double loot' },
+  helm_of_domination:  { icon: w3i('undead/arthas.gif'), name: 'Helm of Domination', r: 'legendary', desc: '+2 bonus boss drops' },
 };
 
 var prev = null, curState = null, cfg = null, packs = [];
@@ -1926,16 +1928,17 @@ function updateCharacter(s) {
 /* --- Raids --- */
 
 var RAID_BOSSES = {
-  kobold:     {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:30,     lumber:15,    atk_min:0, atk_max:0, icon: w3i('neutral/goblinsapper.gif')},
-  mud_golem:  {name:'Mud Golem',            hp:60,     days:2,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:60,     lumber:30,    atk_min:0, atk_max:0, icon: w3i('neutral/mudgolem.gif')},
-  troll:      {name:'Forest Troll Warlord', hp:150,    days:3,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:150,    lumber:75,    atk_min:0, atk_max:1, icon: w3i('neutral/foresttrollberserker.gif')},
-  ogre:       {name:'Ogre Magi',            hp:400,    days:3,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:400,    lumber:200,   atk_min:0, atk_max:1, icon: w3i('neutral/ogremauler.gif')},
-  naga:       {name:'Naga Sea Witch',       hp:1000,   days:4,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:800,    lumber:400,   atk_min:0, atk_max:2, icon: w3i('neutral/nagaseawitch.gif')},
-  infernal:   {name:'Infernal',             hp:2500,   days:5,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:1500,   lumber:600,   atk_min:0, atk_max:2, icon: w3i('orc/burningoil.gif')},
-  brewmaster: {name:'Pandaren Brewmaster',  hp:6000,   days:5,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:3000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3i('neutral/pandarenbrewmaster.gif')},
-  mannoroth:  {name:'Pit Lord Mannoroth',   hp:15000,  days:7,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:8000,   lumber:3000,  atk_min:1, atk_max:4, icon: w3i('neutral/pitlord.gif')},
-  blademaster:{name:'Blademaster',          hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3i('orc/blademaster.gif')},
-  archimonde: {name:'Archimonde',           hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'epic', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3i('orc/chieftain.gif')}
+  kobold:      {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:50,     lumber:15,    atk_min:0, atk_max:0, icon: w3i('neutral/goblinsapper.gif')},
+  murloc:      {name:'Murloc Tidecaller',    hp:60,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:100,    lumber:30,    atk_min:0, atk_max:0, icon: w3i('neutral/murloc.gif')},
+  troll:       {name:'Forest Troll Warlord', hp:200,    days:2,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:200,    lumber:75,    atk_min:0, atk_max:1, icon: w3i('neutral/foresttrollberserker.gif')},
+  ogre:        {name:'Ogre Magi',            hp:800,    days:2,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:600,    lumber:200,   atk_min:0, atk_max:1, icon: w3i('neutral/ogremauler.gif')},
+  whelps:      {name:'Dragon Whelp Swarm',   hp:1000,   days:2,  kills:4,  lvl:0, bld:[], fee:100,   loot:'uncommon', gold:800,    lumber:300,   atk_min:0, atk_max:1, icon: w3i('neutral/blackdragonwhelp.gif')},
+  naga:        {name:'Naga Sea Witch',       hp:1500,   days:3,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:1000,   lumber:400,   atk_min:0, atk_max:2, icon: w3i('neutral/nagaseawitch.gif')},
+  tichondrius: {name:'Tichondrius',          hp:2500,   days:3,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:2500,   lumber:600,   atk_min:0, atk_max:2, icon: w3i('undead/tichondrius.gif')},
+  illidan:     {name:'Illidan Stormrage',    hp:6000,   days:3,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:4000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3i('nightelf/illidandemon.gif')},
+  mannoroth:   {name:'Pit Lord Mannoroth',   hp:15000,  days:5,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:10000,  lumber:3000,  atk_min:1, atk_max:4, icon: w3i('neutral/pitlord.gif')},
+  archimonde:  {name:'Archimonde',           hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3i('orc/chieftain.gif')},
+  lich_king:   {name:'The Lich King',        hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'legendary', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3i('undead/arthas.gif')}
 };
 
 var raidPendingBoss = null;
@@ -2020,6 +2023,7 @@ function raidRenderLog(boss) {
     var ds = e.dmg > 0 ? '-' + e.dmg + ' HP' : '0 dmg';
     var combo = e.combo ? ' <span class="raid-blog-combo">x' + e.combo + '</span>' : '';
     var ctr = e.counter ? ' <span class="raid-blog-counter">' + e.counter + '</span>' : '';
+    if (e.boss_dmg) ctr += ' <span class="raid-blog-counter">\u2694 ' + e.boss_dmg + ' dmg to army</span>';
     if (e.boss_atk) ctr += ' <span class="raid-blog-counter">\u2620 -' + e.boss_atk + ' units</span>';
     var bk = '';
     if (e.bk && e.dmg > 0) {
@@ -2113,11 +2117,17 @@ $('raid-confirm-cancel').addEventListener('click', function() {
 /* --- Army --- */
 
 var ARMY_UNITS = {
-  grunt:  {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, desc:'+1 raid damage.',             icon: w3i('orc/grunt.gif')},
-  raider: {name:'Raider',         gold:400,  lumber:100, food:3, dmg:4,  armor:0,  heal:0, desc:'+4 raid damage.',             icon: w3i('orc/raider.gif')},
-  tauren: {name:'Tauren Warrior', gold:1000, lumber:400, food:5, dmg:10, armor:0,  heal:0, desc:'+10 raid damage (elite).',    icon: w3i('orc/tauren.gif')},
-  shaman: {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:25, heal:2, desc:'-2 casualties, 25% armor.',   icon: w3i('orc/shaman.gif')}
+  grunt:  {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, hp:3, desc:'3 HP. +1 raid damage.',                     icon: w3i('orc/grunt.gif')},
+  raider: {name:'Raider',         gold:400,  lumber:100, food:3, dmg:4,  armor:0,  heal:0, hp:5, desc:'5 HP. +4 raid damage.',                     icon: w3i('orc/wolfrider.gif')},
+  tauren: {name:'Tauren Warrior', gold:1000, lumber:400, food:5, dmg:10, armor:0,  heal:0, hp:8, desc:'8 HP. +10 raid damage (elite).',            icon: w3i('orc/tauren.gif')},
+  shaman: {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:25, heal:2, hp:2, desc:'2 HP. Heals 2 HP/turn. 25% armor.',         icon: w3i('orc/shaman.gif')}
 };
+
+function armyCnt(army, uid) {
+  var v = uid ? army[uid] : null;
+  if (uid) return Array.isArray(v) ? v.length : (v || 0);
+  var t = 0; for (var k in army) { var a = army[k]; t += Array.isArray(a) ? a.length : (a || 0); } return t;
+}
 
 var armyPendingUnit = null, armyHireQty = 1;
 
@@ -2127,7 +2137,7 @@ function armyFoodCap(bld) {
 
 function armyFoodUsed(army) {
   var n = 0;
-  for (var uid in army) if (ARMY_UNITS[uid]) n += ARMY_UNITS[uid].food * army[uid];
+  for (var uid in army) if (ARMY_UNITS[uid]) n += ARMY_UNITS[uid].food * armyCnt(army, uid);
   return n;
 }
 
@@ -2147,21 +2157,26 @@ function updateArmy(s) {
   fill.className = 'army-food-fill' + (pct >= 100 ? ' full' : pct >= 75 ? ' high' : '');
   $('army-food-text').textContent = fu + ' / ' + fc;
 
-  var totalUnits = 0, totalDmg = 0, totalArmor = 0, totalHeal = 0, upkeep = 0;
+  var totalUnits = 0, totalDmg = 0, totalArmor = 0, totalHeal = 0, upkeep = 0, totalHp = 0, maxHp = 0, wounded = 0;
   for (var uid in army) {
     var u = ARMY_UNITS[uid];
     if (!u) continue;
-    var cnt = army[uid];
+    var cnt = armyCnt(army, uid);
+    var hps = Array.isArray(army[uid]) ? army[uid] : [];
     totalUnits += cnt; totalDmg += u.dmg * cnt;
     totalArmor += u.armor * cnt; totalHeal += u.heal * cnt;
     upkeep += Math.floor(u.gold / 10) * cnt;
+    maxHp += u.hp * cnt;
+    hps.forEach(function(h) { totalHp += h; if (h < u.hp) wounded++; });
   }
   totalArmor = Math.min(50, totalArmor);
   var sh = '';
   sh += '<span>Units: <b>' + totalUnits + '</b></span>';
+  sh += '<span>HP: <b>' + totalHp + '/' + maxHp + '</b></span>';
+  if (wounded > 0) sh += '<span style="color:var(--red)">Wounded: <b>' + wounded + '</b></span>';
   sh += '<span>Raid dmg: <b>+' + totalDmg + '</b></span>';
   if (totalArmor > 0) sh += '<span>Counter armor: <b>-' + totalArmor + '%</b></span>';
-  if (totalHeal > 0) sh += '<span>Heal: <b>-' + totalHeal + ' casualties</b></span>';
+  if (totalHeal > 0) sh += '<span>Heal: <b>' + totalHeal + ' HP/turn</b></span>';
   if (upkeep > 0) sh += '<span>Daily upkeep: <b>' + upkeep + 'g</b></span>';
   $('army-summary').innerHTML = sh;
 
@@ -2171,14 +2186,19 @@ function updateArmy(s) {
 
 function renderArmyRoster(army) {
   var el = $('army-roster');
-  var keys = Object.keys(army).filter(function(k) { return army[k] > 0 && ARMY_UNITS[k]; });
+  var keys = Object.keys(army).filter(function(k) { return armyCnt(army, k) > 0 && ARMY_UNITS[k]; });
   if (keys.length === 0) { el.innerHTML = '<div class="army-empty">No units hired yet. Recruit below!</div>'; return; }
   var h = '';
   keys.forEach(function(uid) {
-    var u = ARMY_UNITS[uid], cnt = army[uid];
+    var u = ARMY_UNITS[uid], cnt = armyCnt(army, uid);
+    var hps = Array.isArray(army[uid]) ? army[uid] : [];
+    var curHp = hps.reduce(function(s,v){return s+v;}, 0), mxHp = u.hp * cnt;
+    var wnd = hps.filter(function(v){return v < u.hp;}).length;
+    var hpCls = curHp < mxHp * 0.5 ? ' style="color:var(--red)"' : curHp < mxHp ? ' style="color:var(--gold)"' : '';
     h += '<div class="army-row">' + u.icon;
     h += '<span class="army-row-name">' + u.name + '</span>';
     h += '<span class="army-row-count">x' + cnt + '</span>';
+    h += '<span class="army-row-stats"' + hpCls + '>' + curHp + '/' + mxHp + ' HP' + (wnd ? ' (' + wnd + ' wounded)' : '') + '</span>';
     h += '<span class="army-row-stats">+<span>' + (u.dmg * cnt) + '</span> dmg &middot; <span>' + (u.food * cnt) + '</span> food</span>';
     h += '<button class="army-dismiss" data-uid="' + uid + '">Dismiss</button></div>';
   });

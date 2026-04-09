@@ -107,6 +107,10 @@ a:hover { color: #e0c050; }
 .btn-gold:hover { background: #e0c050; }
 .btn-cancel { background: #333; color: #aaa; margin-left: 8px; }
 .btn-cancel:hover { background: #444; }
+.btn-red { background: #6a2020; color: #eaa; border: 1px solid #a04040; }
+.btn-red:hover { background: #802828; }
+
+.surrender-wrap { text-align: right; margin-top: 16px; }
 
 .battle-log { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; max-height: 300px; overflow-y: auto; font-size: 0.85em; font-family: 'Courier New', monospace; }
 .blog-entry { padding: 4px 0; border-bottom: 1px solid #0f161f; display: flex; gap: 12px; }
@@ -139,6 +143,96 @@ a:hover { color: #e0c050; }
 
 .no-portal { text-align: center; padding: 12px 20px; color: var(--text-dim); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; }
 .no-portal strong { color: var(--gold); }
+
+/* Result overlay */
+.result-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 200; align-items: center; justify-content: center;
+  animation: resultFadeIn 0.4s ease-out;
+}
+.result-overlay.active { display: flex; }
+@keyframes resultFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.result-overlay.victory { background: radial-gradient(ellipse at center, rgba(40,32,10,0.95) 0%, rgba(10,14,20,0.97) 70%); }
+.result-overlay.defeat { background: radial-gradient(ellipse at center, rgba(40,10,10,0.95) 0%, rgba(10,14,20,0.97) 70%); }
+
+.result-box {
+  text-align: center; max-width: 460px; width: 90%; padding: 40px 32px;
+  background: var(--panel); border-radius: 14px; position: relative; overflow: hidden;
+}
+.result-overlay.victory .result-box { border: 2px solid var(--gold); box-shadow: 0 0 60px rgba(200,160,48,0.25), 0 0 120px rgba(200,160,48,0.1); }
+.result-overlay.defeat .result-box { border: 2px solid var(--red); box-shadow: 0 0 60px rgba(192,64,64,0.2); }
+
+.result-icon { font-size: 4em; margin-bottom: 8px; animation: resultPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both; }
+@keyframes resultPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.result-title {
+  font-family: 'Cinzel', serif; font-size: 2em; font-weight: 900; margin-bottom: 4px;
+  animation: resultSlide 0.5s ease-out 0.3s both;
+}
+@keyframes resultSlide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.result-overlay.victory .result-title { color: var(--gold); text-shadow: 0 0 20px rgba(200,160,48,0.4); }
+.result-overlay.defeat .result-title { color: var(--red); text-shadow: 0 0 20px rgba(192,64,64,0.3); }
+
+.result-boss { font-family: 'Cinzel', serif; font-size: 1.1em; color: #ddd; margin-bottom: 20px; animation: resultSlide 0.5s ease-out 0.4s both; }
+
+.result-rewards {
+  display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 24px; animation: resultSlide 0.5s ease-out 0.5s both;
+}
+.result-reward { text-align: center; }
+.result-reward .rw-val { font-size: 1.6em; font-weight: 900; font-family: 'Cinzel', serif; }
+.result-reward .rw-lbl { font-size: 0.75em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.result-overlay.victory .rw-gold { color: var(--gold); }
+.result-overlay.victory .rw-lumber { color: var(--green); }
+.result-overlay.defeat .rw-gold { color: var(--red); }
+
+.result-drops {
+  margin-bottom: 24px; animation: resultSlide 0.5s ease-out 0.6s both;
+}
+.result-drops-title { font-size: 0.8em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+.result-drop-item {
+  display: inline-block; padding: 6px 14px; margin: 3px;
+  border-radius: 6px; font-weight: 700; font-size: 0.9em;
+  background: rgba(255,128,0,0.1); border: 1px solid rgba(255,128,0,0.3); color: #ff8000;
+}
+
+.result-flavor {
+  font-style: italic; color: var(--text-dim); font-size: 0.85em;
+  margin-bottom: 24px; animation: resultSlide 0.5s ease-out 0.55s both;
+}
+
+.btn-new-raid {
+  padding: 12px 32px; border: none; border-radius: 8px; cursor: pointer;
+  font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.1em;
+  transition: all 0.2s; animation: resultSlide 0.5s ease-out 0.7s both;
+}
+.result-overlay.victory .btn-new-raid { background: var(--gold); color: #000; }
+.result-overlay.victory .btn-new-raid:hover { background: #e0c050; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(200,160,48,0.3); }
+.result-overlay.defeat .btn-new-raid { background: var(--red); color: #fff; }
+.result-overlay.defeat .btn-new-raid:hover { background: #d05050; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(192,64,64,0.3); }
+
+/* shimmer on victory box */
+.result-overlay.victory .result-box::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(200,160,48,0.06), transparent, rgba(200,160,48,0.06));
+  animation: resultShimmer 4s linear infinite;
+}
+@keyframes resultShimmer { to { transform: rotate(360deg); } }
+.result-box > * { position: relative; z-index: 1; }
+
+/* particles on victory */
+.result-particles {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden;
+}
+.result-particle {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--gold);
+  animation: particleFall linear infinite;
+}
+@keyframes particleFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
 </style>
 </head>
 <body>
@@ -193,24 +287,50 @@ a:hover { color: #e0c050; }
   </div>
 </div>
 
+<div class="overlay" id="surrender-overlay">
+  <div class="confirm-box">
+    <h3>&#x1F3F3;&#xFE0F; Surrender?</h3>
+    <p id="surrender-details"></p>
+    <button class="btn btn-red" id="surrender-btn">Surrender</button>
+    <button class="btn btn-cancel" id="surrender-cancel">Keep Fighting</button>
+  </div>
+</div>
+
+<div class="result-overlay" id="result-overlay">
+  <div class="result-box">
+    <div class="result-particles" id="result-particles"></div>
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-boss" id="result-boss"></div>
+    <div class="result-flavor" id="result-flavor"></div>
+    <div class="result-rewards" id="result-rewards"></div>
+    <div class="result-drops" id="result-drops"></div>
+    <button class="btn-new-raid" id="btn-new-raid">New Raid</button>
+  </div>
+</div>
+
 <script>
 var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
 function w3img(p) { return '<img src="' + W3 + p + '" style="width:36px;height:36px;image-rendering:pixelated">'; }
 
 var BOSSES = {
-  kobold:     {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:30,     lumber:15,    atk_min:0, atk_max:0, icon: w3img('neutral/goblinsapper.gif')},
-  mud_golem:  {name:'Mud Golem',            hp:60,     days:2,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:60,     lumber:30,    atk_min:0, atk_max:0, icon: w3img('neutral/mudgolem.gif')},
-  troll:      {name:'Forest Troll Warlord', hp:150,    days:3,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:150,    lumber:75,    atk_min:0, atk_max:1, icon: w3img('neutral/foresttrollberserker.gif')},
-  ogre:       {name:'Ogre Magi',            hp:400,    days:3,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:400,    lumber:200,   atk_min:0, atk_max:1, icon: w3img('neutral/ogremauler.gif')},
-  naga:       {name:'Naga Sea Witch',       hp:1000,   days:4,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:800,    lumber:400,   atk_min:0, atk_max:2, icon: w3img('neutral/nagaseawitch.gif')},
-  infernal:   {name:'Infernal',             hp:2500,   days:5,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:1500,   lumber:600,   atk_min:0, atk_max:2, icon: w3img('orc/burningoil.gif')},
-  brewmaster: {name:'Pandaren Brewmaster',  hp:6000,   days:5,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:3000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3img('neutral/pandarenbrewmaster.gif')},
-  mannoroth:  {name:'Pit Lord Mannoroth',   hp:15000,  days:7,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:8000,   lumber:3000,  atk_min:1, atk_max:4, icon: w3img('neutral/pitlord.gif')},
-  blademaster:{name:'Blademaster',          hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3img('orc/blademaster.gif')},
-  archimonde: {name:'Archimonde',           hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'epic', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3img('orc/chieftain.gif')}
+  kobold:      {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:50,     lumber:15,    atk_min:0, atk_max:0, icon: w3img('neutral/goblinsapper.gif')},
+  murloc:      {name:'Murloc Tidecaller',    hp:60,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:100,    lumber:30,    atk_min:0, atk_max:0, icon: w3img('neutral/murloc.gif')},
+  troll:       {name:'Forest Troll Warlord', hp:200,    days:2,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:200,    lumber:75,    atk_min:0, atk_max:1, icon: w3img('neutral/foresttrollberserker.gif')},
+  ogre:        {name:'Ogre Magi',            hp:800,    days:2,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:600,    lumber:200,   atk_min:0, atk_max:1, icon: w3img('neutral/ogremauler.gif')},
+  whelps:      {name:'Dragon Whelp Swarm',   hp:1000,   days:2,  kills:4,  lvl:0, bld:[], fee:100,   loot:'uncommon', gold:800,    lumber:300,   atk_min:0, atk_max:1, icon: w3img('neutral/blackdragonwhelp.gif')},
+  naga:        {name:'Naga Sea Witch',       hp:1500,   days:3,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:1000,   lumber:400,   atk_min:0, atk_max:2, icon: w3img('neutral/nagaseawitch.gif')},
+  tichondrius: {name:'Tichondrius',          hp:2500,   days:3,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:2500,   lumber:600,   atk_min:0, atk_max:2, icon: w3img('undead/tichondrius.gif')},
+  illidan:     {name:'Illidan Stormrage',    hp:6000,   days:3,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:4000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3img('nightelf/illidandemon.gif')},
+  mannoroth:   {name:'Pit Lord Mannoroth',   hp:15000,  days:5,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:10000,  lumber:3000,  atk_min:1, atk_max:4, icon: w3img('neutral/pitlord.gif')},
+  archimonde:  {name:'Archimonde',           hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3img('orc/chieftain.gif')},
+  lich_king:   {name:'The Lich King',        hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'legendary', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3img('undead/arthas.gif')}
 };
 
 var pendingBoss = null;
+var prevBossId = null;
+var prevHistLen = 0;
+var resultShown = false;
 
 function $(id) { return document.getElementById(id); }
 
@@ -235,6 +355,17 @@ function render(s) {
   var hasPortal = !!buildings.dark_portal;
   $('no-portal').style.display = hasPortal ? 'none' : '';
 
+  var hist = s.boss_history || [];
+  var curBossId = (boss && boss.hp > 0) ? boss.id : null;
+
+  if (prevBossId && !curBossId && hist.length > prevHistLen && !resultShown) {
+    var latest = hist[hist.length - 1];
+    if (latest) showResult(latest);
+  }
+
+  prevBossId = curBossId;
+  prevHistLen = hist.length;
+
   var inv = (s.inventory || []).concat(s.equipped || []);
   if (hasPortal && boss && boss.hp > 0) {
     $('active-section').style.display = '';
@@ -243,7 +374,7 @@ function render(s) {
     renderActiveBoss(boss);
     renderBossItems(inv, boss);
     renderBattleLog(boss);
-  } else {
+  } else if (!resultShown) {
     $('active-section').style.display = 'none';
     $('items-section').style.display = 'none';
     $('log-section').style.display = 'none';
@@ -251,9 +382,8 @@ function render(s) {
     renderBossGrid(buildings, bk, bkTotal, lvl, ec, hasPortal);
   }
 
-  var hist = s.boss_history || [];
   if (hist.length > 0) {
-    $('history-section').style.display = '';
+    $('history-section').style.display = resultShown ? 'none' : '';
     renderHistory(hist);
   } else {
     $('history-section').style.display = 'none';
@@ -345,7 +475,16 @@ function renderActiveBoss(boss) {
     if (hits.length > 0) html += ' &middot; Avg: ' + (total / hits.length).toFixed(1) + '/hit';
     html += '</div>';
   }
+  var penalty = Math.floor((boss.entry_fee || 0) / 2);
+  var penStr = penalty > 0 ? ' (-' + penalty + 'g penalty)' : '';
+  html += '<div class="surrender-wrap"><button class="btn btn-red" onclick="promptSurrender(\'' + boss.name + '\', ' + penalty + ')">&#x1F3F3;&#xFE0F; Surrender</button></div>';
   $('active-raid').innerHTML = html;
+}
+
+function promptSurrender(name, penalty) {
+  var penStr = penalty > 0 ? 'You will lose <strong>' + penalty + 'g</strong> as penalty.' : 'No gold penalty for this boss.';
+  $('surrender-details').innerHTML = 'Abandon the fight against <strong>' + name + '</strong>?<br>' + penStr;
+  $('surrender-overlay').classList.add('active');
 }
 
 function renderBattleLog(boss) {
@@ -362,6 +501,7 @@ function renderBattleLog(boss) {
     var dmgStr = e.dmg > 0 ? '-' + e.dmg + ' HP' : '0 dmg';
     var comboStr = e.combo ? ' <span class="blog-combo">x' + e.combo + '</span>' : '';
     var counterStr = e.counter ? ' <span class="blog-counter">' + e.counter + '</span>' : '';
+    if (e.boss_dmg) counterStr += ' <span class="blog-counter">\u2694 ' + e.boss_dmg + ' dmg to army</span>';
     if (e.boss_atk) counterStr += ' <span class="blog-counter">\u2620 -' + e.boss_atk + ' units</span>';
     var bkStr = '';
     if (e.bk && e.dmg > 0) {
@@ -453,6 +593,95 @@ $('confirm-btn').addEventListener('click', function() {
 $('cancel-btn').addEventListener('click', function() {
   $('confirm-overlay').classList.remove('active');
   pendingBoss = null;
+});
+
+$('surrender-btn').addEventListener('click', function() {
+  $('surrender-overlay').classList.remove('active');
+  apiPost('/api/surrender', {}).then(function(res) {
+    if (res.ok) poll();
+    else alert(res.error || 'Failed');
+  }).catch(function() { alert('Request failed'); });
+});
+
+$('surrender-cancel').addEventListener('click', function() {
+  $('surrender-overlay').classList.remove('active');
+});
+
+var VICTORY_LINES = [
+  '"Lok-tar ogar!" — Victory or death.',
+  '"The peon has done well this day."',
+  '"Your enemies lie defeated."',
+  '"Gold well spent, commander."',
+  '"The spirits of the ancestors smile upon you."'
+];
+var DEFEAT_LINES = [
+  '"We are lost. Retreat!"',
+  '"The beast was too strong..."',
+  '"More work needed."',
+  '"Your forces have been routed."',
+  '"Even peons know when to run."'
+];
+
+function showResult(entry) {
+  resultShown = true;
+  var won = entry.result === 'victory';
+  var overlay = $('result-overlay');
+  overlay.className = 'result-overlay active ' + (won ? 'victory' : 'defeat');
+
+  $('result-icon').textContent = won ? '\u2694\uFE0F' : '\uD83D\uDC80';
+  $('result-title').textContent = won ? 'VICTORY' : 'DEFEAT';
+  $('result-boss').textContent = entry.name;
+
+  var lines = won ? VICTORY_LINES : DEFEAT_LINES;
+  $('result-flavor').textContent = lines[Math.floor(Math.random() * lines.length)];
+
+  var rwHtml = '';
+  if (won) {
+    rwHtml += '<div class="result-reward"><div class="rw-val rw-gold">+' + (entry.gold || 0) + '</div><div class="rw-lbl">Gold</div></div>';
+    rwHtml += '<div class="result-reward"><div class="rw-val rw-lumber">+' + (entry.lumber || 0) + '</div><div class="rw-lbl">Lumber</div></div>';
+  } else {
+    rwHtml += '<div class="result-reward"><div class="rw-val rw-gold">-' + (entry.penalty || 0) + '</div><div class="rw-lbl">Gold Lost</div></div>';
+  }
+  $('result-rewards').innerHTML = rwHtml;
+
+  var drops = entry.drops || [];
+  if (drops.length > 0) {
+    var dHtml = '<div class="result-drops-title">Loot Dropped</div>';
+    drops.forEach(function(d) { dHtml += '<span class="result-drop-item">' + d + '</span>'; });
+    $('result-drops').innerHTML = dHtml;
+    $('result-drops').style.display = '';
+  } else {
+    $('result-drops').style.display = 'none';
+  }
+
+  var particles = $('result-particles');
+  particles.innerHTML = '';
+  if (won) {
+    for (var i = 0; i < 30; i++) {
+      var p = document.createElement('div');
+      p.className = 'result-particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (2 + Math.random() * 3) + 's';
+      p.style.animationDelay = Math.random() * 2 + 's';
+      p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+      p.style.opacity = 0.4 + Math.random() * 0.6;
+      var colors = ['var(--gold)', '#e0c050', '#ff8000', '#fff'];
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      particles.appendChild(p);
+    }
+  }
+
+  $('active-section').style.display = 'none';
+  $('items-section').style.display = 'none';
+  $('log-section').style.display = 'none';
+  $('select-section').style.display = 'none';
+  $('history-section').style.display = 'none';
+}
+
+$('btn-new-raid').addEventListener('click', function() {
+  resultShown = false;
+  $('result-overlay').className = 'result-overlay';
+  poll();
 });
 
 poll();

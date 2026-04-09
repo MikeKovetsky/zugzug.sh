@@ -69,7 +69,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 }
 
 @test "raid unknown boss fails" {
-  run bash "$PEON_SH" raid murloc
+  run bash "$PEON_SH" raid dragon
   [ "$status" -eq 1 ]
   [[ "$output" == *"Unknown boss"* ]]
 }

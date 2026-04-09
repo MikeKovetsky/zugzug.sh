@@ -1606,19 +1606,24 @@ print(f'Daily tasks: {daily_tasks}/80')
 print(f'Lifetime gold earned: {stats.get(\"total_gold_earned\", 0)}')
 print(f'Lifetime lumber earned: {stats.get(\"total_lumber_earned\", 0)}')
 army = state.get('army', {})
+_UNIT_HP = dict(grunt=30, raider=50, tauren=80, shaman=20)
+for _uk in list(army.keys()):
+    if isinstance(army[_uk], int): army[_uk] = [_UNIT_HP.get(_uk, 30)] * army[_uk]
 if army:
     buildings = state.get('buildings', {})
     _UNIT_UPKEEP = {'grunt': 10, 'raider': 40, 'tauren': 100, 'shaman': 30}
-    total_units = sum(army.values())
-    upkeep_cost = sum(_UNIT_UPKEEP.get(uid, 0) * cnt for uid, cnt in army.items())
+    total_units = sum(len(v) for v in army.values())
+    upkeep_cost = sum(_UNIT_UPKEEP.get(uid, 0) * len(hps) for uid, hps in army.items())
     food_cap = 12
     if 'fortress' in buildings:
         food_cap += 8
     if 'citadel' in buildings:
         food_cap += 10
     _UNIT_FOOD = {'grunt': 2, 'raider': 3, 'tauren': 5, 'shaman': 2}
-    food_used = sum(_UNIT_FOOD.get(uid, 0) * cnt for uid, cnt in army.items())
-    print(f'Army: {total_units} units ({food_used}/{food_cap} food) | Daily upkeep: {upkeep_cost}g')
+    food_used = sum(_UNIT_FOOD.get(uid, 0) * len(hps) for uid, hps in army.items())
+    _wounded = sum(1 for uid, hps in army.items() for h in hps if h < _UNIT_HP.get(uid, 30))
+    _hp_str = f' ({_wounded} wounded)' if _wounded else ''
+    print(f'Army: {total_units} units{_hp_str} ({food_used}/{food_cap} food) | Daily upkeep: {upkeep_cost}g')
 if gold < 0:
     print(f'*** IN DEBT: {gold} gold ***')
 "
@@ -1656,13 +1661,14 @@ defs = [
     ('combo_god', 'Combo God', 'Reach 100 combo'),
     ('hoarder', 'Hoarder', 'Own 40+ items total'),
     ('lunch_raider', 'Lunch Raider', 'Hit a boss during lunch hour'),
-    ('boss_slayer', 'Boss Slayer', 'Defeat all 10 unique bosses'),
+    ('boss_slayer', 'Boss Slayer', 'Defeat all 11 unique bosses'),
     ('warchief', 'Warchief', 'Have 10 units in your army'),
     ('general', 'General', 'Hire 50 units total'),
     ('casualties_of_war', 'Casualties of War', 'Lose 20 units in battle'),
     ('speedrun', 'Speed Run', 'Kill any boss in under 5 minutes'),
-    ('speed_archimonde', 'Archimonde Any%', 'Kill Archimonde in under 4 days'),
-    ('archimondes_bane', 'Archimonde\\'s Bane', 'Defeat Archimonde'),
+    ('leeroy', 'LEEEEROY JENKINS!', 'Lose to Whelps below 20% HP'),
+    ('speed_lich_king', 'Lich King Any%', 'Kill The Lich King in under 4 days'),
+    ('lich_kings_end', 'Arthas\\'s End', 'Defeat The Lich King'),
     ('loot_goblin', 'Loot Goblin', 'Loot 1000 items'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
@@ -1885,7 +1891,7 @@ ITEMS_R = {
     'doom_hammer': 'epic', 'black_arrow': 'epic', 'mannoroths_blood': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
     'unstoppable_force': 'legendary', 'azzinoth_blades': 'legendary', 'ashbringer': 'legendary',
-    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary',
+    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary', 'helm_of_domination': 'legendary',
 }
 MAX_DUR = {'common': 50, 'uncommon': 75, 'rare': 100, 'epic': 150, 'legendary': 200}
 has_discount = False
@@ -2020,6 +2026,7 @@ ITEMS = {
     'infernal_core':       ('Infernal Core',          'rare',      'Counter-attacks deal 50% less gold damage'),
     'mannoroths_blood':    ('Mannoroth\\'s Blood',    'epic',      '+10 fatigue threshold'),
     'crown_of_eredar':     ('Crown of the Eredar',    'legendary', '+1 bonus drop from bosses'),
+    'helm_of_domination':  ('Helm of Domination',     'legendary', '+2 bonus drops from bosses'),
 }
 rcolors = dict(common='', uncommon='\033[32m', rare='\033[34m', epic='\033[35m', legendary='\033[33m')
 reset = '\033[0m'
@@ -2212,7 +2219,7 @@ ITEMS_R = {
     'chain_lightning': 'epic', 'death_coil': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
     'unstoppable_force': 'legendary', 'azzinoth_blades': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
-    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary', 'doom': 'legendary',
+    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary', 'helm_of_domination': 'legendary', 'doom': 'legendary',
 }
 if item_id in equipped:
     print('Unequip it first: peon unequip ' + item_id)
@@ -2253,18 +2260,19 @@ boss_kills = state.get('boss_kills', {})
 bk_total = state.get('boss_kills_total', 0)
 lvl = stats.get('level', 1)
 BOSSES = {
-    'kobold':    dict(name='Kobold Taskmaster',     hp=20,     days=1,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common'],                       gold_r=30,    lumber_r=15,   atk_min=0, atk_max=0),
-    'mud_golem': dict(name='Mud Golem',             hp=60,     days=2,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common'],                       gold_r=60,    lumber_r=30,   atk_min=0, atk_max=0),
-    'troll':     dict(name='Forest Troll Warlord',  hp=150,    days=3,  unlock_kills=1,  unlock_lvl=0, unlock_bld=[], fee=50,    loot=['uncommon'],                     gold_r=150,   lumber_r=75,   atk_min=0, atk_max=1),
-    'ogre':      dict(name='Ogre Magi',             hp=400,    days=3,  unlock_kills=3,  unlock_lvl=0, unlock_bld=[], fee=200,   loot=['rare'],                         gold_r=400,   lumber_r=200,  atk_min=0, atk_max=1),
-    'naga':      dict(name='Naga Sea Witch',        hp=1000,   days=4,  unlock_kills=5,  unlock_lvl=5, unlock_bld=[], fee=400,   loot=['rare','uncommon'],               gold_r=800,   lumber_r=400,  atk_min=0, atk_max=2),
-    'infernal':  dict(name='Infernal',              hp=2500,   days=5,  unlock_kills=7,  unlock_lvl=6, unlock_bld=[], fee=750,   loot=['rare','rare'],                   gold_r=1500,  lumber_r=600,  atk_min=0, atk_max=2),
-    'brewmaster':dict(name='Pandaren Brewmaster',   hp=6000,   days=5,  unlock_kills=10, unlock_lvl=7, unlock_bld=[], fee=1500,  loot=['epic','rare'],                   gold_r=3000,  lumber_r=1200, atk_min=1, atk_max=3),
-    'mannoroth': dict(name='Pit Lord Mannoroth',    hp=15000,  days=7,  unlock_kills=15, unlock_lvl=8, unlock_bld=['citadel'], fee=3000, loot=['epic','rare','uncommon'],  gold_r=8000, lumber_r=3000, atk_min=1, atk_max=4),
-    'blademaster':dict(name='Blademaster',          hp=40000,  days=10, unlock_kills=20, unlock_lvl=9, unlock_bld=['citadel'], fee=5000, loot=['epic','epic','rare'],      gold_r=15000, lumber_r=5000, atk_min=2, atk_max=6),
-    'archimonde':dict(name='Archimonde',            hp=100000, days=14, unlock_kills=30, unlock_lvl=9, unlock_bld=['citadel'], fee=10000, loot=['legendary','epic','epic'], gold_r=50000, lumber_r=15000, atk_min=3, atk_max=10),
+    'kobold':      dict(name='Kobold Taskmaster',     hp=20,     days=1,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common'],                       gold_r=50,    lumber_r=15,    atk_min=0, atk_max=0),
+    'murloc':      dict(name='Murloc Tidecaller',     hp=60,     days=1,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common'],                       gold_r=100,   lumber_r=30,    atk_min=0, atk_max=0),
+    'troll':       dict(name='Forest Troll Warlord',  hp=200,    days=2,  unlock_kills=1,  unlock_lvl=0, unlock_bld=[], fee=50,    loot=['uncommon'],                     gold_r=200,   lumber_r=75,    atk_min=0, atk_max=1),
+    'ogre':        dict(name='Ogre Magi',             hp=800,    days=2,  unlock_kills=3,  unlock_lvl=0, unlock_bld=[], fee=200,   loot=['rare'],                         gold_r=600,   lumber_r=200,   atk_min=0, atk_max=1),
+    'whelps':      dict(name='Dragon Whelp Swarm',    hp=1000,   days=2,  unlock_kills=4,  unlock_lvl=0, unlock_bld=[], fee=100,   loot=['uncommon','uncommon'],           gold_r=800,   lumber_r=300,   atk_min=0, atk_max=1),
+    'naga':        dict(name='Naga Sea Witch',        hp=1500,   days=3,  unlock_kills=5,  unlock_lvl=5, unlock_bld=[], fee=400,   loot=['rare','uncommon'],               gold_r=1000,  lumber_r=400,   atk_min=0, atk_max=2),
+    'tichondrius': dict(name='Tichondrius',           hp=2500,   days=3,  unlock_kills=7,  unlock_lvl=6, unlock_bld=[], fee=750,   loot=['rare','rare'],                   gold_r=2500,  lumber_r=600,   atk_min=0, atk_max=2),
+    'illidan':     dict(name='Illidan Stormrage',     hp=6000,   days=3,  unlock_kills=10, unlock_lvl=7, unlock_bld=[], fee=1500,  loot=['epic','rare'],                   gold_r=4000,  lumber_r=1200,  atk_min=1, atk_max=3),
+    'mannoroth':   dict(name='Pit Lord Mannoroth',    hp=15000,  days=5,  unlock_kills=15, unlock_lvl=8, unlock_bld=['citadel'], fee=3000, loot=['epic','rare','uncommon'],  gold_r=10000, lumber_r=3000,  atk_min=1, atk_max=4),
+    'archimonde':  dict(name='Archimonde',            hp=40000,  days=10, unlock_kills=20, unlock_lvl=9, unlock_bld=['citadel'], fee=5000, loot=['epic','epic','rare'],      gold_r=15000, lumber_r=5000,  atk_min=2, atk_max=6),
+    'lich_king':   dict(name='The Lich King',         hp=100000, days=14, unlock_kills=30, unlock_lvl=9, unlock_bld=['citadel'], fee=10000, loot=['legendary','epic','epic'], gold_r=50000, lumber_r=15000, atk_min=3, atk_max=10),
 }
-TROPHY_MAP = {'kobold': 'kobold_candle', 'troll': 'troll_totem', 'ogre': 'ogre_scepter', 'infernal': 'infernal_core', 'mannoroth': 'mannoroths_blood', 'archimonde': 'crown_of_eredar'}
+TROPHY_MAP = {'kobold': 'kobold_candle', 'troll': 'troll_totem', 'ogre': 'ogre_scepter', 'tichondrius': 'infernal_core', 'mannoroth': 'mannoroths_blood', 'archimonde': 'crown_of_eredar', 'lich_king': 'helm_of_domination'}
 boss = state.get('active_boss')
 if boss and boss.get('deadline'):
     if datetime.date.fromisoformat(boss['deadline']) < datetime.date.today():
@@ -2275,6 +2283,8 @@ if boss and boss.get('deadline'):
         hist.append(dict(id=boss['id'], name=boss['name'], result='escaped', penalty=penalty, t=int(time.time())))
         if len(hist) > 30: hist = hist[-30:]
         state['boss_history'] = hist
+        if boss['id'] == 'whelps' and boss.get('hp', 0) <= boss.get('max_hp', 1) * 0.2:
+            state.setdefault('stats', {})['whelp_leeroy'] = True
         state['economy'] = econ
         print(f'{boss[\"name\"]} escaped! -{penalty}g penalty.')
         state['active_boss'] = None
@@ -2368,33 +2378,41 @@ gold = econ.get('gold', 0)
 lumber = econ.get('lumber', 0)
 army = state.get('army', {})
 UNITS = {
-    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, desc='Infantry. +1 raid damage.'),
-    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, desc='Wolf rider. +4 raid damage.'),
-    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, desc='Elite. +10 raid damage.'),
-    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=2, desc='Healer. -2 casualties. 25% counter reduction.'),
+    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, hp=30,  desc='Infantry. 30 HP. +1 raid damage.'),
+    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, hp=50,  desc='Wolf rider. 50 HP. +4 raid damage.'),
+    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, hp=80,  desc='Elite tank. 80 HP. +10 raid damage.'),
+    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=20, hp=20,  desc='Healer. 20 HP. Heals 20 HP/turn. 25% counter reduction.'),
 }
+for _uk in list(army.keys()):
+    if isinstance(army[_uk], int): army[_uk] = [UNITS.get(_uk, {}).get('hp', 3)] * army[_uk]
 food_cap = 12
 if 'fortress' in buildings:
     food_cap += 8
 if 'citadel' in buildings:
     food_cap += 10
-food_used = sum(UNITS[uid]['food'] * count for uid, count in army.items() if uid in UNITS)
-total_dmg = sum(UNITS[uid]['boss_dmg'] * count for uid, count in army.items() if uid in UNITS)
-total_armor = min(50, sum(UNITS[uid]['armor'] * count for uid, count in army.items() if uid in UNITS))
-total_heal = sum(UNITS[uid]['heal'] * count for uid, count in army.items() if uid in UNITS)
-total_units = sum(army.values())
-upkeep_gold = sum(UNITS[uid]['gold'] // 10 * count for uid, count in army.items() if uid in UNITS)
+food_used = sum(UNITS[uid]['food'] * len(hps) for uid, hps in army.items() if uid in UNITS)
+total_dmg = sum(UNITS[uid]['boss_dmg'] * len(hps) for uid, hps in army.items() if uid in UNITS)
+total_armor = min(50, sum(UNITS[uid]['armor'] * len(hps) for uid, hps in army.items() if uid in UNITS))
+total_heal = sum(UNITS[uid]['heal'] * len(hps) for uid, hps in army.items() if uid in UNITS)
+total_units = sum(len(v) for v in army.values())
+upkeep_gold = sum(UNITS[uid]['gold'] // 10 * len(hps) for uid, hps in army.items() if uid in UNITS)
 print(f'=== Army ===')
 print(f'Food: {food_used}/{food_cap} | Units: {total_units} | Daily upkeep: {upkeep_gold}g')
-print(f'Army stats: +{total_dmg} raid damage | -{total_armor}% counter-attack gold | -{total_heal} casualties')
+print(f'Army stats: +{total_dmg} raid damage | -{total_armor}% counter-attack gold | {total_heal} HP heal/turn')
 print()
 if not army:
     print('  No units hired. Use: peon hire <unit>')
 else:
-    for uid, count in army.items():
+    for uid, hps in army.items():
         u = UNITS.get(uid)
         if u:
-            print(f'  {count}x {u[\"name\"]:16s} (+{u[\"boss_dmg\"] * count} dmg, {u[\"food\"] * count} food)')
+            cnt = len(hps)
+            mx = u['hp']
+            wounded = sum(1 for h in hps if h < mx)
+            hp_str = f'{sum(hps)}/{mx * cnt} HP'
+            if wounded:
+                hp_str += f' ({wounded} wounded)'
+            print(f'  {cnt}x {u[\"name\"]:16s} {hp_str:24s} +{u[\"boss_dmg\"] * cnt} dmg, {u[\"food\"] * cnt} food')
 print()
 print(f'Gold: {gold} | Lumber: {lumber}')
 print()
@@ -2403,7 +2421,7 @@ for uid, u in UNITS.items():
     cost_str = f'{u[\"gold\"]}g'
     if u['lumber'] > 0:
         cost_str += f'/{u[\"lumber\"]}l'
-    print(f'  {uid:14s} {u[\"name\"]:16s} {cost_str:10s} {u[\"food\"]} food  {u[\"desc\"]}')
+    print(f'  {uid:14s} {u[\"name\"]:16s} {cost_str:10s} {u[\"food\"]} food  {u[\"hp\"]} HP  {u[\"desc\"]}')
 "
     exit $? ;;
   hire)
@@ -2424,10 +2442,10 @@ if not unit_id:
     print('See available units: peon army')
     sys.exit(1)
 UNITS = {
-    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0),
-    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0),
-    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0),
-    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=2),
+    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, hp=30),
+    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, hp=50),
+    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, hp=80),
+    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=20, hp=20),
 }
 unit_id = unit_id.lower().replace('-', '_')
 if unit_id not in UNITS:
@@ -2448,12 +2466,14 @@ if gold < total_gold or lumber < total_lumber:
     print(f'Not enough resources! Need {total_gold}g/{total_lumber}l, have {gold}g/{lumber}l')
     sys.exit(1)
 army = state.get('army', {})
+for _uk in list(army.keys()):
+    if isinstance(army[_uk], int): army[_uk] = [UNITS.get(_uk, {}).get('hp', 3)] * army[_uk]
 food_cap = 12
 if 'fortress' in buildings:
     food_cap += 8
 if 'citadel' in buildings:
     food_cap += 10
-food_used = sum(UNITS[uid]['food'] * c for uid, c in army.items() if uid in UNITS)
+food_used = sum(UNITS[uid]['food'] * len(hps) for uid, hps in army.items() if uid in UNITS)
 food_needed = u['food'] * count
 if food_used + food_needed > food_cap:
     can_hire = (food_cap - food_used) // u['food']
@@ -2465,7 +2485,9 @@ if food_used + food_needed > food_cap:
     sys.exit(1)
 econ['gold'] = gold - total_gold
 econ['lumber'] = lumber - total_lumber
-army[unit_id] = army.get(unit_id, 0) + count
+existing = army.get(unit_id, [])
+existing.extend([u['hp']] * count)
+army[unit_id] = existing
 state['army'] = army
 state['economy'] = econ
 stats = state.get('stats', {})
@@ -2502,7 +2524,10 @@ if unit_id not in UNITS:
     print(f'Unknown unit: {unit_id}')
     sys.exit(1)
 army = state.get('army', {})
-current = army.get(unit_id, 0)
+_UNIT_HP = dict(grunt=30, raider=50, tauren=80, shaman=20)
+for _uk in list(army.keys()):
+    if isinstance(army[_uk], int): army[_uk] = [_UNIT_HP.get(_uk, 30)] * army[_uk]
+current = len(army.get(unit_id, []))
 if current == 0:
     print(f'No {UNITS[unit_id][\"name\"]}s in your army.')
     sys.exit(1)
@@ -2510,13 +2535,13 @@ try:
     count = min(current, max(1, int(count_str)))
 except ValueError:
     count = 1
-army[unit_id] = current - count
-if army[unit_id] <= 0:
+army[unit_id] = army[unit_id][:-count] if count < current else []
+if not army[unit_id]:
     del army[unit_id]
 state['army'] = army
 _save_state(state_file, state)
 print(f'Dismissed {count}x {UNITS[unit_id][\"name\"]}.')
-remaining = army.get(unit_id, 0)
+remaining = len(army.get(unit_id, []))
 if remaining > 0:
     print(f'{remaining} remaining.')
 "
@@ -2622,7 +2647,7 @@ class H(http.server.BaseHTTPRequestHandler):
             import random as _rr
             bid = body.get('boss', '')
             st = self._load('.state.json')
-            BOSSES = {'kobold': dict(hp=20,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=30,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'mud_golem': dict(hp=60,days=2,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=60,lumber_r=30,atk_min=0,atk_max=0,name='Mud Golem'), 'troll': dict(hp=150,days=3,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon'],gold_r=150,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=400,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare'],gold_r=400,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'naga': dict(hp=1000,days=4,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon'],gold_r=800,lumber_r=400,atk_min=0,atk_max=2,name='Naga Sea Witch'), 'infernal': dict(hp=2500,days=5,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare'],gold_r=1500,lumber_r=600,atk_min=0,atk_max=2,name='Infernal'), 'brewmaster': dict(hp=6000,days=5,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare'],gold_r=3000,lumber_r=1200,atk_min=1,atk_max=3,name='Pandaren Brewmaster'), 'mannoroth': dict(hp=15000,days=7,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','uncommon'],gold_r=8000,lumber_r=3000,atk_min=1,atk_max=4,name='Pit Lord Mannoroth'), 'blademaster': dict(hp=40000,days=10,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare'],gold_r=15000,lumber_r=5000,atk_min=2,atk_max=6,name='Blademaster'), 'archimonde': dict(hp=100000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='Archimonde')}
+            BOSSES = {'kobold': dict(hp=20,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=50,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'murloc': dict(hp=60,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=100,lumber_r=30,atk_min=0,atk_max=0,name='Murloc Tidecaller'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon'],gold_r=200,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=800,days=2,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare'],gold_r=600,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'whelps': dict(hp=1000,days=2,unlock_kills=4,unlock_lvl=0,unlock_bld=[],fee=100,loot=['uncommon','uncommon'],gold_r=800,lumber_r=300,atk_min=0,atk_max=1,name='Dragon Whelp Swarm'), 'naga': dict(hp=1500,days=3,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon'],gold_r=1000,lumber_r=400,atk_min=0,atk_max=2,name='Naga Sea Witch'), 'tichondrius': dict(hp=2500,days=3,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare'],gold_r=2500,lumber_r=600,atk_min=0,atk_max=2,name='Tichondrius'), 'illidan': dict(hp=6000,days=3,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare'],gold_r=4000,lumber_r=1200,atk_min=1,atk_max=3,name='Illidan Stormrage'), 'mannoroth': dict(hp=15000,days=5,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','uncommon'],gold_r=10000,lumber_r=3000,atk_min=1,atk_max=4,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=40000,days=10,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare'],gold_r=15000,lumber_r=5000,atk_min=2,atk_max=6,name='Archimonde'), 'lich_king': dict(hp=100000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='The Lich King')}
             if st.get('active_boss'):
                 return self._json(400, {'error': 'Already in a raid'})
             if 'dark_portal' not in st.get('buildings', {}):
@@ -2690,6 +2715,25 @@ class H(http.server.BaseHTTPRequestHandler):
                 if k in body: cfg[k] = body[k]
             self._save('config.json', cfg)
             self._json(200, {'ok': True})
+        elif self.path == '/api/surrender':
+            st = self._load('.state.json')
+            boss = st.get('active_boss')
+            if not boss:
+                return self._json(400, {'error': 'No active raid'})
+            fee = boss.get('entry_fee', 0)
+            penalty = fee // 2
+            ec = st.setdefault('economy', {})
+            ec['gold'] = ec.get('gold', 0) - penalty
+            hist = st.get('boss_history', [])
+            hist.append(dict(id=boss['id'], name=boss['name'], result='escaped', penalty=penalty, t=int(time.time())))
+            if len(hist) > 30: hist = hist[-30:]
+            st['boss_history'] = hist
+            if boss['id'] == 'whelps' and boss.get('hp', 0) <= boss.get('max_hp', 1) * 0.2:
+                st.setdefault('stats', {})['whelp_leeroy'] = True
+            st['economy'] = ec
+            st['active_boss'] = None
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'penalty': penalty})
         elif self.path == '/api/resurrect':
             st = self._load('.state.json')
             if 'altar' not in st.get('buildings', {}):
@@ -2855,27 +2899,32 @@ class H(http.server.BaseHTTPRequestHandler):
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))
-            UNITS = {'grunt':(100,0,2),'raider':(400,100,3),'tauren':(1000,400,5),'shaman':(300,100,2)}
+            UNITS = {'grunt':(100,0,2,30),'raider':(400,100,3,50),'tauren':(1000,400,5,80),'shaman':(300,100,2,20)}
             if uid not in UNITS:
                 return self._json(400, {'error': 'Unknown unit'})
             st = self._load('.state.json')
             if 'barracks' not in st.get('buildings', {}):
                 return self._json(400, {'error': 'Build Barracks first'})
-            ug, ul, uf = UNITS[uid]
+            ug, ul, uf, uhp = UNITS[uid]
             ec = st.setdefault('economy', {})
             g, l = ec.get('gold', 0), ec.get('lumber', 0)
             tg, tl = ug * cnt, ul * cnt
             if g < tg or l < tl:
                 return self._json(400, {'error': f'Need {tg}g/{tl}l'})
             army = st.get('army', {})
+            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            for _uk in list(army.keys()):
+                if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             bld = st.get('buildings', {})
             fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0)
-            fu = sum(UNITS.get(u, (0,0,0))[2] * c for u, c in army.items())
+            fu = sum(UNITS.get(u, (0,0,0,0))[2] * len(hps) for u, hps in army.items())
             if fu + uf * cnt > fc:
                 return self._json(400, {'error': 'Not enough food'})
             ec['gold'] = g - tg
             ec['lumber'] = l - tl
-            army[uid] = army.get(uid, 0) + cnt
+            existing = army.get(uid, [])
+            existing.extend([uhp] * cnt)
+            army[uid] = existing
             st['army'] = army
             st['economy'] = ec
             sts = st.setdefault('stats', {})
@@ -2888,11 +2937,14 @@ class H(http.server.BaseHTTPRequestHandler):
             cnt = max(1, int(body.get('count', 1)))
             st = self._load('.state.json')
             army = st.get('army', {})
-            cur = army.get(uid, 0)
+            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            for _uk in list(army.keys()):
+                if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
+            cur = len(army.get(uid, []))
             if cur <= 0:
                 return self._json(400, {'error': 'No such unit in army'})
-            army[uid] = max(0, cur - cnt)
-            if army[uid] <= 0:
+            army[uid] = army[uid][:-cnt] if cnt < cur else []
+            if not army[uid]:
                 army.pop(uid, None)
             st['army'] = army
             self._save('.state.json', st)
@@ -3738,9 +3790,12 @@ if game_on:
             stats['longest_streak_days'] = streak
 
         _army = state.get('army', {})
+        _UNIT_HP_M = dict(grunt=30, raider=50, tauren=80, shaman=20)
+        for _uk in list(_army.keys()):
+            if isinstance(_army[_uk], int): _army[_uk] = [_UNIT_HP_M.get(_uk, 30)] * _army[_uk]
         if _army:
             _UNIT_UPKEEP = dict(grunt=10, raider=40, tauren=100, shaman=30)
-            _army_upkeep = sum(_UNIT_UPKEEP.get(uid, 0) * cnt for uid, cnt in _army.items())
+            _army_upkeep = sum(_UNIT_UPKEEP.get(uid, 0) * len(hps) for uid, hps in _army.items())
             if _army_upkeep > 0:
                 econ['gold'] = econ.get('gold', 0) - _army_upkeep
                 econ['army_upkeep_paid'] = _army_upkeep
@@ -3938,13 +3993,14 @@ if game_on:
         ('combo_god',        lambda: stats.get('max_combo', 0) >= 100, 'Combo God', '100 combo?! Peon check if human plugged into Matrix.'),
         ('hoarder',          lambda: stats.get('max_items_owned', 0) >= 40, 'Hoarder', 'Where peon put all this stuff?!'),
         ('lunch_raider',     lambda: _hour == 12 and state.get('active_boss') is not None and category == 'task.complete', 'Lunch Raider', 'Human raid during lunch. Very dedicated. Very hungry.'),
-        ('boss_slayer',      lambda: len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]) >= 10, 'Boss Slayer', 'Every boss defeated at least once. Peon... genuinely in awe.'),
-        ('warchief',         lambda: sum(state.get('army', {}).values()) >= 10, 'Warchief', 'An army of 10. Peon finally has friends!'),
+        ('boss_slayer',      lambda: len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]) >= 11, 'Boss Slayer', 'Every boss defeated at least once. Peon... genuinely in awe.'),
+        ('warchief',         lambda: sum(len(v) if isinstance(v, list) else v for v in state.get('army', {}).values()) >= 10, 'Warchief', 'An army of 10. Peon finally has friends!'),
         ('general',          lambda: stats.get('units_hired_total', 0) >= 50, 'General', '50 units hired. Peon running a draft.'),
         ('casualties_of_war', lambda: stats.get('units_lost_total', 0) >= 20, 'Casualties of War', 'Lost 20 units. Peon write many sad letters.'),
         ('speedrun',         lambda: 0 < stats.get('fastest_kill_secs', 99999) <= 300, 'Speed Run', 'Boss dead in 5 minutes?! Peon blink and missed it.'),
-        ('speed_archimonde', lambda: stats.get('fastest_archimonde_pct', 1.0) <= 0.5, 'Archimonde Any%', 'Archimonde in under 4 days. Speedrun.com wants your replay.'),
-        ('archimondes_bane', lambda: state.get('boss_kills', {}).get('archimonde', 0) >= 1, 'Archimonde\'s Bane', 'The Defiler is no more. Peon... legendary.'),
+        ('leeroy',           lambda: stats.get('whelp_leeroy'), 'LEEEEROY JENKINS!', 'At least I have chicken.'),
+        ('speed_lich_king',  lambda: stats.get('fastest_lich_king_pct', 1.0) <= 0.5, 'Lich King Any%', 'The Lich King in under 4 days. Speedrun.com wants your replay.'),
+        ('lich_kings_end',   lambda: state.get('boss_kills', {}).get('lich_king', 0) >= 1, 'Arthas\'s End', 'No king rules forever. Peon... legendary.'),
         ('loot_goblin',      lambda: stats.get('total_items_looted', 0) >= 1000, 'Loot Goblin', 'Human loot 1000 items?! Peon need bigger bags!'),
     ]
     if achiev_on:
@@ -3984,13 +4040,14 @@ if game_on:
         'combo_god':        [stats.get('max_combo', 0), 100],
         'hoarder':          [stats.get('max_items_owned', 0), 40],
         'lunch_raider':     [1 if 'lunch_raider' in unlocked else 0, 1],
-        'boss_slayer':      [len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]), 10],
-        'warchief':         [sum(state.get('army', {}).values()), 10],
+        'boss_slayer':      [len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]), 11],
+        'warchief':         [sum(len(v) if isinstance(v, list) else v for v in state.get('army', {}).values()), 10],
         'general':          [stats.get('units_hired_total', 0), 50],
         'casualties_of_war': [stats.get('units_lost_total', 0), 20],
         'speedrun':         [1 if 0 < stats.get('fastest_kill_secs', 99999) <= 300 else 0, 1],
-        'speed_archimonde': [1 if stats.get('fastest_archimonde_pct', 1.0) <= 0.5 else 0, 1],
-        'archimondes_bane': [state.get('boss_kills', {}).get('archimonde', 0), 1],
+        'leeroy':           [1 if stats.get('whelp_leeroy') else 0, 1],
+        'speed_lich_king':  [1 if stats.get('fastest_lich_king_pct', 1.0) <= 0.5 else 0, 1],
+        'lich_kings_end':   [state.get('boss_kills', {}).get('lich_king', 0), 1],
         'loot_goblin':      [stats.get('total_items_looted', 0), 1000],
     }
     stats['achievements_progress'] = _ach_progress
@@ -4194,6 +4251,7 @@ if game_on:
         'infernal_core':       dict(name='Infernal Core',          r='rare',      e='boss_armor',      v=50,   desc='Counter-attacks deal 50% less gold damage'),
         'mannoroths_blood':    dict(name='Mannoroth\'s Blood',      r='epic',      e='fatigue_resist',  v=10,   desc='+10 fatigue threshold'),
         'crown_of_eredar':     dict(name='Crown of the Eredar',    r='legendary', e='boss_double_loot', v=1,   desc='+1 bonus drop from bosses'),
+        'helm_of_domination':  dict(name='Helm of Domination',    r='legendary', e='boss_double_loot', v=2,   desc='+2 bonus drops from bosses'),
     }
 
     _DROP_TABLE = {
@@ -4240,7 +4298,7 @@ if game_on:
                 return v
         return 0
 
-    _TROPHY_IDS = {'kobold_candle', 'troll_totem', 'ogre_scepter', 'infernal_core', 'mannoroths_blood', 'crown_of_eredar'}
+    _TROPHY_IDS = {'kobold_candle', 'troll_totem', 'ogre_scepter', 'infernal_core', 'mannoroths_blood', 'crown_of_eredar', 'helm_of_domination'}
     def _roll_drop(force_rarity=None):
         if force_rarity:
             pool = [k for k, v in _ITEMS.items() if v['r'] == force_rarity and k not in _TROPHY_IDS]
@@ -4340,7 +4398,7 @@ if game_on:
     import datetime as _dt
     _boss = state.get('active_boss')
     boss_text = ''
-    _TROPHY_MAP = {'kobold': 'kobold_candle', 'troll': 'troll_totem', 'ogre': 'ogre_scepter', 'infernal': 'infernal_core', 'mannoroth': 'mannoroths_blood', 'archimonde': 'crown_of_eredar'}
+    _TROPHY_MAP = {'kobold': 'kobold_candle', 'troll': 'troll_totem', 'ogre': 'ogre_scepter', 'tichondrius': 'infernal_core', 'mannoroth': 'mannoroths_blood', 'archimonde': 'crown_of_eredar', 'lich_king': 'helm_of_domination'}
     if _boss and 'dark_portal' in buildings:
         _boss_dl = _dt.date.fromisoformat(_boss['deadline'])
         _boss_today = _dt.date.today()
@@ -4353,6 +4411,8 @@ if game_on:
             hist.append(dict(id=_boss['id'], name=_boss['name'], result='escaped', penalty=penalty, t=int(time.time())))
             if len(hist) > 30: hist = hist[-30:]
             state['boss_history'] = hist
+            if _boss['id'] == 'whelps' and _boss.get('hp', 0) <= _boss.get('max_hp', 1) * 0.2:
+                stats['whelp_leeroy'] = True
             state['active_boss'] = None
             _boss = None
             state_dirty = True
@@ -4385,8 +4445,11 @@ if game_on:
                     _bdmg += _bc2
                     if _bc2: _bk['bloodstone'] = _bc2
                 _army = state.get('army', {})
-                _UNIT_DMG = {'grunt': 1, 'raider': 4, 'tauren': 10, 'shaman': 0}
-                _army_dmg = sum(_UNIT_DMG.get(uid, 0) * cnt for uid, cnt in _army.items())
+                _UNIT_HP_R = dict(grunt=30, raider=50, tauren=80, shaman=20)
+                for _uk in list(_army.keys()):
+                    if isinstance(_army[_uk], int): _army[_uk] = [_UNIT_HP_R.get(_uk, 30)] * _army[_uk]
+                _UNIT_DMG = dict(grunt=1, raider=4, tauren=10, shaman=0)
+                _army_dmg = sum(_UNIT_DMG.get(uid, 0) * len(hps) for uid, hps in _army.items())
                 if _army_dmg > 0:
                     _bdmg += _army_dmg
                     _bk['army'] = _army_dmg
@@ -4440,33 +4503,48 @@ if game_on:
             _batk_min = _boss.get('atk_min', 0)
             _batk_max = _boss.get('atk_max', 0)
             _army = state.get('army', {})
+            _UHP = dict(grunt=30, raider=50, tauren=80, shaman=20)
+            for _uk in list(_army.keys()):
+                if isinstance(_army[_uk], int): _army[_uk] = [_UHP.get(_uk, 30)] * _army[_uk]
             if _batk_max > 0 and _army and _boss['hp'] > 0:
-                _UNIT_HEAL = {'shaman': 2}
-                _army_heal = sum(_UNIT_HEAL.get(uid, 0) * cnt for uid, cnt in _army.items())
-                _boss_kills_units = random.randint(_batk_min, _batk_max)
-                _boss_kills_units = max(0, _boss_kills_units - _army_heal)
-                if _boss_kills_units > 0:
-                    _casualty_order = ['grunt', 'raider', 'shaman', 'tauren']
-                    random.shuffle(_casualty_order)
-                    _lost_names = []
-                    _cas_left = _boss_kills_units
-                    for _cuid in _casualty_order:
-                        if _cas_left <= 0:
+                _bdmg_roll = random.randint(_batk_min, _batk_max)
+                if _bdmg_roll > 0:
+                    for _ in range(_bdmg_roll):
+                        _living = [(u, i) for u in _army for i in range(len(_army[u])) if _army[u][i] > 0]
+                        if not _living:
                             break
-                        if _army.get(_cuid, 0) > 0:
-                            _lose = min(_army[_cuid], _cas_left)
-                            _army[_cuid] -= _lose
-                            if _army[_cuid] <= 0:
-                                del _army[_cuid]
-                            _cas_left -= _lose
-                            _lost_names.append(f'{_lose}x {_cuid}')
-                    _actual_lost = _boss_kills_units - _cas_left
+                        _tu, _ti = random.choice(_living)
+                        _army[_tu][_ti] -= 1
+                    _n_shamans = len([h for h in _army.get('shaman', []) if h > 0])
+                    _heal_pool = _n_shamans * 2
+                    while _heal_pool > 0:
+                        _worst = (None, -1, 0)
+                        for _huid in _army:
+                            _mhp = _UHP.get(_huid, 3)
+                            for _hi, _hh in enumerate(_army[_huid]):
+                                if 0 < _hh < _mhp and (_mhp - _hh) > _worst[2]:
+                                    _worst = (_huid, _hi, _mhp - _hh)
+                        if _worst[0] is None:
+                            break
+                        _army[_worst[0]][_worst[1]] += 1
+                        _heal_pool -= 1
+                    _dead = {}
+                    for _duid in list(_army.keys()):
+                        _alive = [h for h in _army[_duid] if h > 0]
+                        _dk = len(_army[_duid]) - len(_alive)
+                        if _dk > 0:
+                            _dead[_duid] = _dk
+                        if _alive:
+                            _army[_duid] = _alive
+                        else:
+                            del _army[_duid]
+                    state['army'] = _army
+                    _actual_lost = sum(_dead.values())
                     if _actual_lost > 0:
-                        state['army'] = _army
                         stats['units_lost_total'] = stats.get('units_lost_total', 0) + _actual_lost
-                        _lost_str = ', '.join(_lost_names)
-                        _bcounter += ' Boss kills: ' + _lost_str
+                        _bcounter += ' Boss kills: ' + ', '.join(f'{c}x {u}' for u, c in _dead.items())
                         _bentry['boss_atk'] = _actual_lost
+                    _bentry['boss_dmg'] = _bdmg_roll
             _blog.append(_bentry)
             if len(_blog) > 50:
                 _blog = _blog[-50:]
@@ -4518,8 +4596,8 @@ if game_on:
                     stats['fastest_kill_pct'] = round(_pct_used, 3)
                 if _kill_time < stats.get('fastest_kill_secs', 99999):
                     stats['fastest_kill_secs'] = int(_kill_time)
-                if bid == 'archimonde' and _pct_used < stats.get('fastest_archimonde_pct', 1.0):
-                    stats['fastest_archimonde_pct'] = round(_pct_used, 3)
+                if bid == 'lich_king' and _pct_used < stats.get('fastest_lich_king_pct', 1.0):
+                    stats['fastest_lich_king_pct'] = round(_pct_used, 3)
                 hist = state.get('boss_history', [])
                 hist.append(dict(id=bid, name=_boss['name'], result='victory', gold=_reward_g, lumber=_reward_l, drops=drop_names, t=int(time.time()), pct=round(_pct_used, 3)))
                 if len(hist) > 30: hist = hist[-30:]
@@ -4981,7 +5059,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             import random as _rr
             bid = body.get('boss', '')
             st = self._load('.state.json')
-            BOSSES = {'kobold': dict(hp=20,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=30,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'mud_golem': dict(hp=60,days=2,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=60,lumber_r=30,atk_min=0,atk_max=0,name='Mud Golem'), 'troll': dict(hp=150,days=3,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon'],gold_r=150,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=400,days=3,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare'],gold_r=400,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'naga': dict(hp=1000,days=4,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon'],gold_r=800,lumber_r=400,atk_min=0,atk_max=2,name='Naga Sea Witch'), 'infernal': dict(hp=2500,days=5,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare'],gold_r=1500,lumber_r=600,atk_min=0,atk_max=2,name='Infernal'), 'brewmaster': dict(hp=6000,days=5,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare'],gold_r=3000,lumber_r=1200,atk_min=1,atk_max=3,name='Pandaren Brewmaster'), 'mannoroth': dict(hp=15000,days=7,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','uncommon'],gold_r=8000,lumber_r=3000,atk_min=1,atk_max=4,name='Pit Lord Mannoroth'), 'blademaster': dict(hp=40000,days=10,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare'],gold_r=15000,lumber_r=5000,atk_min=2,atk_max=6,name='Blademaster'), 'archimonde': dict(hp=100000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='Archimonde')}
+            BOSSES = {'kobold': dict(hp=20,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=50,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'murloc': dict(hp=60,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=100,lumber_r=30,atk_min=0,atk_max=0,name='Murloc Tidecaller'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon'],gold_r=200,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=800,days=2,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare'],gold_r=600,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'whelps': dict(hp=1000,days=2,unlock_kills=4,unlock_lvl=0,unlock_bld=[],fee=100,loot=['uncommon','uncommon'],gold_r=800,lumber_r=300,atk_min=0,atk_max=1,name='Dragon Whelp Swarm'), 'naga': dict(hp=1500,days=3,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon'],gold_r=1000,lumber_r=400,atk_min=0,atk_max=2,name='Naga Sea Witch'), 'tichondrius': dict(hp=2500,days=3,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare'],gold_r=2500,lumber_r=600,atk_min=0,atk_max=2,name='Tichondrius'), 'illidan': dict(hp=6000,days=3,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare'],gold_r=4000,lumber_r=1200,atk_min=1,atk_max=3,name='Illidan Stormrage'), 'mannoroth': dict(hp=15000,days=5,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','uncommon'],gold_r=10000,lumber_r=3000,atk_min=1,atk_max=4,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=40000,days=10,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare'],gold_r=15000,lumber_r=5000,atk_min=2,atk_max=6,name='Archimonde'), 'lich_king': dict(hp=100000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='The Lich King')}
             if st.get('active_boss'):
                 return self._json(400, {'error': 'Already in a raid'})
             if 'dark_portal' not in st.get('buildings', {}):
@@ -5049,6 +5127,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 if k in body: cfg[k] = body[k]
             self._save('config.json', cfg)
             self._json(200, {'ok': True})
+        elif self.path == '/api/surrender':
+            st = self._load('.state.json')
+            boss = st.get('active_boss')
+            if not boss:
+                return self._json(400, {'error': 'No active raid'})
+            fee = boss.get('entry_fee', 0)
+            penalty = fee // 2
+            ec = st.setdefault('economy', {})
+            ec['gold'] = ec.get('gold', 0) - penalty
+            hist = st.get('boss_history', [])
+            hist.append(dict(id=boss['id'], name=boss['name'], result='escaped', penalty=penalty, t=int(time.time())))
+            if len(hist) > 30: hist = hist[-30:]
+            st['boss_history'] = hist
+            if boss['id'] == 'whelps' and boss.get('hp', 0) <= boss.get('max_hp', 1) * 0.2:
+                st.setdefault('stats', {})['whelp_leeroy'] = True
+            st['economy'] = ec
+            st['active_boss'] = None
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'penalty': penalty})
         elif self.path == '/api/resurrect':
             st = self._load('.state.json')
             if 'altar' not in st.get('buildings', {}):
@@ -5212,27 +5309,32 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))
-            UNITS = {'grunt':(100,0,2),'raider':(400,100,3),'tauren':(1000,400,5),'shaman':(300,100,2)}
+            UNITS = {'grunt':(100,0,2,30),'raider':(400,100,3,50),'tauren':(1000,400,5,80),'shaman':(300,100,2,20)}
             if uid not in UNITS:
                 return self._json(400, {'error': 'Unknown unit'})
             st = self._load('.state.json')
             if 'barracks' not in st.get('buildings', {}):
                 return self._json(400, {'error': 'Build Barracks first'})
-            ug, ul, uf = UNITS[uid]
+            ug, ul, uf, uhp = UNITS[uid]
             ec = st.setdefault('economy', {})
             g, l = ec.get('gold', 0), ec.get('lumber', 0)
             tg, tl = ug * cnt, ul * cnt
             if g < tg or l < tl:
                 return self._json(400, {'error': f'Need {tg}g/{tl}l'})
             army = st.get('army', {})
+            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            for _uk in list(army.keys()):
+                if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             bld = st.get('buildings', {})
             fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0)
-            fu = sum(UNITS.get(u, (0,0,0))[2] * c for u, c in army.items())
+            fu = sum(UNITS.get(u, (0,0,0,0))[2] * len(hps) for u, hps in army.items())
             if fu + uf * cnt > fc:
                 return self._json(400, {'error': 'Not enough food'})
             ec['gold'] = g - tg
             ec['lumber'] = l - tl
-            army[uid] = army.get(uid, 0) + cnt
+            existing = army.get(uid, [])
+            existing.extend([uhp] * cnt)
+            army[uid] = existing
             st['army'] = army
             st['economy'] = ec
             sts = st.setdefault('stats', {})
@@ -5245,11 +5347,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             cnt = max(1, int(body.get('count', 1)))
             st = self._load('.state.json')
             army = st.get('army', {})
-            cur = army.get(uid, 0)
+            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            for _uk in list(army.keys()):
+                if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
+            cur = len(army.get(uid, []))
             if cur <= 0:
                 return self._json(400, {'error': 'No such unit in army'})
-            army[uid] = max(0, cur - cnt)
-            if army[uid] <= 0:
+            army[uid] = army[uid][:-cnt] if cnt < cur else []
+            if not army[uid]:
                 army.pop(uid, None)
             st['army'] = army
             self._save('.state.json', st)

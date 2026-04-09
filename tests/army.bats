@@ -58,7 +58,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [[ "$output" == *"Hired"* ]]
   [[ "$output" == *"Grunt"* ]]
   local count
-  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
+  count=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(len(v) if isinstance(v,list) else v)")
   [ "$count" -eq 1 ]
 }
 
@@ -85,7 +85,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$status" -eq 0 ]
   [[ "$output" == *"3x Grunt"* ]]
   local count
-  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
+  count=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(len(v) if isinstance(v,list) else v)")
   [ "$count" -eq 3 ]
 }
 
@@ -146,7 +146,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$status" -eq 0 ]
   [[ "$output" == *"Dismissed"* ]]
   local count
-  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
+  count=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(len(v) if isinstance(v,list) else v)")
   [ "$count" -eq 2 ]
 }
 
@@ -214,9 +214,11 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local count
-  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
-  # archimonde kills 3-10 per turn, so grunts should be fewer than 10
-  [ "$count" -lt 10 ]
+  count=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(len(v) if isinstance(v,list) else v)")
+  # archimonde deals 3-10 damage per turn to units with 3 HP each
+  # some grunts should have taken damage (total HP < 30)
+  total_hp=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(sum(v) if isinstance(v,list) else v*3)")
+  [ "$total_hp" -lt 30 ]
 }
 
 @test "boss with atk_max 0 does not kill units" {
@@ -224,7 +226,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   bash "$PEON_SH" raid kobold
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local count
-  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
+  count=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(len(v) if isinstance(v,list) else v)")
   [ "$count" -eq 3 ]
 }
 
@@ -235,13 +237,14 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 import json, datetime
 s = json.load(open('$TEST_DIR/.state.json'))
 dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
-s['active_boss'] = {'id': 'brewmaster', 'name': 'Pandaren Brewmaster', 'hp': 5000, 'max_hp': 6000, 'deadline': dl, 'loot_tier': 'epic', 'entry_fee': 0, 'gold_reward': 3000, 'lumber_reward': 1200, 'atk_min': 1, 'atk_max': 3}
+s['active_boss'] = {'id': 'illidan', 'name': 'Illidan Stormrage', 'hp': 5000, 'max_hp': 6000, 'deadline': dl, 'loot_tier': 'epic', 'entry_fee': 0, 'gold_reward': 4000, 'lumber_reward': 1200, 'atk_min': 1, 'atk_max': 3}
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
-  # 2 shamans = 4 heal, boss atk 1-3, so 4 heal always covers it => 0 casualties
+  # 2 shamans heal 2 HP each = 4 HP healed per turn
+  # Boss atk 1-3 damage, shaman heal covers most/all of it => units survive
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local total
-  total=$(python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); a=s.get('army',{}); print(sum(a.values()))")
+  total=$(python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); a=s.get('army',{}); print(sum(len(v) if isinstance(v,list) else v for v in a.values()))")
   [ "$total" -eq 7 ]
 }
 
