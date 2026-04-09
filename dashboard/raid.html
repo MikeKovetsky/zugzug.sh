@@ -128,7 +128,7 @@ a:hover { color: #e0c050; }
 <div class="top-bar">
   <h1>&#x1F52E; Dark Portal — Boss Raids</h1>
   <div class="res">Gold: <span id="gold">0</span> | Lumber: <span id="lumber">0</span></div>
-  <a class="nav-link" href="/">&#x2190; Base Dashboard</a>
+  <a class="nav-link" href="/army">&#x1F6E1;&#xFE0F; Army</a> &nbsp; <a class="nav-link" href="/">&#x2190; Base</a>
 </div>
 
 <div class="container">
@@ -260,7 +260,7 @@ function renderActiveBoss(boss) {
   var log = boss.log || [];
   var hits = log.filter(function(e) { return e.dmg > 0 && !e.counter; });
   if (hits.length > 0) {
-    var totals = {base:0, combo:0, items:0, bloodstone:0, smith:0, execute:0, crit:0, tired:0};
+    var totals = {base:0, combo:0, items:0, army:0, bloodstone:0, smith:0, execute:0, crit:0, tired:0};
     hits.forEach(function(e) {
       var b = e.bk || {};
       for (var k in totals) { totals[k] += (b[k] || 0); }
@@ -272,6 +272,7 @@ function renderActiveBoss(boss) {
     if (totals.base) parts.push('Base: ' + totals.base);
     if (totals.combo) parts.push('Combo: +' + totals.combo);
     if (totals.items) parts.push('Items: +' + totals.items);
+    if (totals.army) parts.push('Army: +' + totals.army);
     if (totals.bloodstone) parts.push('Bloodstone: +' + totals.bloodstone);
     if (totals.smith) parts.push('Blacksmith: +' + totals.smith);
     if (totals.execute) parts.push('Execute: +' + totals.execute);
@@ -304,6 +305,7 @@ function renderBattleLog(boss) {
       if (e.bk.base) bp.push(e.bk.base);
       if (e.bk.combo) bp.push('+' + e.bk.combo + ' combo');
       if (e.bk.items) bp.push('+' + e.bk.items + ' items');
+      if (e.bk.army) bp.push('+' + e.bk.army + ' army');
       if (e.bk.bloodstone) bp.push('+' + e.bk.bloodstone + ' bloodstone');
       if (e.bk.smith) bp.push('+' + e.bk.smith + ' smith');
       if (e.bk.crit) bp.push('+' + e.bk.crit + ' crit');

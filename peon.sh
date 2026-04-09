@@ -2573,6 +2573,13 @@ class H(http.server.BaseHTTPRequestHandler):
             try: data = open(os.path.join(PEON_DIR,'raid.html')).read()
             except: data = '<h1>Raid page not found</h1>'
             self.wfile.write(data.encode())
+        elif self.path == '/army':
+            self.send_response(200)
+            self.send_header('Content-Type','text/html')
+            self.end_headers()
+            try: data = open(os.path.join(PEON_DIR,'army.html')).read()
+            except: data = '<h1>Army page not found</h1>'
+            self.wfile.write(data.encode())
         else:
             self.send_response(404)
             self.end_headers()
@@ -4897,6 +4904,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             try: data = open(os.path.join(PEON_DIR, 'raid.html')).read()
             except: data = '<h1>Raid page not found</h1>'
+            self.wfile.write(data.encode())
+        elif self.path == '/army':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            try: data = open(os.path.join(PEON_DIR, 'army.html')).read()
+            except: data = '<h1>Army page not found</h1>'
             self.wfile.write(data.encode())
         else:
             self.send_response(404)

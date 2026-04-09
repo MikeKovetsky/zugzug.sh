@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peon-Ping — Army</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%230d1a2e' stroke='%234488cc' stroke-width='2.5'/><circle cx='32' cy='26' r='14' fill='%234488ff' opacity='0.15'/><path d='M19 56C19 34 23 20 32 14C41 20 45 34 45 56' fill='%231a3a6a'/><path d='M23 54C23 36 26 24 32 18C38 24 41 36 41 54' fill='%230d2244'/><ellipse cx='32' cy='33' rx='7' ry='8' fill='%23f0d0a0'/><path d='M25 31C25 23 32 18 32 18C32 18 39 23 39 31' fill='%23e8c030'/><path d='M25 31C23 37 24 43 25 46' stroke='%23e8c030' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M39 31C41 37 40 43 39 46' stroke='%23e8c030' stroke-width='3' fill='none' stroke-linecap='round'/><ellipse cx='29' cy='33' rx='1.5' ry='1.2' fill='%2366ccff'/><ellipse cx='35' cy='33' rx='1.5' ry='1.2' fill='%2366ccff'/><path d='M30 37Q32 38.5 34 37' stroke='%23c8a080' stroke-width='0.8' fill='none'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e14;
+  --panel: #111820;
+  --border: #1a2a3a;
+  --gold: #c8a030;
+  --text: #c0c8d0;
+  --text-dim: #607080;
+  --red: #c04040;
+  --green: #40a060;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; }
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: #e0c050; }
+
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; background: var(--panel); border-bottom: 1px solid var(--border);
+}
+.top-bar h1 { font-family: 'Cinzel', serif; font-size: 1.4em; color: var(--gold); }
+.top-bar .res { font-size: 0.85em; color: var(--text-dim); }
+.top-bar .res span { color: var(--gold); margin-left: 4px; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 24px; }
+
+.section-title {
+  font-family: 'Cinzel', serif; font-size: 1.1em; color: var(--gold);
+  margin-bottom: 16px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+
+.no-barracks { text-align: center; padding: 12px 20px; color: var(--text-dim); background: var(--panel); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; }
+.no-barracks strong { color: var(--gold); }
+
+.food-bar-wrap { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+.food-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.food-label { font-size: 0.9em; color: var(--text-dim); min-width: 80px; }
+.food-bar-bg { flex: 1; background: #1a1a2a; border-radius: 6px; height: 24px; overflow: hidden; position: relative; border: 1px solid #333; min-width: 200px; }
+.food-bar-fill { height: 100%; background: linear-gradient(90deg, #40a060, #60c080); transition: width 0.4s; border-radius: 5px; }
+.food-bar-fill.high { background: linear-gradient(90deg, #c08030, #e0a040); }
+.food-bar-fill.full { background: linear-gradient(90deg, #c04040, #e06060); }
+.food-bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 700; font-size: 0.85em; color: #fff; text-shadow: 0 1px 3px #000; }
+.army-stats { display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap; font-size: 0.85em; }
+.army-stat { color: var(--text-dim); }
+.army-stat b { color: var(--text); }
+
+.army-list { margin-bottom: 24px; }
+.army-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px;
+}
+.army-row .unit-icon { font-size: 1.6em; width: 36px; text-align: center; }
+.army-row .unit-icon img { width: 32px; height: 32px; image-rendering: pixelated; }
+.army-row .unit-name { font-weight: 700; min-width: 130px; }
+.army-row .unit-count { color: var(--gold); font-weight: 700; min-width: 40px; }
+.army-row .unit-stats { font-size: 0.8em; color: var(--text-dim); flex: 1; }
+.army-row .unit-stats span { color: var(--text); }
+.dismiss-btn {
+  background: #2a1a1a; color: var(--red); border: 1px solid #3a2020; border-radius: 4px;
+  padding: 4px 10px; cursor: pointer; font-size: 0.8em; font-weight: 700;
+}
+.dismiss-btn:hover { background: #3a2020; }
+
+.unit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.unit-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px; cursor: pointer; transition: all 0.2s;
+}
+.unit-card:hover:not(.disabled) { border-color: var(--gold); transform: translateY(-2px); }
+.unit-card.disabled { opacity: 0.4; cursor: not-allowed; }
+.unit-card .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.unit-card .card-icon { font-size: 1.8em; }
+.unit-card .card-icon img { width: 32px; height: 32px; image-rendering: pixelated; }
+.unit-card .card-name { font-family: 'Cinzel', serif; font-size: 0.95em; color: #ddd; }
+.unit-card .card-cost { font-size: 0.8em; margin-top: 2px; }
+.unit-card .card-cost .gc { color: var(--gold); }
+.unit-card .card-cost .lc { color: #5a5; }
+.unit-card .card-desc { font-size: 0.8em; color: var(--text-dim); margin-top: 6px; }
+.unit-card .card-warn { font-size: 0.75em; color: var(--red); margin-top: 4px; }
+
+.btn { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.9em; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-gold:hover { background: #e0c050; }
+.btn-cancel { background: #333; color: #aaa; margin-left: 8px; }
+.btn-cancel:hover { background: #444; }
+
+.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+.overlay.active { display: flex; }
+.confirm-box {
+  background: var(--panel); border: 2px solid var(--gold); border-radius: 12px;
+  padding: 32px; max-width: 400px; text-align: center;
+}
+.confirm-box h3 { font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 12px; font-size: 1.2em; }
+.confirm-box p { margin-bottom: 8px; font-size: 0.9em; color: var(--text-dim); }
+.qty-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; }
+.qty-btn { background: #333; color: var(--text); border: 1px solid #555; border-radius: 4px; width: 32px; height: 32px; cursor: pointer; font-size: 1.2em; font-weight: 700; }
+.qty-btn:hover { background: #444; }
+.qty-val { font-size: 1.4em; font-weight: 700; color: var(--gold); min-width: 40px; text-align: center; }
+.cost-line { font-size: 0.9em; color: var(--text-dim); margin-bottom: 16px; }
+.cost-line .gc { color: var(--gold); }
+.cost-line .lc { color: #5a5; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a2a1a; color: var(--green); border: 1px solid var(--green); border-radius: 8px; padding: 10px 24px; font-weight: 700; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.err { background: #2a1a1a; color: var(--red); border-color: var(--red); }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>&#x1F6E1;&#xFE0F; Army</h1>
+  <div class="res">Gold: <span id="gold">0</span> | Lumber: <span id="lumber">0</span></div>
+  <div>
+    <a href="/">&#x2190; Base</a> &nbsp; <a href="/raid">&#x2694;&#xFE0F; Raids</a>
+  </div>
+</div>
+
+<div class="container">
+  <div id="no-barracks" class="no-barracks" style="display:none">
+    <p>&#x1F512; Build the <strong>Barracks</strong> to recruit units. (3,000g / 1,200l)</p>
+  </div>
+
+  <div id="food-section" style="display:none">
+    <div class="food-bar-wrap">
+      <div class="food-row">
+        <span class="food-label">&#x1F356; Food</span>
+        <div class="food-bar-bg">
+          <div class="food-bar-fill" id="food-fill"></div>
+          <div class="food-bar-text" id="food-text">0 / 12</div>
+        </div>
+      </div>
+      <div class="army-stats" id="army-stats"></div>
+    </div>
+  </div>
+
+  <div id="army-section" style="display:none">
+    <div class="section-title">Your Army</div>
+    <div class="army-list" id="army-list"></div>
+  </div>
+
+  <div id="hire-section" style="display:none">
+    <div class="section-title">Recruit Units</div>
+    <div class="unit-grid" id="unit-grid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="hire-overlay">
+  <div class="confirm-box">
+    <h3 id="hire-name"></h3>
+    <p id="hire-desc"></p>
+    <div class="qty-row">
+      <button class="qty-btn" id="qty-minus">-</button>
+      <span class="qty-val" id="qty-val">1</span>
+      <button class="qty-btn" id="qty-plus">+</button>
+    </div>
+    <div class="cost-line" id="hire-cost"></div>
+    <button class="btn btn-gold" id="hire-btn">Hire</button>
+    <button class="btn btn-cancel" id="hire-cancel">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
+function w3img(p) { return '<img src="' + W3 + p + '" style="width:32px;height:32px;image-rendering:pixelated">'; }
+
+var UNITS = {
+  grunt:        {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, desc:'+1 raid damage',                           icon: w3img('orc/grunt.gif')},
+  headhunter:   {name:'Headhunter',     gold:150,  lumber:0,   food:2, dmg:2,  armor:0,  heal:0, desc:'+2 raid damage',                           icon: w3img('orc/headhunter.gif')},
+  raider:       {name:'Raider',         gold:250,  lumber:50,  food:3, dmg:3,  armor:0,  heal:0, desc:'+3 raid damage',                           icon: w3img('orc/raider.gif')},
+  shaman:       {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:0,  heal:1, desc:'Healer. -1 casualty from counter-attacks',  icon: w3img('orc/shaman.gif')},
+  witch_doctor: {name:'Witch Doctor',   gold:400,  lumber:150, food:2, dmg:1,  armor:0,  heal:2, desc:'Healer. -2 casualties, +1 raid damage',    icon: w3img('orc/witchdoctor.gif')},
+  tauren:       {name:'Tauren Warrior', gold:500,  lumber:200, food:4, dmg:5,  armor:25, heal:0, desc:'+5 raid damage, 25% counter reduction',    icon: w3img('orc/tauren.gif')},
+  kodo:         {name:'Kodo Beast',     gold:600,  lumber:250, food:4, dmg:4,  armor:15, heal:0, desc:'+4 raid damage, 15% counter reduction',    icon: w3img('orc/kodobeast.gif')},
+  wind_rider:   {name:'Wind Rider',     gold:800,  lumber:300, food:3, dmg:8,  armor:0,  heal:0, desc:'+8 raid damage',                           icon: w3img('orc/windrider.gif')},
+  demolisher:   {name:'Demolisher',     gold:1000, lumber:500, food:5, dmg:12, armor:0,  heal:0, desc:'+12 raid damage (siege)',                   icon: w3img('orc/demolisher.gif')}
+};
+
+var pendingUnit = null;
+var hireQty = 1;
+var currentState = {};
+
+function $(id) { return document.getElementById(id); }
+
+function toast(msg, err) {
+  var el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (err ? ' err' : '');
+  setTimeout(function() { el.className = 'toast'; }, 2000);
+}
+
+function apiPost(url, data) {
+  return fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)}).then(function(r){return r.json();});
+}
+
+function getFoodCap(buildings) {
+  var cap = 12;
+  if (buildings.fortress) cap += 8;
+  if (buildings.citadel) cap += 10;
+  return cap;
+}
+
+function getFoodUsed(army) {
+  var used = 0;
+  for (var uid in army) {
+    if (UNITS[uid]) used += UNITS[uid].food * army[uid];
+  }
+  return used;
+}
+
+function poll() {
+  fetch('/api/state').then(function(r){return r.json();}).then(render).catch(function(){});
+}
+
+function render(s) {
+  currentState = s;
+  var ec = s.economy || {};
+  var buildings = s.buildings || {};
+  var army = s.army || {};
+
+  $('gold').textContent = ec.gold || 0;
+  $('lumber').textContent = ec.lumber || 0;
+
+  var hasBarracks = !!buildings.barracks;
+  $('no-barracks').style.display = hasBarracks ? 'none' : '';
+  $('food-section').style.display = hasBarracks ? '' : 'none';
+  $('army-section').style.display = hasBarracks ? '' : 'none';
+  $('hire-section').style.display = hasBarracks ? '' : 'none';
+
+  if (!hasBarracks) return;
+
+  var foodCap = getFoodCap(buildings);
+  var foodUsed = getFoodUsed(army);
+  var foodPct = Math.min(100, foodUsed / foodCap * 100);
+
+  var fill = $('food-fill');
+  fill.style.width = foodPct + '%';
+  fill.className = 'food-bar-fill' + (foodPct >= 100 ? ' full' : foodPct >= 75 ? ' high' : '');
+  $('food-text').textContent = foodUsed + ' / ' + foodCap;
+
+  var totalUnits = 0, totalDmg = 0, totalArmor = 0, totalHeal = 0, upkeep = 0;
+  for (var uid in army) {
+    var u = UNITS[uid];
+    if (!u) continue;
+    var cnt = army[uid];
+    totalUnits += cnt;
+    totalDmg += u.dmg * cnt;
+    totalArmor += u.armor * cnt;
+    totalHeal += u.heal * cnt;
+    upkeep += Math.floor(u.gold / 10) * cnt;
+  }
+  totalArmor = Math.min(50, totalArmor);
+
+  var statsHtml = '';
+  statsHtml += '<span class="army-stat">Units: <b>' + totalUnits + '</b></span>';
+  statsHtml += '<span class="army-stat">Raid dmg: <b>+' + totalDmg + '</b></span>';
+  if (totalArmor > 0) statsHtml += '<span class="army-stat">Counter armor: <b>-' + totalArmor + '%</b></span>';
+  if (totalHeal > 0) statsHtml += '<span class="army-stat">Heal: <b>-' + totalHeal + ' casualties</b></span>';
+  if (upkeep > 0) statsHtml += '<span class="army-stat">Daily upkeep: <b>' + upkeep + 'g</b></span>';
+  $('army-stats').innerHTML = statsHtml;
+
+  renderArmy(army);
+  renderHireGrid(ec, buildings, army, foodCap, foodUsed);
+}
+
+function renderArmy(army) {
+  var el = $('army-list');
+  var keys = Object.keys(army).filter(function(k) { return army[k] > 0 && UNITS[k]; });
+  if (keys.length === 0) {
+    el.innerHTML = '<div style="color:var(--text-dim);padding:12px">No units hired yet. Recruit below!</div>';
+    return;
+  }
+  var html = '';
+  keys.forEach(function(uid) {
+    var u = UNITS[uid];
+    var cnt = army[uid];
+    html += '<div class="army-row">';
+    html += '<span class="unit-icon">' + u.icon + '</span>';
+    html += '<span class="unit-name">' + u.name + '</span>';
+    html += '<span class="unit-count">x' + cnt + '</span>';
+    html += '<span class="unit-stats">+<span>' + (u.dmg * cnt) + '</span> dmg &middot; <span>' + (u.food * cnt) + '</span> food</span>';
+    html += '<button class="dismiss-btn" data-uid="' + uid + '">Dismiss</button>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.dismiss-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var uid = this.getAttribute('data-uid');
+      apiPost('/api/dismiss', {unit: uid, count: 1}).then(function(res) {
+        if (res.ok) { toast('Dismissed 1 ' + UNITS[uid].name); poll(); }
+        else toast(res.error || 'Failed', true);
+      });
+    });
+  });
+}
+
+function renderHireGrid(ec, buildings, army, foodCap, foodUsed) {
+  var grid = $('unit-grid');
+  grid.innerHTML = '';
+  var gold = ec.gold || 0;
+  var lumber = ec.lumber || 0;
+
+  Object.keys(UNITS).forEach(function(uid) {
+    var u = UNITS[uid];
+    var canAfford = gold >= u.gold && lumber >= u.lumber;
+    var hasFood = foodUsed + u.food <= foodCap;
+    var disabled = !canAfford || !hasFood;
+
+    var card = document.createElement('div');
+    card.className = 'unit-card' + (disabled ? ' disabled' : '');
+
+    var costStr = '<span class="gc">' + u.gold + 'g</span>';
+    if (u.lumber > 0) costStr += ' / <span class="lc">' + u.lumber + 'l</span>';
+    costStr += ' &middot; ' + u.food + ' food';
+
+    var html = '<div class="card-top"><span class="card-icon">' + u.icon + '</span><div><div class="card-name">' + u.name + '</div><div class="card-cost">' + costStr + '</div></div></div>';
+    html += '<div class="card-desc">' + u.desc + '</div>';
+    if (!canAfford) html += '<div class="card-warn">Not enough resources</div>';
+    else if (!hasFood) html += '<div class="card-warn">Not enough food</div>';
+
+    card.innerHTML = html;
+
+    if (!disabled) {
+      card.addEventListener('click', function() {
+        pendingUnit = uid;
+        hireQty = 1;
+        showHireDialog(uid, ec, buildings, army, foodCap, foodUsed);
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+
+function showHireDialog(uid, ec, buildings, army, foodCap, foodUsed) {
+  var u = UNITS[uid];
+  $('hire-name').textContent = u.name;
+  $('hire-desc').textContent = u.desc;
+  updateHireCost(uid, ec, foodCap, foodUsed);
+  $('hire-overlay').classList.add('active');
+}
+
+function updateHireCost(uid, ec, foodCap, foodUsed) {
+  var u = UNITS[uid];
+  var gold = (ec || (currentState.economy || {})).gold || 0;
+  var lumber = (ec || (currentState.economy || {})).lumber || 0;
+  var maxByGold = u.gold > 0 ? Math.floor(gold / u.gold) : 99;
+  var maxByLumber = u.lumber > 0 ? Math.floor(lumber / u.lumber) : 99;
+  var maxByFood = u.food > 0 ? Math.floor((foodCap - foodUsed) / u.food) : 99;
+  var maxQty = Math.max(1, Math.min(maxByGold, maxByLumber, maxByFood, 20));
+  hireQty = Math.min(hireQty, maxQty);
+  hireQty = Math.max(1, hireQty);
+  $('qty-val').textContent = hireQty;
+  var costStr = '<span class="gc">' + (u.gold * hireQty) + 'g</span>';
+  if (u.lumber > 0) costStr += ' / <span class="lc">' + (u.lumber * hireQty) + 'l</span>';
+  costStr += ' &middot; ' + (u.food * hireQty) + ' food';
+  $('hire-cost').innerHTML = 'Cost: ' + costStr;
+}
+
+$('qty-minus').addEventListener('click', function() {
+  if (hireQty > 1) { hireQty--; updateHireCost(pendingUnit); }
+});
+$('qty-plus').addEventListener('click', function() {
+  hireQty++;
+  updateHireCost(pendingUnit);
+});
+
+$('hire-btn').addEventListener('click', function() {
+  if (!pendingUnit) return;
+  $('hire-overlay').classList.remove('active');
+  apiPost('/api/hire', {unit: pendingUnit, count: hireQty}).then(function(res) {
+    if (res.ok) { toast('Hired ' + hireQty + 'x ' + UNITS[pendingUnit].name); poll(); }
+    else toast(res.error || 'Failed', true);
+  }).catch(function() { toast('Request failed', true); });
+  pendingUnit = null;
+});
+
+$('hire-cancel').addEventListener('click', function() {
+  $('hire-overlay').classList.remove('active');
+  pendingUnit = null;
+});
+
+poll();
+setInterval(poll, 3000);
+</script>
+</body>
+</html>
