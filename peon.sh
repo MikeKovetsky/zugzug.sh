@@ -1608,7 +1608,7 @@ print(f'Lifetime lumber earned: {stats.get(\"total_lumber_earned\", 0)}')
 army = state.get('army', {})
 if army:
     buildings = state.get('buildings', {})
-    _UNIT_UPKEEP = {'grunt': 10, 'headhunter': 15, 'raider': 25, 'shaman': 30, 'witch_doctor': 40, 'tauren': 50, 'kodo': 60, 'wind_rider': 80, 'demolisher': 100}
+    _UNIT_UPKEEP = {'grunt': 10, 'raider': 40, 'tauren': 100, 'shaman': 30}
     total_units = sum(army.values())
     upkeep_cost = sum(_UNIT_UPKEEP.get(uid, 0) * cnt for uid, cnt in army.items())
     food_cap = 12
@@ -1616,7 +1616,7 @@ if army:
         food_cap += 8
     if 'citadel' in buildings:
         food_cap += 10
-    _UNIT_FOOD = {'grunt': 2, 'headhunter': 2, 'raider': 3, 'shaman': 2, 'witch_doctor': 2, 'tauren': 4, 'kodo': 4, 'wind_rider': 3, 'demolisher': 5}
+    _UNIT_FOOD = {'grunt': 2, 'raider': 3, 'tauren': 5, 'shaman': 2}
     food_used = sum(_UNIT_FOOD.get(uid, 0) * cnt for uid, cnt in army.items())
     print(f'Army: {total_units} units ({food_used}/{food_cap} food) | Daily upkeep: {upkeep_cost}g')
 if gold < 0:
@@ -2327,15 +2327,10 @@ gold = econ.get('gold', 0)
 lumber = econ.get('lumber', 0)
 army = state.get('army', {})
 UNITS = {
-    'grunt':       dict(name='Grunt',        gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, desc='Melee infantry. +1 raid damage.'),
-    'headhunter':  dict(name='Headhunter',   gold=150,  lumber=0,   food=2, boss_dmg=2,  armor=0,  heal=0, desc='Ranged troll. +2 raid damage.'),
-    'raider':      dict(name='Raider',        gold=250,  lumber=50,  food=3, boss_dmg=3,  armor=0,  heal=0, desc='Wolf rider. +3 raid damage.'),
-    'shaman':      dict(name='Shaman',        gold=300,  lumber=100, food=2, boss_dmg=0,  armor=0,  heal=1, desc='Healer. Reduces casualties by 1.'),
-    'witch_doctor':dict(name='Witch Doctor', gold=400,  lumber=150, food=2, boss_dmg=1,  armor=0,  heal=2, desc='Voodoo healer. Reduces casualties by 2. +1 raid damage.'),
-    'tauren':      dict(name='Tauren Warrior',gold=500,  lumber=200, food=4, boss_dmg=5,  armor=25, heal=0, desc='Heavy melee. +5 raid damage. 25% counter-attack reduction.'),
-    'kodo':        dict(name='Kodo Beast',    gold=600,  lumber=250, food=4, boss_dmg=4,  armor=15, heal=0, desc='War beast. +4 raid damage. 15% counter-attack reduction.'),
-    'wind_rider':  dict(name='Wind Rider',    gold=800,  lumber=300, food=3, boss_dmg=8,  armor=0,  heal=0, desc='Wyvern rider. +8 raid damage.'),
-    'demolisher':  dict(name='Demolisher',    gold=1000, lumber=500, food=5, boss_dmg=12, armor=0,  heal=0, desc='Siege engine. +12 raid damage.'),
+    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, desc='Infantry. +1 raid damage.'),
+    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, desc='Wolf rider. +4 raid damage.'),
+    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, desc='Elite. +10 raid damage.'),
+    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=2, desc='Healer. -2 casualties. 25% counter reduction.'),
 }
 food_cap = 12
 if 'fortress' in buildings:
@@ -2388,15 +2383,10 @@ if not unit_id:
     print('See available units: peon army')
     sys.exit(1)
 UNITS = {
-    'grunt':       dict(name='Grunt',        gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0),
-    'headhunter':  dict(name='Headhunter',   gold=150,  lumber=0,   food=2, boss_dmg=2,  armor=0,  heal=0),
-    'raider':      dict(name='Raider',        gold=250,  lumber=50,  food=3, boss_dmg=3,  armor=0,  heal=0),
-    'shaman':      dict(name='Shaman',        gold=300,  lumber=100, food=2, boss_dmg=0,  armor=0,  heal=1),
-    'witch_doctor':dict(name='Witch Doctor', gold=400,  lumber=150, food=2, boss_dmg=1,  armor=0,  heal=2),
-    'tauren':      dict(name='Tauren Warrior',gold=500,  lumber=200, food=4, boss_dmg=5,  armor=25, heal=0),
-    'kodo':        dict(name='Kodo Beast',    gold=600,  lumber=250, food=4, boss_dmg=4,  armor=15, heal=0),
-    'wind_rider':  dict(name='Wind Rider',    gold=800,  lumber=300, food=3, boss_dmg=8,  armor=0,  heal=0),
-    'demolisher':  dict(name='Demolisher',    gold=1000, lumber=500, food=5, boss_dmg=12, armor=0,  heal=0),
+    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0),
+    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0),
+    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0),
+    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=2),
 }
 unit_id = unit_id.lower().replace('-', '_')
 if unit_id not in UNITS:
@@ -2461,15 +2451,10 @@ if not unit_id:
     print('Usage: peon dismiss <unit> [count]')
     sys.exit(1)
 UNITS = {
-    'grunt':       dict(name='Grunt'),
-    'headhunter':  dict(name='Headhunter'),
-    'raider':      dict(name='Raider'),
-    'shaman':      dict(name='Shaman'),
-    'witch_doctor':dict(name='Witch Doctor'),
-    'tauren':      dict(name='Tauren Warrior'),
-    'kodo':        dict(name='Kodo Beast'),
-    'wind_rider':  dict(name='Wind Rider'),
-    'demolisher':  dict(name='Demolisher'),
+    'grunt':   dict(name='Grunt'),
+    'raider':  dict(name='Raider'),
+    'tauren':  dict(name='Tauren Warrior'),
+    'shaman':  dict(name='Shaman'),
 }
 unit_id = unit_id.lower().replace('-', '_')
 if unit_id not in UNITS:
@@ -2808,7 +2793,7 @@ class H(http.server.BaseHTTPRequestHandler):
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))
-            UNITS = {'grunt':(100,0,2),'headhunter':(150,0,2),'raider':(250,50,3),'shaman':(300,100,2),'witch_doctor':(400,150,2),'tauren':(500,200,4),'kodo':(600,250,4),'wind_rider':(800,300,3),'demolisher':(1000,500,5)}
+            UNITS = {'grunt':(100,0,2),'raider':(400,100,3),'tauren':(1000,400,5),'shaman':(300,100,2)}
             if uid not in UNITS:
                 return self._json(400, {'error': 'Unknown unit'})
             st = self._load('.state.json')
@@ -3692,7 +3677,7 @@ if game_on:
 
         _army = state.get('army', {})
         if _army:
-            _UNIT_UPKEEP = {'grunt': 10, 'headhunter': 15, 'raider': 25, 'shaman': 30, 'witch_doctor': 40, 'tauren': 50, 'kodo': 60, 'wind_rider': 80, 'demolisher': 100}
+            _UNIT_UPKEEP = {'grunt': 10, 'raider': 40, 'tauren': 100, 'shaman': 30}
             _army_upkeep = sum(_UNIT_UPKEEP.get(uid, 0) * cnt for uid, cnt in _army.items())
             if _army_upkeep > 0:
                 econ['gold'] = econ.get('gold', 0) - _army_upkeep
@@ -4330,7 +4315,7 @@ if game_on:
                     _bdmg += _bc2
                     if _bc2: _bk['bloodstone'] = _bc2
                 _army = state.get('army', {})
-                _UNIT_DMG = {'grunt': 1, 'headhunter': 2, 'raider': 3, 'shaman': 0, 'witch_doctor': 1, 'tauren': 5, 'kodo': 4, 'wind_rider': 8, 'demolisher': 12}
+                _UNIT_DMG = {'grunt': 1, 'raider': 4, 'tauren': 10, 'shaman': 0}
                 _army_dmg = sum(_UNIT_DMG.get(uid, 0) * cnt for uid, cnt in _army.items())
                 if _army_dmg > 0:
                     _bdmg += _army_dmg
@@ -4375,8 +4360,8 @@ if game_on:
                     state['item_durability'] = _durability
                 _armor_pct = _sum_effect('boss_armor')
                 _army = state.get('army', {})
-                _UNIT_ARMOR = {'tauren': 25, 'kodo': 15}
-                _UNIT_HEAL = {'shaman': 1, 'witch_doctor': 2}
+                _UNIT_ARMOR = {'shaman': 25}
+                _UNIT_HEAL = {'shaman': 2}
                 _army_armor = min(50, sum(_UNIT_ARMOR.get(uid, 0) * cnt for uid, cnt in _army.items()))
                 _armor_pct = min(90, (_armor_pct or 0) + _army_armor)
                 if _armor_pct:
@@ -4391,7 +4376,7 @@ if game_on:
                     _army_heal = sum(_UNIT_HEAL.get(uid, 0) * cnt for uid, cnt in _army.items())
                     _casualties = max(0, _casualties - _army_heal)
                     if _casualties > 0:
-                        _casualty_order = ['grunt', 'headhunter', 'raider', 'shaman', 'witch_doctor', 'kodo', 'tauren', 'wind_rider', 'demolisher']
+                        _casualty_order = ['grunt', 'raider', 'shaman', 'tauren']
                         _lost_names = []
                         _cas_left = _casualties
                         for _cuid in _casualty_order:
@@ -5138,7 +5123,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))
-            UNITS = {'grunt':(100,0,2),'headhunter':(150,0,2),'raider':(250,50,3),'shaman':(300,100,2),'witch_doctor':(400,150,2),'tauren':(500,200,4),'kodo':(600,250,4),'wind_rider':(800,300,3),'demolisher':(1000,500,5)}
+            UNITS = {'grunt':(100,0,2),'raider':(400,100,3),'tauren':(1000,400,5),'shaman':(300,100,2)}
             if uid not in UNITS:
                 return self._json(400, {'error': 'Unknown unit'})
             st = self._load('.state.json')

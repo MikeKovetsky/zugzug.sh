@@ -77,7 +77,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   bash "$PEON_SH" hire raider
   local lumber_after
   lumber_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['lumber'])")
-  [ "$lumber_after" -eq $((lumber_before - 50)) ]
+  [ "$lumber_after" -eq $((lumber_before - 100)) ]
 }
 
 @test "hire multiple units at once" {
@@ -231,7 +231,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   run_peon '{"hook_event_name":"PostToolUseFailure","tool_name":"Bash","error":"Exit code 1","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local count
   count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
-  # shaman heal=1 should reduce casualties from 1 to 0
+  # shaman heal=2 should reduce casualties from 1 to 0
   [ "$count" -eq 3 ]
 }
 

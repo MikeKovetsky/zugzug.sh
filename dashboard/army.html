@@ -174,15 +174,10 @@ var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
 function w3img(p) { return '<img src="' + W3 + p + '" style="width:32px;height:32px;image-rendering:pixelated">'; }
 
 var UNITS = {
-  grunt:        {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, desc:'+1 raid damage',                           icon: w3img('orc/grunt.gif')},
-  headhunter:   {name:'Headhunter',     gold:150,  lumber:0,   food:2, dmg:2,  armor:0,  heal:0, desc:'+2 raid damage',                           icon: w3img('orc/headhunter.gif')},
-  raider:       {name:'Raider',         gold:250,  lumber:50,  food:3, dmg:3,  armor:0,  heal:0, desc:'+3 raid damage',                           icon: w3img('orc/raider.gif')},
-  shaman:       {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:0,  heal:1, desc:'Healer. -1 casualty from counter-attacks',  icon: w3img('orc/shaman.gif')},
-  witch_doctor: {name:'Witch Doctor',   gold:400,  lumber:150, food:2, dmg:1,  armor:0,  heal:2, desc:'Healer. -2 casualties, +1 raid damage',    icon: w3img('orc/witchdoctor.gif')},
-  tauren:       {name:'Tauren Warrior', gold:500,  lumber:200, food:4, dmg:5,  armor:25, heal:0, desc:'+5 raid damage, 25% counter reduction',    icon: w3img('orc/tauren.gif')},
-  kodo:         {name:'Kodo Beast',     gold:600,  lumber:250, food:4, dmg:4,  armor:15, heal:0, desc:'+4 raid damage, 15% counter reduction',    icon: w3img('orc/kodobeast.gif')},
-  wind_rider:   {name:'Wind Rider',     gold:800,  lumber:300, food:3, dmg:8,  armor:0,  heal:0, desc:'+8 raid damage',                           icon: w3img('orc/windrider.gif')},
-  demolisher:   {name:'Demolisher',     gold:1000, lumber:500, food:5, dmg:12, armor:0,  heal:0, desc:'+12 raid damage (siege)',                   icon: w3img('orc/demolisher.gif')}
+  grunt:  {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, desc:'+1 raid damage',                                    icon: w3img('orc/grunt.gif')},
+  raider: {name:'Raider',         gold:400,  lumber:100, food:3, dmg:4,  armor:0,  heal:0, desc:'+4 raid damage',                                    icon: w3img('orc/raider.gif')},
+  tauren: {name:'Tauren Warrior', gold:1000, lumber:400, food:5, dmg:10, armor:0,  heal:0, desc:'+10 raid damage (elite)',                           icon: w3img('orc/tauren.gif')},
+  shaman: {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:25, heal:2, desc:'-2 casualties, 25% counter reduction',              icon: w3img('orc/shaman.gif')}
 };
 
 var pendingUnit = null;

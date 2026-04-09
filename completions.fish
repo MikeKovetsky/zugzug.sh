@@ -128,17 +128,12 @@ complete -c peon -n "__peon_using_subcommand raid" -a archimonde -d "Archimonde 
 
 # hire subcommands
 complete -c peon -n "__peon_using_subcommand hire" -a grunt -d "Grunt (100g, 2 food, +1 dmg)"
-complete -c peon -n "__peon_using_subcommand hire" -a headhunter -d "Headhunter (150g, 2 food, +2 dmg)"
-complete -c peon -n "__peon_using_subcommand hire" -a raider -d "Raider (250g/50l, 3 food, +3 dmg)"
-complete -c peon -n "__peon_using_subcommand hire" -a shaman -d "Shaman (300g/100l, 2 food, healer)"
-complete -c peon -n "__peon_using_subcommand hire" -a witch_doctor -d "Witch Doctor (400g/150l, 2 food, healer)"
-complete -c peon -n "__peon_using_subcommand hire" -a tauren -d "Tauren Warrior (500g/200l, 4 food, +5 dmg)"
-complete -c peon -n "__peon_using_subcommand hire" -a kodo -d "Kodo Beast (600g/250l, 4 food, +4 dmg)"
-complete -c peon -n "__peon_using_subcommand hire" -a wind_rider -d "Wind Rider (800g/300l, 3 food, +8 dmg)"
-complete -c peon -n "__peon_using_subcommand hire" -a demolisher -d "Demolisher (1000g/500l, 5 food, +12 dmg)"
+complete -c peon -n "__peon_using_subcommand hire" -a raider -d "Raider (400g/100l, 3 food, +4 dmg)"
+complete -c peon -n "__peon_using_subcommand hire" -a tauren -d "Tauren Warrior (1000g/400l, 5 food, +10 dmg)"
+complete -c peon -n "__peon_using_subcommand hire" -a shaman -d "Shaman (300g/100l, 2 food, healer/buffer)"
 
 # dismiss subcommands
-complete -c peon -n "__peon_using_subcommand dismiss" -a "grunt headhunter raider shaman witch_doctor tauren kodo wind_rider demolisher"
+complete -c peon -n "__peon_using_subcommand dismiss" -a "grunt raider tauren shaman"
 
 # rotation subcommands
 complete -c peon -n "__peon_using_subcommand rotation" -a random -d "Pick a random pack each session (default)"

@@ -57,12 +57,12 @@ _peon_completions() {
         return 0 ;;
       hire)
         if [ "$cword" -eq 2 ]; then
-          COMPREPLY=( $(compgen -W "grunt headhunter raider shaman witch_doctor tauren kodo wind_rider demolisher" -- "$cur") )
+          COMPREPLY=( $(compgen -W "grunt raider tauren shaman" -- "$cur") )
         fi
         return 0 ;;
       dismiss)
         if [ "$cword" -eq 2 ]; then
-          COMPREPLY=( $(compgen -W "grunt headhunter raider shaman witch_doctor tauren kodo wind_rider demolisher" -- "$cur") )
+          COMPREPLY=( $(compgen -W "grunt raider tauren shaman" -- "$cur") )
         fi
         return 0 ;;
     esac
