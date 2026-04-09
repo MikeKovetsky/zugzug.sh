@@ -2117,10 +2117,10 @@ $('raid-confirm-cancel').addEventListener('click', function() {
 /* --- Army --- */
 
 var ARMY_UNITS = {
-  grunt:  {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, hp:3, desc:'3 HP. +1 raid damage.',                     icon: w3i('orc/grunt.gif')},
-  raider: {name:'Raider',         gold:400,  lumber:100, food:3, dmg:4,  armor:0,  heal:0, hp:5, desc:'5 HP. +4 raid damage.',                     icon: w3i('orc/wolfrider.gif')},
-  tauren: {name:'Tauren Warrior', gold:1000, lumber:400, food:5, dmg:10, armor:0,  heal:0, hp:8, desc:'8 HP. +10 raid damage (elite).',            icon: w3i('orc/tauren.gif')},
-  shaman: {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:25, heal:2, hp:2, desc:'2 HP. Heals 2 HP/turn. 25% armor.',         icon: w3i('orc/shaman.gif')}
+  grunt:  {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, hp:30, desc:'30 HP. +1 raid damage.',                      icon: w3i('orc/grunt.gif')},
+  raider: {name:'Raider',         gold:400,  lumber:100, food:3, dmg:4,  armor:0,  heal:0, hp:50, desc:'50 HP. +4 raid damage.',                      icon: w3i('orc/wolfrider.gif')},
+  tauren: {name:'Tauren Warrior', gold:1000, lumber:400, food:5, dmg:10, armor:0,  heal:0, hp:80, desc:'80 HP. +10 raid damage (elite).',             icon: w3i('orc/tauren.gif')},
+  shaman: {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:25, heal:20, hp:20, desc:'20 HP. Heals 20 HP/turn. 25% armor.',         icon: w3i('orc/shaman.gif')}
 };
 
 function armyCnt(army, uid) {

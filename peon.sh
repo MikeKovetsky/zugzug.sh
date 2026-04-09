@@ -4516,7 +4516,7 @@ if game_on:
                         _tu, _ti = random.choice(_living)
                         _army[_tu][_ti] -= 1
                     _n_shamans = len([h for h in _army.get('shaman', []) if h > 0])
-                    _heal_pool = _n_shamans * 2
+                    _heal_pool = _n_shamans * 20
                     while _heal_pool > 0:
                         _worst = (None, -1, 0)
                         for _huid in _army:

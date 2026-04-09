@@ -215,10 +215,10 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local count
   count=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(len(v) if isinstance(v,list) else v)")
-  # archimonde deals 3-10 damage per turn to units with 3 HP each
-  # some grunts should have taken damage (total HP < 30)
-  total_hp=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(sum(v) if isinstance(v,list) else v*3)")
-  [ "$total_hp" -lt 30 ]
+  # archimonde deals 3-10 damage per turn to units with 30 HP each
+  # some grunts should have taken damage (total HP < 300)
+  total_hp=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json')).get('army',{}); v=a.get('grunt',[]); print(sum(v) if isinstance(v,list) else v*30)")
+  [ "$total_hp" -lt 300 ]
 }
 
 @test "boss with atk_max 0 does not kill units" {
@@ -240,8 +240,8 @@ dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
 s['active_boss'] = {'id': 'illidan', 'name': 'Illidan Stormrage', 'hp': 5000, 'max_hp': 6000, 'deadline': dl, 'loot_tier': 'epic', 'entry_fee': 0, 'gold_reward': 4000, 'lumber_reward': 1200, 'atk_min': 1, 'atk_max': 3}
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
-  # 2 shamans heal 2 HP each = 4 HP healed per turn
-  # Boss atk 1-3 damage, shaman heal covers most/all of it => units survive
+  # 2 shamans heal 20 HP each = 40 HP healed per turn
+  # Boss atk 1-3 damage, shaman heal covers all of it => units survive
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local total
   total=$(python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); a=s.get('army',{}); print(sum(len(v) if isinstance(v,list) else v for v in a.values()))")
