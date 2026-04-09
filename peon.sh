@@ -3739,7 +3739,7 @@ if game_on:
 
         _army = state.get('army', {})
         if _army:
-            _UNIT_UPKEEP = {'grunt': 10, 'raider': 40, 'tauren': 100, 'shaman': 30}
+            _UNIT_UPKEEP = dict(grunt=10, raider=40, tauren=100, shaman=30)
             _army_upkeep = sum(_UNIT_UPKEEP.get(uid, 0) * cnt for uid, cnt in _army.items())
             if _army_upkeep > 0:
                 econ['gold'] = econ.get('gold', 0) - _army_upkeep

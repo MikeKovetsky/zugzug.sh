@@ -2487,6 +2487,53 @@ SCRIPT
   [[ "$output" == *"not consumable"* ]]
 }
 
+@test "game: peon use boss item deals damage to active boss" {
+  /usr/bin/python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['inventory'] = ['goblin_sapper']
+s['buildings'] = {'dark_portal': True}
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 20, 'max_hp': 20, 'deadline': '2099-12-31', 'spawned_at': 1000, 'loot_tier': ['common'], 'entry_fee': 0, 'gold_reward': 30, 'lumber_reward': 15, 'atk_min': 0, 'atk_max': 0, 'log': []}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" use goblin_sapper
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"BOOM"* ]]
+  [[ "$output" == *"-10 HP"* ]]
+  hp=$(/usr/bin/python3 -c "import json; b=json.load(open('$TEST_DIR/.state.json')).get('active_boss',{}); print(b.get('hp',0))")
+  [ "$hp" = "10" ]
+  has_item=$(/usr/bin/python3 -c "import json; print('goblin_sapper' in json.load(open('$TEST_DIR/.state.json')).get('inventory',[]))")
+  [ "$has_item" = "False" ]
+}
+
+@test "game: peon use boss item fails without active boss" {
+  /usr/bin/python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['inventory'] = ['goblin_sapper']
+s['active_boss'] = None
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" use goblin_sapper
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"No active boss"* ]]
+}
+
+@test "game: peon use boss item kills boss at 0 HP" {
+  /usr/bin/python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['inventory'] = ['goblin_sapper']
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 5, 'max_hp': 20, 'deadline': '2099-12-31', 'spawned_at': 1000, 'loot_tier': ['common'], 'entry_fee': 0, 'gold_reward': 30, 'lumber_reward': 15, 'atk_min': 0, 'atk_max': 0, 'log': []}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" use goblin_sapper
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"DEFEATED"* ]]
+  boss=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('active_boss'))")
+  [ "$boss" = "None" ]
+}
+
 @test "game: equipped items give gold bonus" {
   /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['claws_of_attack']; s['economy']={'gold':0,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
