@@ -24,7 +24,6 @@
     "enabled": true,
     "economy": true,
     "achievements": true,
-    "roasts": true,
     "combos": true,
     "time_aware": true,
     "random_events": true,

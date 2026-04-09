@@ -2,7 +2,7 @@
 
 > Turn your IDE into Warcraft III. Earn gold, level up, build your base, farm achievements, and collect legendary loot — all while shipping code.
 
-ZugZug plays voice lines and shows bold on-screen overlay banners from Warcraft, StarCraft, Portal, Zelda, and 75+ other games when your AI coding agent finishes a task, needs permission, or hits an error. On top of that, it layers a full WC3 metagame: economy, buildings, loot, achievements, combos, roasts, and a live dashboard. Works with Claude Code, GitHub Copilot, Cursor, OpenCode, Codex, Kiro, Windsurf, and any MCP-compatible AI agent.
+ZugZug plays voice lines and shows bold on-screen overlay banners from Warcraft, StarCraft, Portal, Zelda, and 75+ other games when your AI coding agent finishes a task, needs permission, or hits an error. On top of that, it layers a full WC3 metagame: economy, buildings, loot, achievements, combos, and a live dashboard. Works with Claude Code, GitHub Copilot, Cursor, OpenCode, Codex, Kiro, Windsurf, and any MCP-compatible AI agent.
 
 ## Links
 
@@ -85,10 +85,10 @@ Full Warcraft III base-building metagame layered on coding sessions:
 
 - Character Progression: 10 levels from Peon (Lvl 1) through heroes of every WC3 faction. Level determines sound pack, overlay portrait, and dashboard character. Level 10 is a secret.
 - Economy: Earn gold (task completions) and lumber (prompts). Gold mine depletion, debt with interest.
-- Buildings: 8 structures with real perks (combos, roast suppression, random events, on-demand taunts).
-- Items: 31 items across 5 rarity tiers. Equip for gold/lumber bonuses, roast immunity, combo persistence.
+- Buildings: 8 structures with real perks (combos, fatigue pause, random events, on-demand taunts).
+- Items: 31 items across 5 rarity tiers. Equip for gold/lumber bonuses, fatigue resistance, combo persistence.
 - Achievements: 14 WC3-themed milestones tracked across sessions.
-- Roasts: Sass levels 0-5 escalate with errors. Peon gets increasingly savage.
+- Fatigue: Accumulates with tasks. Burrow pauses it for 1 hour. Resets daily.
 - Combos: Multi-kill tracking (Double/Triple/Mega/UNSTOPPABLE/GODLIKE).
 - Dashboard: Auto-opens at localhost:19997. Character page, base map, inventory, achievements, stats, activity feed.
 

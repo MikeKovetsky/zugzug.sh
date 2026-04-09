@@ -154,9 +154,9 @@ peon economy              # Show gold, lumber, daily task status
 peon achievements         # View unlocked/locked achievements
 peon build list           # List buildings with costs
 peon build <name>         # Build a structure (costs gold + lumber)
-peon bunker               # Suppress roasts for 1 hour (requires Burrow)
+peon bunker               # Pause fatigue for 1 hour (requires Burrow)
 peon resurrect            # Restore combo streak (requires Altar, once/day)
-peon taunt                # Play a random roast (requires Tavern)
+peon taunt                # Play a random taunt (requires Tavern)
 peon dashboard            # Open WC3 base dashboard in browser
 ```
 
@@ -168,7 +168,7 @@ Pausing mutes sounds and desktop notifications instantly. Persists across sessio
 
 ## WC3 Metagame
 
-ZugZug includes a full Warcraft III base-building metagame layered on top of your coding sessions. Earn gold and lumber, level up your character, build structures, unlock achievements, collect loot, and get roasted by your peon.
+ZugZug includes a full Warcraft III base-building metagame layered on top of your coding sessions. Earn gold and lumber, level up your character, build structures, unlock achievements, and collect loot.
 
 The dashboard auto-opens in your browser on the first hook event. Or run `peon dashboard` anytime.
 
@@ -224,12 +224,12 @@ Spend gold and lumber to build structures that unlock real perks:
 |---|---|---|
 | **Stronghold** | 500g/200l | Unlocks random events (treasure, merchant, raids) |
 | **Fortress** | 2000g/800l | Max rank |
-| **Burrow** | 100g/50l | `peon bunker` — suppress roasts for 1 hour |
+| **Burrow** | 100g/50l | `peon bunker` — pause fatigue for 1 hour |
 | **War Mill** | 200g/100l | Unlocks combo system (multi-kill tracking) |
 | **Watch Tower** | 150g/75l | Early warning at 80% context |
 | **Altar of Storms** | 300g/150l | `peon resurrect` — restore combo once/day |
 | **Spirit Lodge** | 500g/200l | Unlocks idle peon thoughts |
-| **Tavern** | 400g/200l | `peon taunt` — play a random roast on demand |
+| **Tavern** | 400g/200l | `peon taunt` — play a random taunt on demand |
 
 ### Items & Loot
 
@@ -243,21 +243,11 @@ Items drop randomly from completed tasks. Legendary items have a 0.01% drop rate
 
 14 achievements with WC3-themed flavor text, tracked across sessions:
 
-*First Blood* · *Zug Zug Veteran* (100 tasks) · *Night Elf* (code past 2 AM) · *Dawn Patrol* (session before 6 AM) · *Weekend Warrior* · *Iron Peon* (7-day streak) · *Rage Quit* (3+ errors) · *Oops* (50 errors) · *The Grind* (1000 tasks) · *Architect* (all buildings) · *Bankrupt* (-500 gold) · *Mogul* (5000 lifetime gold) · and more.
+*First Blood* · *Zug Zug Veteran* (100 tasks) · *Night Elf* (code past 2 AM) · *Dawn Patrol* (session before 6 AM) · *Weekend Warrior* · *Iron Peon* (7-day streak) · *Rage Quit* (3+ errors) · *Oops* (50 errors) · *The Grind* (1000 tasks) · *Architect* (all buildings) · *Combo Fiend* (50 combo) · *Combo God* (100 combo) · *Mogul* (5000 lifetime gold) · and more.
 
 <div align="center">
 <img src="docs/screenshots/screenshot-achievements.png" width="800" alt="Achievements page">
 </div>
-
-### Roasts (Levels 0-5)
-
-The worse you code, the more savage peon gets. Roast level escalates on errors, context limits, and midnight coding. Cools down on clean completions. Resets daily.
-
-- **Level 0**: Normal. *"Job done."*
-- **Level 3**: *"Human considered different career?"*
-- **Level 5**: *"Peon quit. Find another peon."*
-
-Build a **Burrow** and run `peon bunker` to hide from roasts for an hour.
 
 ### Combos
 

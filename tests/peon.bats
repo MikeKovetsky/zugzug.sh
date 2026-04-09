@@ -2348,7 +2348,7 @@ SCRIPT
 }
 
 # ============================================================
-# WC3 Metagame: Economy, Achievements, Combos, Roasts
+# WC3 Metagame: Economy, Achievements, Combos
 # ============================================================
 
 @test "game: SessionStart earns lumber" {

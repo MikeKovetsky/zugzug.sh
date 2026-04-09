@@ -1630,7 +1630,7 @@ defs = [
     ('permit_patty', 'Permit Patty', '20 permissions in a session'),
     ('compact_survivor', 'Compact Survivor', '5 context compacts'),
     ('architect', 'Architect', 'Build 10 structures'),
-    ('bankrupt', 'Bankrupt', 'Go below -500 gold'),
+    ('combo_fiend', 'Combo Fiend', 'Reach 50 combo'),
     ('mogul', 'Mogul', '5000 lifetime gold earned'),
     ('stop_clicking', 'Stop Clicking Me!', '500 lifetime prompts'),
     ('peon_union_rep', 'Peon Union Rep', 'Fatigue hits 50 in one session'),
@@ -1640,7 +1640,7 @@ defs = [
     ('you_no_take', 'You No Take Candle!', 'Defeat 5 kobolds'),
     ('night_raid', 'Night Raid', 'Hit a boss past midnight'),
     ('combo_god', 'Combo God', 'Reach 100 combo'),
-    ('hoarder', 'Hoarder', 'Own 12+ items total'),
+    ('hoarder', 'Hoarder', 'Own 40+ items total'),
     ('lunch_raider', 'Lunch Raider', 'Hit a boss during lunch hour'),
     ('boss_slayer', 'Boss Slayer', 'Defeat all 10 unique bosses'),
     ('speedrun', 'Speed Run', 'Kill any boss in under 5 minutes'),
@@ -1679,12 +1679,12 @@ today = state.get('goblin_discount_date', '')
 import datetime
 discount = today == datetime.date.today().isoformat()
 BUILDINGS = {
-    'burrow':          (500, 250, 'peon bunker — suppress roasts for 1 hour.'),
+    'burrow':          (500, 250, 'peon bunker — pause fatigue for 1 hour.'),
     'watch_tower':     (750, 375, 'Early warning at 80% context.'),
     'war_mill':        (1000, 500, 'Unlocks combo system (multi-kill tracking).'),
     'altar':           (1500, 750, 'peon resurrect — restore combo once/day.'),
     'lumber_mill':     (1500, 500, '2x lumber from all sources.'),
-    'tavern':          (2000, 1000, 'peon taunt — play a roast on demand.'),
+    'tavern':          (2000, 1000, 'peon taunt — play a taunt on demand.'),
     'stronghold':      (2500, 1000, 'Rank upgrade. Unlocks random events.'),
     'spirit_lodge':    (2500, 1000, 'Unlocks idle peon wisdom.'),
     'barracks':        (3000, 1200, 'Subagent sessions count toward stats.'),
@@ -1761,7 +1761,7 @@ if until > now:
     exit(0)
 state['bunker_until'] = now + 3600
 _save_state(state_file, state)
-print('Peon hiding! Roasts suppressed for 1 hour.')
+print('Peon hiding! Fatigue paused for 1 hour.')
 "
     exit $? ;;
   resurrect)
@@ -1866,7 +1866,7 @@ ITEMS_R = {
     'crown_of_kings': 'epic', 'mask_of_death': 'epic', 'amulet_of_spell': 'epic', 'khadgars_pipe': 'epic',
     'doom_hammer': 'epic', 'black_arrow': 'epic', 'mannoroths_blood': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
-    'unstoppable_force': 'legendary', 'ashbringer': 'legendary',
+    'unstoppable_force': 'legendary', 'azzinoth_blades': 'legendary', 'ashbringer': 'legendary',
     'sulfuras': 'legendary', 'crown_of_eredar': 'legendary',
 }
 MAX_DUR = {'common': 50, 'uncommon': 75, 'rare': 100, 'epic': 150, 'legendary': 200}
@@ -1935,7 +1935,7 @@ equipped = state.get('equipped', [])
 ITEMS = {
     'claws_of_attack':     ('Claws of Attack +3',     'common',    '+3 bonus gold per task'),
     'gauntlets_of_str':    ('Gauntlets of Strength',  'common',    '+2 bonus lumber per prompt'),
-    'ring_of_protection':  ('Ring of Protection +2',  'common',    'Max sass capped at 3'),
+    'ring_of_protection':  ('Ring of Protection +2',  'common',    '+2 bonus gold per task'),
     'slippers_of_agility': ('Slippers of Agility',   'common',    'Combos count +1 extra'),
     'circlet_of_nobility': ('Circlet of Nobility',    'common',    '+2 bonus gold per task'),
     'mantle_of_intel':     ('Mantle of Intelligence', 'common',    '+1 bonus lumber per prompt'),
@@ -1944,7 +1944,7 @@ ITEMS = {
     'robe_of_magi':        ('Robe of the Magi +6',   'common',    '+2 bonus lumber per prompt'),
     'pendant_of_mana':     ('Pendant of Mana',       'common',    '+1 bonus lumber per prompt'),
     'hood_of_cunning':     ('Hood of Cunning',       'common',    '+2 bonus gold per task'),
-    'medallion':           ('Medallion of Courage',   'common',    'Max sass capped at 3'),
+    'medallion':           ('Medallion of Courage',   'common',    '+2 bonus gold per task'),
     'tome_of_power':       ('Tome of Power +2',      'common',    '+1 bonus gold per task'),
     'skull_shield':        ('Skull Shield',           'common',    'Gold mine depletion +10 tasks later'),
     'kelen_dagger':        ('Kelen\\'s Dagger of Escape', 'common', 'Combos count +1 extra'),
@@ -1957,26 +1957,27 @@ ITEMS = {
     'pendant_of_energy':   ('Pendant of Energy',      'uncommon',  '+5 bonus gold per task'),
     'tome_of_xp':          ('Tome of Experience',     'uncommon',  'Gain 500 gold (consumable)'),
     'helm_of_valor':       ('Helm of Valor',          'rare',      'First 3 fatigue per session are free'),
-    'cloak_of_shadows':    ('Cloak of Shadows',       'rare',      'Roasts suppressed while equipped'),
+    'cloak_of_shadows':    ('Cloak of Shadows',       'rare',      'Fatigue paused while equipped'),
     'orb_of_fire':         ('Orb of Fire',            'rare',      'Earn half gold even when tired'),
     'gem_of_seeing':       ('Gem of True Seeing',     'rare',      '10% chance of 3x gold on task complete'),
     'staff_of_negation':   ('Staff of Negation',      'rare',      'Immune to debt interest'),
     'sobi_mask':           ('Sobi Mask',              'rare',      '3x lumber from prompts'),
-    'inv_potion':          ('Potion of Invisibility',  'rare',     'Suppress roasts for 2 hours (consumable)'),
+    'inv_potion':          ('Potion of Invisibility',  'rare',     'Pause fatigue for 2 hours (consumable)'),
     'talisman_of_evasion': ('Talisman of Evasion',    'rare',      'First fatigue per session is free'),
     'ring_of_regen':       ('Ring of Regeneration',    'rare',      '+8 bonus gold per task'),
-    'scourge_bone':        ('Scourge Bone Chimes',    'rare',      'Max sass capped at 1'),
+    'scourge_bone':        ('Scourge Bone Chimes',    'rare',      '+8 bonus gold per task'),
     'shadow_orb':          ('Shadow Orb +10',         'rare',      '5% chance of 3x gold on task complete'),
     'lion_horn':           ('Lion Horn of Stormwind',  'rare',      'Gold mine depletion +15 tasks later'),
     'crown_of_kings':      ('Crown of Kings +5',      'epic',      '2x all gold income'),
     'mask_of_death':       ('Mask of Death',          'epic',      '50% off repair costs'),
     'amulet_of_spell':     ('Amulet of Spell Shield', 'epic',      'Immune to base raids'),
-    'khadgars_pipe':       ('Khadgar\\'s Pipe',       'epic',      'Sass resets to 0 after every task'),
+    'khadgars_pipe':       ('Khadgar\\'s Pipe',       'epic',      'Fatigue decays 2x faster'),
     'ankh':                ('Ankh of Reincarnation',  'epic',      'Undo last base raid (consumable)'),
-    'frostmourne':         ('Frostmourne',            'legendary', 'All roasts become compliments'),
+    'frostmourne':         ('Frostmourne',            'legendary', 'Fatigue threshold +50'),
     'wirts_leg':           ('Wirt\\'s Leg',           'legendary', 'Does absolutely nothing. Peon confused.'),
     'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', '+15 gold per task'),
     'unstoppable_force':   ('The Unstoppable Force',  'legendary', 'Combos never break from errors'),
+    'azzinoth_blades':     ('Warglaives of Azzinoth', 'legendary', '+2 combo per task. You are not prepared.'),
     'ashbringer':          ('Ashbringer',             'legendary', '2x achievement progress'),
     'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
     'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
@@ -2097,7 +2098,7 @@ consumables = {
     'potion_of_healing': ('Restored 200 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
     'potion_of_mana':   ('Gained 50 lumber!', lambda s: s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+50)),
     'tome_of_xp':       ('Gained 500 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+500)),
-    'inv_potion':       ('Roasts suppressed for 2 hours!', lambda s: s.update(bunker_until=time.time()+7200)),
+    'inv_potion':       ('Fatigue paused for 2 hours!', lambda s: s.update(bunker_until=time.time()+7200)),
     'ankh':             ('Base raid undone! Gold restored.', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
     'cheese':           ('Mmm. +1000g +500l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+1000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+500))),
 }
@@ -2152,7 +2153,7 @@ ITEMS_R = {
     'khadgars_pipe': 'epic', 'ankh': 'epic',
     'doom_hammer': 'epic', 'black_arrow': 'epic', 'mannoroths_blood': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
-    'unstoppable_force': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
+    'unstoppable_force': 'legendary', 'azzinoth_blades': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
     'sulfuras': 'legendary', 'crown_of_eredar': 'legendary',
 }
 if item_id in equipped:
@@ -2655,9 +2656,9 @@ WC3 Metagame:
   use <item>           Use a consumable item (scrolls, potions, tomes)
   sell <item>          Sell an item from backpack for gold
   raid [status|<boss>] Start or check boss raids (requires Dark Portal)
-  bunker               Suppress roasts for 1 hour (requires Burrow)
+  bunker               Pause fatigue for 1 hour (requires Burrow)
   resurrect            Restore combo streak (requires Altar, once/day)
-  taunt                Play a random roast (requires Tavern)
+  taunt                Play a random taunt (requires Tavern)
   dashboard            Open the WC3 base dashboard in your browser
 
 Pack management:
@@ -3380,7 +3381,7 @@ _lvl_icon = os.path.join(peon_dir, 'icons', f'lvl-{_cur_lvl}.png')
 if os.path.isfile(_lvl_icon):
     icon_path = _lvl_icon
 
-# --- WC3 Metagame (stats, economy, buildings, achievements, roasts, combos, time) ---
+# --- WC3 Metagame (stats, economy, buildings, achievements, combos, time) ---
 game_cfg = cfg.get('game', {})
 game_on = str(game_cfg.get('enabled', True)).lower() != 'false'
 game_notify = ''
@@ -3399,7 +3400,8 @@ if game_on:
     econ = state.setdefault('economy', {})
     buildings = state.get('buildings', {})
     combo = state.get('combo_count', 0)
-    sass = state.get('sass_level', 0)
+    bunker_until = state.get('bunker_until', 0)
+    in_bunker = bunker_until > time.time()
     s_errors = state.get('session_errors', 0)
     s_perms = state.get('session_permissions', 0)
     s_tasks = state.get('session_tasks', 0)
@@ -3411,7 +3413,6 @@ if game_on:
         econ['daily_prompts'] = 0
         econ['daily_date'] = _today
         econ['debt_interest'] = False
-        sass = 0
         s_errors = 0
         s_perms = 0
         s_tasks = 0
@@ -3475,8 +3476,9 @@ if game_on:
             gold_delta += _fg
             daily_tasks += 1
             s_tasks += 1
-            fatigue += 1
-            stats['fatigue_total'] = stats.get('fatigue_total', 0) + 1
+            if not in_bunker:
+                fatigue += 1
+                stats['fatigue_total'] = stats.get('fatigue_total', 0) + 1
             econ['daily_tasks'] = daily_tasks
             stats['tasks_completed'] = stats.get('tasks_completed', 0) + 1
         elif category == 'task.acknowledge':
@@ -3558,40 +3560,6 @@ if game_on:
             combo = 0
     state['combo_count'] = combo
 
-    # --- Roast system (sass levels 0-5) ---
-    roast_on = str(game_cfg.get('roasts', True)).lower() != 'false'
-    roast_text = ''
-    bunker_until = state.get('bunker_until', 0)
-    in_bunker = bunker_until > time.time()
-    if roast_on and not in_bunker:
-        if fatigue >= _fatigue_thresh:
-            sass = min(5, sass + 1)
-        if category == 'resource.limit':
-            sass = min(5, sass + 1)
-        if _hour >= 0 and _hour < 5:
-            sass = min(5, sass + 1)
-        if s_perms > 0 and s_perms % 5 == 0:
-            sass = min(5, sass + 1)
-        if daily_tasks >= 30:
-            sass = min(5, sass + 1)
-        if gold >= 5000 and len(buildings) < 6:
-            sass = min(5, sass + 1)
-        if s_tasks >= 15:
-            sass = min(5, sass + 1)
-        if category == 'task.complete' and fatigue < _fatigue_thresh:
-            sass = max(0, sass - 1)
-
-        _roasts = {
-            1: ['Peon raise eyebrow.', 'Job done... somehow.', 'Peon leg hurt from all this work.', 'How many more tasks? Peon lost count.', 'Human done yet? Peon need nap.'],
-            2: ['Maybe read the docs?', 'Peon do better with eyes closed.', 'Gold pile big. Where Peon share?', 'Human ever heard of break? Peon has.', 'Even orc have labor laws, human.'],
-            3: ['Human considered different career?', 'Peon seen better code from murloc.', 'Even peasant code better.', 'Peon file overtime complaint.', 'Peon demand hazard pay for this session.'],
-            4: ['At this point, Peon writing the code.', 'Error again? Peon not even surprised.', 'Peon losing faith in humanity.', 'Peon legs give out. Send help.', 'Warchief would not approve of this.'],
-            5: ['Peon quit. Find another peon.', 'Me going to work for Night Elves.', 'Peon file complaint with Warchief.', 'Peon unionizing. Strike begins now.', 'This violate Geneva Convention. Peon sure of it.'],
-        }
-        if sass > 0 and category in ('task.complete', 'resource.limit'):
-            roast_text = random.choice(_roasts.get(sass, []))
-
-    state['sass_level'] = sass
     state['session_errors'] = s_errors
     state['session_permissions'] = s_perms
     state['session_tasks'] = s_tasks
@@ -3648,7 +3616,7 @@ if game_on:
         ('permit_patty',     lambda: s_perms >= 20, 'Permit Patty', 'Why you keep asking?!'),
         ('compact_survivor', lambda: stats.get('context_limits_hit', 0) >= 5, 'Compact Survivor', 'Under attack!'),
         ('architect',        lambda: len(buildings) >= 10, 'Architect', 'Base complete! Peon... proud.'),
-        ('bankrupt',         lambda: gold <= -500, 'Bankrupt', 'Peon seen better economy from gnolls.'),
+        ('combo_fiend',      lambda: stats.get('max_combo', 0) >= 50, 'Combo Fiend', 'Peon can\\'t feel legs. Human can\\'t feel keyboard. 50 combo.'),
         ('mogul',            lambda: stats.get('total_gold_earned', 0) >= 5000, 'Mogul', 'Human rich! Peon still poor though.'),
         ('stop_clicking',    lambda: stats.get('prompts_total', 0) >= 500, 'Stop Clicking Me!', 'Me busy! Leave me alone!'),
         ('peon_union_rep',   lambda: fatigue >= 50, 'Peon Union Rep', 'Peon demand hazard pay!'),
@@ -3657,8 +3625,8 @@ if game_on:
         ('raid_leader',      lambda: state.get('boss_kills_total', 0) >= 10, 'Raid Leader', 'LFM ICC 25 Heroic, link achievement.'),
         ('you_no_take',      lambda: state.get('boss_kills', {}).get('kobold', 0) >= 5, 'You No Take Candle!', 'Stop farming kobolds! They have families!'),
         ('night_raid',       lambda: _hour >= 0 and _hour < 5 and state.get('active_boss') is not None, 'Night Raid', 'Raiding at this hour?! Peon calling HR.'),
-        ('combo_god',        lambda: stats.get('max_combo', 0) >= 100, 'Combo God', 'Peon kneel. 100 combo. Human is machine.'),
-        ('hoarder',          lambda: len(state.get('inventory', [])) + len(state.get('equipped', [])) >= 12, 'Hoarder', 'Where peon put all this stuff?!'),
+        ('combo_god',        lambda: stats.get('max_combo', 0) >= 100, 'Combo God', '100 combo?! Peon check if human plugged into Matrix.'),
+        ('hoarder',          lambda: stats.get('max_items_owned', 0) >= 40, 'Hoarder', 'Where peon put all this stuff?!'),
         ('lunch_raider',     lambda: _hour == 12 and state.get('active_boss') is not None and category == 'task.complete', 'Lunch Raider', 'Human raid during lunch. Very dedicated. Very hungry.'),
         ('boss_slayer',      lambda: len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]) >= 10, 'Boss Slayer', 'Every boss defeated at least once. Peon... genuinely in awe.'),
         ('speedrun',         lambda: 0 < stats.get('fastest_kill_secs', 99999) <= 300, 'Speed Run', 'Boss dead in 5 minutes?! Peon blink and missed it.'),
@@ -3690,7 +3658,7 @@ if game_on:
         'permit_patty':     [s_perms, 20],
         'compact_survivor': [stats.get('context_limits_hit', 0), 5],
         'architect':        [len(buildings), 10],
-        'bankrupt':         [abs(min(gold, 0)), 500],
+        'combo_fiend':      [stats.get('max_combo', 0), 50],
         'mogul':            [stats.get('total_gold_earned', 0), 5000],
         'stop_clicking':    [stats.get('prompts_total', 0), 500],
         'peon_union_rep':   [fatigue, 50],
@@ -3700,7 +3668,7 @@ if game_on:
         'you_no_take':      [state.get('boss_kills', {}).get('kobold', 0), 5],
         'night_raid':       [1 if 'night_raid' in unlocked else 0, 1],
         'combo_god':        [stats.get('max_combo', 0), 100],
-        'hoarder':          [len(state.get('inventory', [])) + len(state.get('equipped', [])), 12],
+        'hoarder':          [stats.get('max_items_owned', 0), 40],
         'lunch_raider':     [1 if 'lunch_raider' in unlocked else 0, 1],
         'boss_slayer':      [len([k for k, v in state.get('boss_kills', {}).items() if v >= 1]), 10],
         'speedrun':         [1 if 0 < stats.get('fastest_kill_secs', 99999) <= 300 else 0, 1],
@@ -3841,7 +3809,7 @@ if game_on:
     _ITEMS = {
         'claws_of_attack':     dict(name='Claws of Attack +3',     r='common',    e='gold_bonus',      v=3,    desc='+3 bonus gold per task'),
         'gauntlets_of_str':    dict(name='Gauntlets of Strength',  r='common',    e='lumber_bonus',    v=2,    desc='+2 bonus lumber per prompt'),
-        'ring_of_protection':  dict(name='Ring of Protection +2',  r='common',    e='sass_cap',        v=2,    desc='Max sass capped at 3'),
+        'ring_of_protection':  dict(name='Ring of Protection +2',  r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
         'slippers_of_agility': dict(name='Slippers of Agility',   r='common',    e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
         'circlet_of_nobility': dict(name='Circlet of Nobility',    r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
         'mantle_of_intel':     dict(name='Mantle of Intelligence', r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
@@ -3850,7 +3818,7 @@ if game_on:
         'robe_of_magi':        dict(name='Robe of the Magi +6',   r='common',    e='lumber_bonus',    v=2,    desc='+2 bonus lumber per prompt'),
         'pendant_of_mana':     dict(name='Pendant of Mana',       r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
         'hood_of_cunning':     dict(name='Hood of Cunning',       r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
-        'medallion':           dict(name='Medallion of Courage',   r='common',    e='sass_cap',        v=3,    desc='Max sass capped at 3'),
+        'medallion':           dict(name='Medallion of Courage',   r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
         'tome_of_power':       dict(name='Tome of Power +2',      r='common',    e='gold_bonus',      v=1,    desc='+1 bonus gold per task'),
         'skull_shield':        dict(name='Skull Shield',           r='common',    e='depletion_ext',   v=10,   desc='Gold mine depletion +10 tasks later'),
         'kelen_dagger':        dict(name='Kelen\\'s Dagger of Escape', r='common', e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
@@ -3863,26 +3831,27 @@ if game_on:
         'pendant_of_energy':   dict(name='Pendant of Energy',      r='uncommon',  e='gold_bonus',      v=5,    desc='+5 bonus gold per task'),
         'tome_of_xp':          dict(name='Tome of Experience',     r='uncommon',  e='consumable',      v='gold500',   desc='Gain 500 gold (consumable)'),
         'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='fatigue_resist',  v=3,    desc='First 3 fatigue per session are free'),
-        'cloak_of_shadows':    dict(name='Cloak of Shadows',       r='rare',      e='roast_immune',    v=1,    desc='Roasts suppressed while equipped'),
+        'cloak_of_shadows':    dict(name='Cloak of Shadows',       r='rare',      e='fatigue_immune',  v=1,    desc='Fatigue paused while equipped'),
         'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='fatigue_gold',    v=1,    desc='Earn half gold even when tired'),
         'gem_of_seeing':       dict(name='Gem of True Seeing',     r='rare',      e='crit_chance',     v=10,   desc='10% chance of 3x gold on task complete'),
         'staff_of_negation':   dict(name='Staff of Negation',      r='rare',      e='debt_immune',     v=1,    desc='Immune to debt interest'),
         'sobi_mask':           dict(name='Sobi Mask',              r='rare',      e='lumber_mult',     v=3,    desc='3x lumber from prompts'),
         'talisman_of_evasion': dict(name='Talisman of Evasion',    r='rare',      e='fatigue_resist',  v=1,    desc='First fatigue per session is free'),
         'ring_of_regen':       dict(name='Ring of Regeneration',    r='rare',      e='gold_bonus',      v=8,    desc='+8 bonus gold per task'),
-        'scourge_bone':        dict(name='Scourge Bone Chimes',    r='rare',      e='sass_cap',        v=1,    desc='Max sass capped at 1'),
+        'scourge_bone':        dict(name='Scourge Bone Chimes',    r='rare',      e='gold_bonus',      v=8,    desc='+8 bonus gold per task'),
         'shadow_orb':          dict(name='Shadow Orb +10',         r='rare',      e='crit_chance',     v=5,    desc='5% chance of 3x gold on task complete'),
         'lion_horn':           dict(name='Lion Horn of Stormwind',  r='rare',      e='depletion_ext',   v=15,   desc='Gold mine depletion +15 tasks later'),
         'crown_of_kings':      dict(name='Crown of Kings +5',      r='epic',      e='gold_mult',       v=2,    desc='2x all gold income'),
         'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='repair_discount', v=50,   desc='50% off repair costs'),
         'amulet_of_spell':     dict(name='Amulet of Spell Shield', r='epic',      e='raid_immune',     v=1,    desc='Immune to base raids'),
-        'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='sass_reset',      v=1,    desc='Sass resets to 0 after every task'),
-        'frostmourne':         dict(name='Frostmourne',            r='legendary', e='roast_to_praise',  v=1,    desc='All roasts become compliments'),
+        'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='fatigue_resist',  v=5,    desc='Fatigue decays 2x faster'),
+        'frostmourne':         dict(name='Frostmourne',            r='legendary', e='fatigue_thresh',   v=50,   desc='Fatigue threshold +50'),
         'wirts_leg':           dict(name='Wirt\'s Leg',            r='legendary', e='none',             v=0,    desc='Does absolutely nothing. Peon confused.'),
         'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='gold_bonus', v=15, desc='+15 gold per task. Did someone say Thunderfury?'),
         'unstoppable_force':   dict(name='The Unstoppable Force',  r='legendary', e='combo_persist',    v=1,    desc='Combos never break from errors'),
+        'azzinoth_blades':     dict(name='Warglaives of Azzinoth', r='legendary', e='combo_bonus',     v=2,    desc='+2 combo per task. You are not prepared.'),
         'ashbringer':          dict(name='Ashbringer',             r='legendary', e='xp_boost',         v=2,    desc='2x achievement progress'),
-        'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Suppress roasts for 2 hours (consumable)'),
+        'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Pause fatigue for 2 hours (consumable)'),
         'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='revive',   desc='Undo last base raid (consumable)'),
         'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 1000 gold + 500 lumber. Mmm.'),
         'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
@@ -4010,20 +3979,14 @@ if game_on:
             elif category == 'user.spam' or event == 'UserPromptSubmit':
                 stats['prompts_total'] = stats.get('prompts_total', 0) + (xp - 1)
 
-    # Apply roast/combo item effects
+    # Apply combo item effects
     if equipped:
-        if _has_effect('roast_immune'):
-            roast_text = ''
-        if _has_effect('roast_to_praise') and roast_text:
-            _praises = ['Peon actually impressed.', 'Not bad, human. Not bad at all.', 'Peon... respects that.', 'Human coding like an orc today.', 'Frostmourne hungers... for more code like this.']
-            roast_text = random.choice(_praises)
-        if _has_effect('sass_reset') and category == 'task.complete':
-            sass = 0
-            state['sass_level'] = 0
-        sc = _has_effect('sass_cap')
-        if sc and sass > sc:
-            sass = sc
-            state['sass_level'] = sass
+        if _has_effect('fatigue_immune') and not in_bunker:
+            in_bunker = True
+        ft = _has_effect('fatigue_thresh')
+        if ft:
+            _fatigue_thresh += ft
+            _fatigue_exhaust = _fatigue_thresh + 30
         if _has_effect('combo_persist') and combo_text and 'broken' in combo_text:
             combo_text = ''
             combo = state.get('combo_count', 0)
@@ -4268,6 +4231,9 @@ if game_on:
 
     state['inventory'] = inventory
     state['equipped'] = equipped
+    _item_count = len(inventory) + len(equipped)
+    if _item_count > stats.get('max_items_owned', 0):
+        stats['max_items_owned'] = _item_count
 
     # --- Build activity log entry ---
     if category and econ_on:
@@ -4313,8 +4279,6 @@ if game_on:
     if econ_on and gold_delta != 0:
         sign = '+' if gold_delta > 0 else ''
         parts.append(f'{sign}{gold_delta}g')
-    if roast_text:
-        parts.append(roast_text)
     if time_text:
         parts.append(time_text)
     game_notify = ' | '.join(parts) if parts else ''

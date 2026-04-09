@@ -6,13 +6,13 @@
 <title>ZugZug — Turn Your IDE Into Warcraft III</title>
 <meta name="description" content="Gamify vibecoding. Earn gold, level up through WC3 characters, build your base, farm achievements, and collect legendary loot — all while shipping code.">
 <meta property="og:title" content="ZugZug — Turn Your IDE Into Warcraft III">
-<meta property="og:description" content="Gamify vibecoding. Earn gold, level up, build your base, and get roasted by your peon.">
+<meta property="og:description" content="Gamify vibecoding. Earn gold, level up, build your base, and collect loot.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://zugzug-6l4.pages.dev/">
 <meta property="og:image" content="https://zugzug-6l4.pages.dev/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ZugZug — Turn Your IDE Into Warcraft III">
-<meta name="twitter:description" content="Gamify vibecoding. Earn gold, level up through WC3 heroes, build your base, and get roasted by your peon.">
+<meta name="twitter:description" content="Gamify vibecoding. Earn gold, level up through WC3 heroes, build your base, and collect loot.">
 <meta name="twitter:image" content="https://zugzug-6l4.pages.dev/og-image.jpg">
 <meta name="theme-color" content="#0a0a16">
 <link rel="icon" href="https://www.peonping.com/images/peon-portrait.gif" type="image/gif">
@@ -342,28 +342,6 @@ section:nth-child(even) {
 .r-epic { color: #a335ee; border-color: #a335ee; }
 .r-legendary { color: #ff8000; border-color: #ff8000; }
 
-.roast-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 24px;
-  max-width: 500px;
-}
-.roast-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  background: var(--panel);
-  border-radius: 6px;
-  border-left: 3px solid;
-}
-.roast-item.r0 { border-color: var(--green); }
-.roast-item.r2 { border-color: var(--gold); }
-.roast-item.r4 { border-color: var(--red); }
-.roast-lvl { font-size: 11px; color: var(--muted); font-weight: 700; min-width: 50px; }
-.roast-text { font-style: italic; font-size: 14px; }
-
 .cta {
   text-align: center;
   padding: 100px 24px;
@@ -517,35 +495,6 @@ footer a:hover { text-decoration: underline; }
   line-height: 1.35;
 }
 
-.roast-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-  max-width: 480px;
-}
-.roast-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--panel);
-  border-radius: 6px;
-  border-left: 3px solid;
-  font-size: 13px;
-}
-.roast-row .rlvl {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  min-width: 36px;
-}
-.roast-row .rmsg { font-style: italic; color: var(--text); }
-.roast-row.g { border-color: var(--green); }
-.roast-row.y { border-color: var(--gold); }
-.roast-row.r { border-color: var(--red); }
-
 .stats-bar {
   display: flex;
   justify-content: center;
@@ -656,8 +605,8 @@ footer a:hover { text-decoration: underline; }
           <span class="os-notif-app">ZugZug</span>
           <span class="os-notif-time">now</span>
         </div>
-        <div class="os-notif-title">&#x26A0;&#xFE0F; Error &mdash; Roast Lvl 2</div>
-        <div class="os-notif-body">"Human make many mistakes today."</div>
+        <div class="os-notif-title">&#x26A0;&#xFE0F; Error &mdash; task.error</div>
+        <div class="os-notif-body">"More work?!"</div>
       </div>
     </div>
   </div>
@@ -719,7 +668,7 @@ footer a:hover { text-decoration: underline; }
     <div class="showcase-section">
       <div class="section-title">Base Building</div>
       <div class="section-heading">Build Structures. Unlock Perks.</div>
-      <div class="section-desc">Spend gold and lumber to construct 8 buildings on your base map. Each one unlocks a real perk: combo tracking, roast suppression, random treasure events, on-demand taunts.</div>
+      <div class="section-desc">Spend gold and lumber to construct 8 buildings on your base map. Each one unlocks a real perk: combo tracking, fatigue pause, random treasure events, on-demand taunts.</div>
       <div class="screenshot-wrap">
         <picture>
           <source media="(max-width: 768px)" srcset="docs/screenshots/screenshot-base-mobile.png">
@@ -738,7 +687,7 @@ footer a:hover { text-decoration: underline; }
     <div class="showcase-section">
       <div class="section-title">Loot System</div>
       <div class="section-heading">31 Items. 5 Rarity Tiers.</div>
-      <div class="section-desc">Items drop randomly from completed tasks. Equip them to boost gold income, suppress roasts, make combos unbreakable, or lifesteal from errors. Legendary drop rate: 0.01%.</div>
+      <div class="section-desc">Items drop randomly from completed tasks. Equip them to boost gold income, resist fatigue, make combos unbreakable, or lifesteal from errors. Legendary drop rate: 0.01%.</div>
       <div class="rarity-row" style="margin-bottom:24px">
         <span class="rarity-tag r-common">Common</span>
         <span class="rarity-tag r-uncommon">Uncommon</span>
@@ -781,14 +730,9 @@ footer a:hover { text-decoration: underline; }
         <p>First Blood. Night Elf (code past 2 AM). Iron Peon (7-day streak). The Grind (1000 tasks). Mogul (5000 gold). Tracked forever.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">&#x1F608;</div>
-        <h3>Roasts (Lvl 0-5)</h3>
-        <p>The worse you code, the more savage peon gets.</p>
-        <div class="roast-preview">
-          <div class="roast-row g"><span class="rlvl">Lvl 0</span><span class="rmsg">"Work complete."</span></div>
-          <div class="roast-row y"><span class="rlvl">Lvl 3</span><span class="rmsg">"Human considered different career?"</span></div>
-          <div class="roast-row r"><span class="rlvl">Lvl 5</span><span class="rmsg">"Peon quit. Find another peon."</span></div>
-        </div>
+        <div class="feature-icon">&#x1F4AA;</div>
+        <h3>Combos</h3>
+        <p>Consecutive tasks build a combo. Double kill! Triple kill! GODLIKE!</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">&#x1F552;</div>

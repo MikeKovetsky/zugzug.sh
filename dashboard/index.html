@@ -193,10 +193,6 @@ body {
 @keyframes flashG { 0%,100% { color: var(--gold); } 30% { color: #4c8; text-shadow: 0 0 8px rgba(68,204,136,0.6); } }
 @keyframes flashR { 0%,100% { color: var(--gold); } 30% { color: #c44; text-shadow: 0 0 8px rgba(204,68,68,0.6); } }
 
-.roast-meter { display: flex; gap: 3px; height: 10px; }
-.roast-pip { flex: 1; background: #2a2a3e; border-radius: 2px; transition: background 0.3s; }
-.roast-pip.on { background: var(--red); }
-.roast-pip.on:nth-child(-n+2) { background: var(--gold); }
 .combo-val { font-size: 16px; font-weight: 900; color: var(--gold); text-shadow: 0 0 8px rgba(255,171,1,0.5); }
 .combo-bump { animation: bump 0.4s; }
 @keyframes bump { 0%,100% { transform: scale(1); } 50% { transform: scale(1.4); } }
@@ -766,8 +762,8 @@ body {
         <div class="help-text">Equipped items lose 1 durability per 2 tasks. At 0 they break and their effect stops. Use <code>peon repair</code> to fix damaged items. Broken items cost 2x. Blacksmith halves durability loss. Mask of Death halves repair cost.<br><b>Repair costs:</b> Common 12g &middot; Uncommon 25g &middot; Rare 50g &middot; Epic 100g &middot; Legendary 250g</div>
       </div>
       <div class="help-block">
-        <div class="help-heading">&#x1F525; Sass</div>
-        <div class="help-text">Peon gets grumpy from overwork (30+ daily tasks), fatigue, gold hoarding, marathon sessions, late nights, and context limits. Burrow suppresses for 1 hour. Frostmourne turns sass into compliments.</div>
+        <div class="help-heading">&#x1F6CC; Fatigue</div>
+        <div class="help-text">Accumulates with each task. Past the threshold, gold income drops. Past exhaustion, gold stops entirely. Burrow pauses fatigue for 1 hour. Resets daily.</div>
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F3C6; Achievements</div>
@@ -861,15 +857,9 @@ body {
       <div class="stats-col">
         <div class="stat-row"><span>Pack</span><span class="sv" id="pack-name">peon</span></div>
         <div class="stat-row"><span>Tasks</span><span class="sv" id="tasks">0</span></div>
-        <div class="stat-row"><span>Errors</span><span class="sv" id="errors">0</span></div>
         <div class="stat-row"><span>Sessions</span><span class="sv" id="sessions">0</span></div>
         <div class="stat-row"><span>Combo</span><span class="combo-val" id="combo">&mdash;</span></div>
-        <div class="stat-row"><span>Roast</span><span id="roast-val">0</span></div>
-        <div class="roast-meter" id="roast-meter">
-          <div class="roast-pip"></div><div class="roast-pip"></div><div class="roast-pip"></div>
-          <div class="roast-pip"></div><div class="roast-pip"></div>
-        </div>
-        <div style="height:8px"></div>
+        <div class="stat-row"><span>Fatigue</span><span class="sv" id="fatigue-val">0</span></div>
         <div class="stat-row"><span>Streak</span><span class="sv" id="streak-days">0 days</span></div>
         <div class="stat-row"><span>Best streak</span><span class="sv" id="best-streak">0 days</span></div>
         <div class="stat-row"><span>Max combo</span><span class="sv" id="max-combo">0x</span></div>
@@ -891,7 +881,7 @@ function w3i(p) { return '<img src="' + W3 + p + '" class="w3i">'; }
 
 var BLDS = {
   great_hall:      { icon: w3i('orc/greathall.png'), name: 'Great Hall', g: 0, l: 0, free: true, desc: 'Your base of operations.' },
-  burrow:          { icon: w3i('orc/orcburrow.png'), name: 'Burrow', g: 500, l: 250, desc: 'Enables Bunker \u2014 suppress roasts for 1 hour.' },
+  burrow:          { icon: w3i('orc/orcburrow.png'), name: 'Burrow', g: 500, l: 250, desc: 'Enables Bunker \u2014 pause fatigue for 1 hour.' },
   watch_tower:     { icon: w3i('orc/watchtower.png'), name: 'Watch Tower', g: 750, l: 375, desc: 'Early warning at 80% context usage.' },
   war_mill:        { icon: w3i('orc/warmill.png'), name: 'War Mill', g: 1000, l: 500, desc: 'Unlocks combo system (multi-kill tracking).' },
   altar:           { icon: w3i('orc/altarofstorms.png'), name: 'Altar of Storms', g: 1500, l: 750, desc: 'Enables Resurrect \u2014 restore combo once/day.' },
@@ -920,7 +910,7 @@ var ACHS = [
   { id: 'permit_patty', icon: '\u{1F6D1}', name: 'Permit Patty', how: '20 permissions in one session', tgt: 20 },
   { id: 'compact_survivor', icon: '\u{1F6E1}\uFE0F', name: 'Compact Survivor', how: '5 context compacts', tgt: 5 },
   { id: 'architect', icon: '\u{1F3D7}\uFE0F', name: 'Architect', how: 'Build 10 structures', tgt: 10 },
-  { id: 'bankrupt', icon: '\u{1F4B8}', name: 'Bankrupt', how: 'Go below -500 gold', tgt: 500 },
+  { id: 'combo_fiend', icon: '\u{1F525}', name: 'Combo Fiend', how: 'Reach 50 combo', tgt: 50 },
   { id: 'mogul', icon: '\u{1F4B0}', name: 'Mogul', how: 'Earn 5,000 lifetime gold', tgt: 5000 },
   { id: 'stop_clicking', icon: '\u{1F5B1}\uFE0F', name: 'Stop Clicking Me!', how: '500 lifetime prompts', tgt: 500, secret: true },
   { id: 'peon_union_rep', icon: '\u{1F4CB}', name: 'Peon Union Rep', how: 'Fatigue hits 50 in one session', tgt: 50, secret: true },
@@ -930,7 +920,7 @@ var ACHS = [
   { id: 'you_no_take', icon: '\u{1F56F}\uFE0F', name: 'You No Take Candle!', how: 'Defeat 5 kobolds', tgt: 5 },
   { id: 'night_raid', icon: '\u{1F319}', name: 'Night Raid', how: 'Hit a boss past midnight', tgt: 1 },
   { id: 'combo_god', icon: '\u{1F525}', name: 'Combo God', how: 'Reach 100 combo', tgt: 100 },
-  { id: 'hoarder', icon: '\u{1F9F3}', name: 'Hoarder', how: 'Own 12+ items total', tgt: 12 },
+  { id: 'hoarder', icon: '\u{1F9F3}', name: 'Hoarder', how: 'Own 40+ items total', tgt: 40 },
   { id: 'lunch_raider', icon: '\u{1F354}', name: 'Lunch Raider', how: 'Hit a boss during lunch hour', tgt: 1, secret: true },
   { id: 'boss_slayer', icon: '\u{1F3C6}', name: 'Boss Slayer', how: 'Defeat all 10 unique bosses', tgt: 10 },
   { id: 'speedrun', icon: '\u23F1\uFE0F', name: 'Speed Run', how: 'Kill any boss in under 5 minutes', tgt: 1 },
@@ -991,16 +981,16 @@ function tierClass(lvl) {
 var ITEMS = {
   claws_of_attack:     { icon: w3i('orc/steelmeleeweapons.png'), name: 'Claws of Attack +3', r: 'common', desc: '+3 gold per task' },
   gauntlets_of_str:    { icon: w3i('orc/brutestrength.png'), name: 'Gauntlets of Strength', r: 'common', desc: '+2 lumber per prompt' },
-  ring_of_protection:  { icon: w3i('orc/reinforceddefenses.png'), name: 'Ring of Protection +2', r: 'common', desc: 'Max roast capped at 3' },
+  ring_of_protection:  { icon: w3i('orc/reinforceddefenses.png'), name: 'Ring of Protection +2', r: 'common', desc: '+2 bonus gold per task' },
   slippers_of_agility: { icon: w3i('orc/scrollofspeed.png'), name: 'Slippers of Agility', r: 'common', desc: 'Combos count +1' },
   circlet_of_nobility: { icon: w3i('neutral/circletofnobility.gif'), name: 'Circlet of Nobility', r: 'common', desc: '+2 gold per task' },
   mantle_of_intel:     { icon: w3i('orc/shamanadepttraining.png'), name: 'Mantle of Intelligence', r: 'common', desc: '+1 lumber per prompt' },
-  healing_ward:        { icon: w3i('orc/witchdoctoradepttraining.png'), name: 'Healing Ward', r: 'common', desc: '-1 max roast level' },
+  healing_ward:        { icon: w3i('orc/witchdoctoradepttraining.png'), name: 'Healing Ward', r: 'common', desc: '+1 bonus gold per task' },
   steel_armor:         { icon: w3i('orc/steelarmor.png'), name: 'Steel Armor', r: 'common', desc: '+1 free error/day' },
   belt_of_str:         { icon: w3i('orc/brutestrength.png'), name: 'Belt of Giant Strength +6', r: 'common', desc: '+1 gold per task' },
   gloves_of_haste:     { icon: w3i('orc/scrollofspeed.png'), name: 'Gloves of Haste', r: 'common', desc: 'Combos count +1' },
   hood_of_cunning:     { icon: w3i('orc/shamanadepttraining.png'), name: 'Hood of Cunning', r: 'common', desc: '+2 gold per task' },
-  medallion:           { icon: w3i('orc/reinforceddefenses.png'), name: 'Medallion of Courage', r: 'common', desc: 'Max sass capped at 3' },
+  medallion:           { icon: w3i('orc/reinforceddefenses.png'), name: 'Medallion of Courage', r: 'common', desc: '+2 bonus gold per task' },
   pendant_of_mana:     { icon: w3i('orc/lesserclaritypotion.png'), name: 'Pendant of Mana', r: 'common', desc: '+1 lumber per prompt' },
   robe_of_magi:        { icon: w3i('orc/shamanmastertraining.png'), name: 'Robe of the Magi +6', r: 'common', desc: '+2 lumber per prompt' },
   skull_shield:        { icon: w3i('orc/spikedbarricades.png'), name: 'Skull Shield', r: 'common', desc: 'Gold mine +10 tasks' },
@@ -1014,36 +1004,37 @@ var ITEMS = {
   pendant_of_energy:   { icon: w3i('orc/lesserclaritypotion.png'), name: 'Pendant of Energy', r: 'uncommon', desc: '+5 gold per task' },
   tome_of_xp:          { icon: w3i('neutral/tomeofretraining.gif'), name: 'Tome of Experience', r: 'uncommon', desc: '+500 gold (use)', cons: true },
   war_drums:           { icon: w3i('orc/wardrumsdamageincrease.png'), name: 'War Drums', r: 'uncommon', desc: 'Combo milestones give 2x gold' },
-  troll_regen:         { icon: w3i('orc/trollregeneration.png'), name: 'Scroll of Regeneration', r: 'uncommon', desc: 'Roast decays 2x faster' },
+  troll_regen:         { icon: w3i('orc/trollregeneration.png'), name: 'Scroll of Regeneration', r: 'uncommon', desc: '+3 bonus gold per task' },
   sentry_ward:         { icon: w3i('orc/improvedspikedbarricades.png'), name: 'Sentry Ward', r: 'uncommon', desc: 'Warns at 60% context usage' },
   liquid_fire:         { icon: w3i('orc/liquidfire.gif'), name: 'Liquid Fire', r: 'uncommon', desc: '+150 gold (use)', cons: true },
   helm_of_valor:       { icon: w3i('orc/arcanitearmor.png'), name: 'Helm of Valor', r: 'rare', desc: '3 free errors/day' },
-  cloak_of_shadows:    { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Cloak of Shadows', r: 'rare', desc: 'No roasts' },
+  cloak_of_shadows:    { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Cloak of Shadows', r: 'rare', desc: 'Fatigue paused while equipped' },
   orb_of_fire:         { icon: w3i('orc/orboflightning.png'), name: 'Orb of Fire', r: 'rare', desc: 'Errors give +2g' },
   gem_of_seeing:       { icon: w3i('neutral/dustofappearance.gif'), name: 'Gem of True Seeing', r: 'rare', desc: '10% crit (3x gold)' },
   staff_of_negation:   { icon: w3i('neutral/staffofteleportation.gif'), name: 'Staff of Negation', r: 'rare', desc: 'No debt interest' },
   sobi_mask:           { icon: w3i('orc/shamanmastertraining.png'), name: 'Sobi Mask', r: 'rare', desc: '3x lumber' },
-  inv_potion:          { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Potion of Invisibility', r: 'rare', desc: '2h no roasts (use)', cons: true },
+  inv_potion:          { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Potion of Invisibility', r: 'rare', desc: '2h fatigue pause (use)', cons: true },
   thorium_armor:       { icon: w3i('orc/thoriumarmor.png'), name: 'Thorium Armor', r: 'rare', desc: '5 free errors/day' },
   envenomed_spears:    { icon: w3i('orc/envenomedspears.gif'), name: 'Envenomed Spears', r: 'rare', desc: 'Errors refund 50% gold' },
   ensnare_trap:        { icon: w3i('orc/ensnare.gif'), name: 'Ensnare', r: 'rare', desc: 'Prevent next raid (use)', cons: true },
   lion_horn:           { icon: w3i('orc/wardrumsdamageincrease.png'), name: 'Lion Horn of Stormwind', r: 'rare', desc: 'Gold mine +15 tasks' },
   ring_of_regen:       { icon: w3i('orc/trollregeneration.png'), name: 'Ring of Regeneration', r: 'rare', desc: '+8 gold per task' },
-  scourge_bone:        { icon: w3i('orc/pillage.gif'), name: 'Scourge Bone Chimes', r: 'rare', desc: 'Max sass capped at 1' },
+  scourge_bone:        { icon: w3i('orc/pillage.gif'), name: 'Scourge Bone Chimes', r: 'rare', desc: '+8 bonus gold per task' },
   shadow_orb:          { icon: w3i('orc/orboflightning.png'), name: 'Shadow Orb +10', r: 'rare', desc: '5% crit chance' },
   talisman_of_evasion: { icon: w3i('orc/scrollofspeed.png'), name: 'Talisman of Evasion', r: 'rare', desc: 'First fatigue free' },
   crown_of_kings:      { icon: w3i('neutral/circletofnobility.gif'), name: 'Crown of Kings +5', r: 'epic', desc: '2x all gold' },
   mask_of_death:       { icon: w3i('orc/berserkerupgrade.png'), name: 'Mask of Death', r: 'epic', desc: '50% gold lifesteal' },
   amulet_of_spell:     { icon: w3i('neutral/scrollofprotection.gif'), name: 'Amulet of Spell Shield', r: 'epic', desc: 'Immune to raids' },
-  khadgars_pipe:       { icon: w3i('orc/spiritwalkeradepttraining.png'), name: "Khadgar's Pipe", r: 'epic', desc: 'Roast resets each task' },
+  khadgars_pipe:       { icon: w3i('orc/spiritwalkeradepttraining.png'), name: "Khadgar's Pipe", r: 'epic', desc: 'Fatigue decays 2x faster' },
   ankh:                { icon: w3i('neutral/scrollofhealing.gif'), name: 'Ankh of Reincarnation', r: 'epic', desc: 'Undo raid (use)', cons: true },
   pillage_banner:      { icon: w3i('orc/pillage.gif'), name: 'Banner of Pillage', r: 'epic', desc: '2x event gold' },
   spirit_link:         { icon: w3i('orc/spiritwalkermastertraining.png'), name: 'Spirit Link', r: 'epic', desc: 'Combo persists across sessions' },
   invuln_potion:       { icon: w3i('neutral/potionoflesserinvulnerability.gif'), name: 'Potion of Invulnerability', r: 'epic', desc: '4h no gold loss (use)', cons: true },
-  frostmourne:         { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Frostmourne', r: 'legendary', desc: 'Roasts become praise' },
+  frostmourne:         { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Frostmourne', r: 'legendary', desc: 'Fatigue threshold +50' },
   wirts_leg:           { icon: w3i('orc/spikedbarricades.png'), name: "Wirt's Leg", r: 'legendary', desc: 'Does nothing.' },
   thunderfury:         { icon: w3i('orc/orboflightning.png'), name: 'Thunderfury', r: 'legendary', desc: '+15 gold per task' },
   unstoppable_force:   { icon: w3i('orc/pulverizedamageincrease.png'), name: 'The Unstoppable Force', r: 'legendary', desc: 'Combos never break' },
+  azzinoth_blades:     { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Warglaives of Azzinoth', r: 'legendary', desc: '+2 combo per task' },
   ashbringer:          { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Ashbringer', r: 'legendary', desc: 'Purge all debt' },
   cheese:              { icon: w3i('orc/healingsalve.png'), name: 'Cheese', r: 'legendary', desc: '+1000g +500l (use)', cons: true },
   thorium_blade:       { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Thorium Blade', r: 'legendary', desc: '+20 gold per task' },
@@ -1201,8 +1192,6 @@ function updateStats(s) {
   $('pack-name').textContent = (s.last_active || {}).pack || 'peon';
   var tasks = st.tasks_completed || 0, pt = ps.tasks_completed || 0;
   if (tasks !== pt) { animVal($('tasks'), pt, tasks); flash($('tasks'), 1); }
-  var errs = st.errors_total || 0, pe = ps.errors_total || 0;
-  if (errs !== pe) { animVal($('errors'), pe, errs); flash($('errors'), -1); }
   $('sessions').textContent = st.sessions_total || 0;
   var combo = s.combo_count || 0, pc = prev ? (prev.combo_count || 0) : 0;
   var cel = $('combo');
@@ -1212,10 +1201,7 @@ function updateStats(s) {
     void cel.offsetWidth;
     cel.classList.add('combo-bump');
   }
-  var rl = s.roast_level || 0;
-  $('roast-val').textContent = rl;
-  var pips = document.querySelectorAll('.roast-pip');
-  for (var i = 0; i < pips.length; i++) pips[i].classList.toggle('on', i < rl);
+  $('fatigue-val').textContent = s.fatigue || 0;
   var debt = $('debt-box');
   if ((s.economy || {}).gold < 0) {
     debt.innerHTML = '<div class="debt-warn">IN DEBT: ' + s.economy.gold + ' gold</div>';
@@ -1396,7 +1382,7 @@ function updateActions(s) {
       btn.innerHTML = w3i('orc/orcburrow.png') + ' Bunker';
       btn.addEventListener('click', function() {
         apiPost('/api/bunker').then(function(res) {
-          if (res.ok) { addToast('', '\u{1F573}\uFE0F', 'Peon hiding! Roasts suppressed for 1 hour.'); poll(); }
+          if (res.ok) { addToast('', '\u{1F573}\uFE0F', 'Peon hiding! Fatigue paused for 1 hour.'); poll(); }
         });
       });
     }
