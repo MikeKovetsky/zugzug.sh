@@ -200,39 +200,49 @@ else:
 }
 
 # ============================================================
-# Army casualties on counter-attacks
+# Boss attacks army each turn
 # ============================================================
 
-@test "counter-attack causes casualties" {
-  bash "$PEON_SH" hire grunt 3
+@test "boss with atk_max kills units on task complete" {
+  bash "$PEON_SH" hire grunt 10
   python3 -c "
 import json, datetime
 s = json.load(open('$TEST_DIR/.state.json'))
 dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
-s['active_boss'] = {'id': 'ogre', 'name': 'Ogre Magi', 'hp': 500, 'max_hp': 600, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 100, 'lumber_reward': 50, 'counter_gold': 60}
+s['active_boss'] = {'id': 'archimonde', 'name': 'Archimonde', 'hp': 50000, 'max_hp': 100000, 'deadline': dl, 'loot_tier': 'epic', 'entry_fee': 0, 'gold_reward': 50000, 'lumber_reward': 15000, 'atk_min': 3, 'atk_max': 10}
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
-  run_peon '{"hook_event_name":"PostToolUseFailure","tool_name":"Bash","error":"Exit code 1","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local count
   count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
-  [ "$count" -eq 2 ]
+  # archimonde kills 3-10 per turn, so grunts should be fewer than 10
+  [ "$count" -lt 10 ]
 }
 
-@test "shaman reduces casualties" {
+@test "boss with atk_max 0 does not kill units" {
   bash "$PEON_SH" hire grunt 3
-  bash "$PEON_SH" hire shaman
+  bash "$PEON_SH" raid kobold
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local count
+  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
+  [ "$count" -eq 3 ]
+}
+
+@test "shaman reduces boss attack casualties" {
+  bash "$PEON_SH" hire grunt 5
+  bash "$PEON_SH" hire shaman 2
   python3 -c "
 import json, datetime
 s = json.load(open('$TEST_DIR/.state.json'))
 dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
-s['active_boss'] = {'id': 'ogre', 'name': 'Ogre Magi', 'hp': 500, 'max_hp': 600, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 100, 'lumber_reward': 50, 'counter_gold': 60}
+s['active_boss'] = {'id': 'brewmaster', 'name': 'Pandaren Brewmaster', 'hp': 5000, 'max_hp': 6000, 'deadline': dl, 'loot_tier': 'epic', 'entry_fee': 0, 'gold_reward': 3000, 'lumber_reward': 1200, 'atk_min': 1, 'atk_max': 3}
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
-  run_peon '{"hook_event_name":"PostToolUseFailure","tool_name":"Bash","error":"Exit code 1","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
-  local count
-  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('army', {}).get('grunt', 0))")
-  # shaman heal=2 should reduce casualties from 1 to 0
-  [ "$count" -eq 3 ]
+  # 2 shamans = 4 heal, boss atk 1-3, so 4 heal always covers it => 0 casualties
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local total
+  total=$(python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); a=s.get('army',{}); print(sum(a.values()))")
+  [ "$total" -eq 7 ]
 }
 
 # ============================================================

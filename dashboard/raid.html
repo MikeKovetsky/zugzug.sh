@@ -175,16 +175,16 @@ var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
 function w3img(p) { return '<img src="' + W3 + p + '" style="width:36px;height:36px;image-rendering:pixelated">'; }
 
 var BOSSES = {
-  kobold:     {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:30,     lumber:15,    icon: w3img('neutral/goblinsapper.gif')},
-  mud_golem:  {name:'Mud Golem',            hp:60,     days:2,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:60,     lumber:30,    icon: w3img('neutral/mudgolem.gif')},
-  troll:      {name:'Forest Troll Warlord', hp:150,    days:3,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:150,    lumber:75,    icon: w3img('neutral/foresttrollberserker.gif')},
-  ogre:       {name:'Ogre Magi',            hp:400,    days:3,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:400,    lumber:200,   icon: w3img('neutral/ogremauler.gif')},
-  naga:       {name:'Naga Sea Witch',       hp:1000,   days:4,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:800,    lumber:400,   icon: w3img('neutral/nagaseawitch.gif')},
-  infernal:   {name:'Infernal',             hp:2500,   days:5,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:1500,   lumber:600,   icon: w3img('orc/burningoil.gif')},
-  brewmaster: {name:'Pandaren Brewmaster',  hp:6000,   days:5,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:3000,   lumber:1200,  icon: w3img('neutral/pandarenbrewmaster.gif')},
-  mannoroth:  {name:'Pit Lord Mannoroth',   hp:15000,  days:7,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:8000,   lumber:3000,  icon: w3img('neutral/pitlord.gif')},
-  blademaster:{name:'Blademaster',          hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  icon: w3img('orc/blademaster.gif')},
-  archimonde: {name:'Archimonde',           hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'epic', gold:50000,  lumber:15000, icon: w3img('orc/chieftain.gif')}
+  kobold:     {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:30,     lumber:15,    atk_min:0, atk_max:0, icon: w3img('neutral/goblinsapper.gif')},
+  mud_golem:  {name:'Mud Golem',            hp:60,     days:2,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:60,     lumber:30,    atk_min:0, atk_max:0, icon: w3img('neutral/mudgolem.gif')},
+  troll:      {name:'Forest Troll Warlord', hp:150,    days:3,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:150,    lumber:75,    atk_min:0, atk_max:1, icon: w3img('neutral/foresttrollberserker.gif')},
+  ogre:       {name:'Ogre Magi',            hp:400,    days:3,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:400,    lumber:200,   atk_min:0, atk_max:1, icon: w3img('neutral/ogremauler.gif')},
+  naga:       {name:'Naga Sea Witch',       hp:1000,   days:4,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:800,    lumber:400,   atk_min:0, atk_max:2, icon: w3img('neutral/nagaseawitch.gif')},
+  infernal:   {name:'Infernal',             hp:2500,   days:5,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:1500,   lumber:600,   atk_min:0, atk_max:2, icon: w3img('orc/burningoil.gif')},
+  brewmaster: {name:'Pandaren Brewmaster',  hp:6000,   days:5,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:3000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3img('neutral/pandarenbrewmaster.gif')},
+  mannoroth:  {name:'Pit Lord Mannoroth',   hp:15000,  days:7,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:8000,   lumber:3000,  atk_min:1, atk_max:4, icon: w3img('neutral/pitlord.gif')},
+  blademaster:{name:'Blademaster',          hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3img('orc/blademaster.gif')},
+  archimonde: {name:'Archimonde',           hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'epic', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3img('orc/chieftain.gif')}
 };
 
 var pendingBoss = null;
@@ -299,6 +299,7 @@ function renderBattleLog(boss) {
     var dmgStr = e.dmg > 0 ? '-' + e.dmg + ' HP' : '0 dmg';
     var comboStr = e.combo ? ' <span class="blog-combo">x' + e.combo + '</span>' : '';
     var counterStr = e.counter ? ' <span class="blog-counter">' + e.counter + '</span>' : '';
+    if (e.boss_atk) counterStr += ' <span class="blog-counter">\u2620 -' + e.boss_atk + ' units</span>';
     var bkStr = '';
     if (e.bk && e.dmg > 0) {
       var bp = [];
@@ -339,7 +340,8 @@ function renderBossGrid(buildings, bk, bkTotal, lvl, ec, hasPortal) {
     var html = '<div class="card-top"><span class="card-icon">' + b.icon + '</span><div><div class="card-name">' + b.name + '</div></div></div>';
     html += '<div class="card-stats"><span>' + b.hp + '</span> HP &middot; <span>' + b.days + '</span> day' + (b.days > 1 ? 's' : '') + ' &middot; Entry: <span>' + feeStr + '</span> &middot; Loot: <span class="loot-' + b.loot + '">' + b.loot + '</span></div>';
     var penalty = Math.floor(b.fee / 2);
-    html += '<div class="card-stats" style="margin-top:2px">Reward: <span style="color:var(--gold)">' + b.gold + 'g</span> + <span style="color:#5a5">' + b.lumber + 'l</span>' + (penalty > 0 ? ' &middot; Fail: <span style="color:var(--red)">-' + penalty + 'g</span>' : '') + '</div>';
+    var atkStr = b.atk_max > 0 ? ' &middot; Attack: <span style="color:var(--red)">' + b.atk_min + '-' + b.atk_max + ' kills/turn</span>' : '';
+    html += '<div class="card-stats" style="margin-top:2px">Reward: <span style="color:var(--gold)">' + b.gold + 'g</span> + <span style="color:#5a5">' + b.lumber + 'l</span>' + atkStr + (penalty > 0 ? ' &middot; Fail: <span style="color:var(--red)">-' + penalty + 'g</span>' : '') + '</div>';
     if (kills > 0) html += '<div class="kills-badge">\u2694 Defeated ' + kills + 'x</div>';
     if (locked) html += '<div class="lock-reason">\uD83D\uDD12 ' + reasons.join(' + ') + '</div>';
     else if (!canAfford) html += '<div class="lock-reason">Not enough gold (' + gold + '/' + b.fee + 'g)</div>';
@@ -349,7 +351,8 @@ function renderBossGrid(buildings, bk, bkTotal, lvl, ec, hasPortal) {
         pendingBoss = bid;
         $('confirm-name').textContent = b.name;
         var pen = Math.floor(b.fee / 2);
-        $('confirm-details').innerHTML = b.hp + ' HP &middot; ' + b.days + ' day' + (b.days > 1 ? 's' : '') + (b.fee ? ' &middot; Entry: ' + b.fee + 'g' : '') + '<br>Reward: ' + b.gold + 'g + ' + b.lumber + 'l &middot; Loot: ' + b.loot + ' drop' + (pen > 0 ? '<br>Fail penalty: -' + pen + 'g' : '');
+        var atkInfo = b.atk_max > 0 ? '<br>Boss attack: ' + b.atk_min + '-' + b.atk_max + ' unit kills per turn' : '';
+        $('confirm-details').innerHTML = b.hp + ' HP &middot; ' + b.days + ' day' + (b.days > 1 ? 's' : '') + (b.fee ? ' &middot; Entry: ' + b.fee + 'g' : '') + '<br>Reward: ' + b.gold + 'g + ' + b.lumber + 'l &middot; Loot: ' + b.loot + ' drop' + atkInfo + (pen > 0 ? '<br>Fail penalty: -' + pen + 'g' : '');
         $('confirm-overlay').classList.add('active');
       });
     }
