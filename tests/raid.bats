@@ -88,7 +88,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   bash "$PEON_SH" raid troll
   local gold_after
   gold_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
-  [ "$gold_after" -eq $((gold_before - 100)) ]
+  [ "$gold_after" -eq $((gold_before - 50)) ]
 }
 
 @test "raid locked boss shows requirements" {

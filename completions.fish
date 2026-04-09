@@ -115,16 +115,16 @@ complete -c peon -n "__peon_using_subcommand build" -a citadel -d "2x item drops
 
 # raid subcommands
 complete -c peon -n "__peon_using_subcommand raid" -a status -d "Show active raid status"
-complete -c peon -n "__peon_using_subcommand raid" -a kobold -d "Kobold Taskmaster (30 HP, 1 day)"
-complete -c peon -n "__peon_using_subcommand raid" -a mud_golem -d "Mud Golem (100 HP, 1 day)"
-complete -c peon -n "__peon_using_subcommand raid" -a troll -d "Forest Troll Warlord (200 HP, 2 days)"
-complete -c peon -n "__peon_using_subcommand raid" -a ogre -d "Ogre Magi (600 HP, 3 days)"
-complete -c peon -n "__peon_using_subcommand raid" -a naga -d "Naga Sea Witch (1200 HP, 3 days)"
-complete -c peon -n "__peon_using_subcommand raid" -a infernal -d "Infernal (2000 HP, 4 days)"
-complete -c peon -n "__peon_using_subcommand raid" -a brewmaster -d "Pandaren Brewmaster (3500 HP, 4 days)"
-complete -c peon -n "__peon_using_subcommand raid" -a mannoroth -d "Pit Lord Mannoroth (5000 HP, 5 days)"
-complete -c peon -n "__peon_using_subcommand raid" -a blademaster -d "Blademaster (8000 HP, 6 days)"
-complete -c peon -n "__peon_using_subcommand raid" -a archimonde -d "Archimonde (12000 HP, 7 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a kobold -d "Kobold Taskmaster (20 HP, 1 day)"
+complete -c peon -n "__peon_using_subcommand raid" -a mud_golem -d "Mud Golem (60 HP, 2 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a troll -d "Forest Troll Warlord (150 HP, 3 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a ogre -d "Ogre Magi (400 HP, 3 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a naga -d "Naga Sea Witch (1000 HP, 4 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a infernal -d "Infernal (2500 HP, 5 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a brewmaster -d "Pandaren Brewmaster (6000 HP, 5 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a mannoroth -d "Pit Lord Mannoroth (15000 HP, 7 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a blademaster -d "Blademaster (40000 HP, 10 days)"
+complete -c peon -n "__peon_using_subcommand raid" -a archimonde -d "Archimonde (100000 HP, 14 days)"
 
 # hire subcommands
 complete -c peon -n "__peon_using_subcommand hire" -a grunt -d "Grunt (100g, 2 food, +1 dmg)"
