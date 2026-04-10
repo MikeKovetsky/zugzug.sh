@@ -2004,11 +2004,16 @@ ITEMS = {
     'azzinoth_blades':     ('Warglaives of Azzinoth', 'legendary', '+2 combo per task. You are not prepared.'),
     'ashbringer':          ('Ashbringer',             'legendary', '2x achievement progress'),
     'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
+    'scroll_of_heal':      ('Scroll of Healing',      'uncommon',  'Heal all army units 15 HP (consumable)'),
+    'healing_ward':        ('Healing Ward',            'rare',      'Fully heal all army units (consumable)'),
+    'firebolt':            ('Firebolt',               'common',    'Deal 5 damage to active boss (consumable)'),
     'goblin_sapper':       ('Goblin Sapper Charge',   'uncommon',  'Deal 10 damage to active boss (consumable)'),
+    'storm_bolt':          ('Storm Bolt',             'uncommon',  'Deal 25 damage to active boss (consumable)'),
     'demolisher_shot':     ('Demolisher Shot',        'rare',      'Deal 50 damage to active boss (consumable)'),
     'thunder_clap':        ('Thunder Clap',           'rare',      'Deal 75 damage to active boss (consumable)'),
     'chain_lightning':     ('Chain Lightning',        'epic',      'Deal 200 damage to active boss (consumable)'),
     'death_coil':          ('Death Coil',             'epic',      'Deal 500 damage to active boss (consumable)'),
+    'finger_of_death':     ('Finger of Death',        'epic',      'Deal 1000 damage to active boss (consumable)'),
     'doom':                ('Doom',                   'legendary', 'Deal 2000 damage to active boss (consumable)'),
     'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
     'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
@@ -2133,9 +2138,37 @@ consumables = {
     'ankh':             ('Base raid undone! Gold restored.', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
     'cheese':           ('Mmm. +1000g +500l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+1000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+500))),
 }
+heal_items = {'scroll_of_heal': 15, 'healing_ward': 999}
+_UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+if item_id in heal_items:
+    army = state.get('army', {})
+    if not army:
+        print('No army to heal! Hire units first: peon hire <unit>')
+        sys.exit(1)
+    amount = heal_items[item_id]
+    healed = 0
+    for uid, hps in army.items():
+        mx = _UNIT_HP.get(uid, 30)
+        for i in range(len(hps)):
+            if hps[i] < mx:
+                old = hps[i]
+                hps[i] = min(mx, hps[i] + amount)
+                healed += hps[i] - old
+    if healed == 0:
+        print('Army is already at full health!')
+        sys.exit(0)
+    state['army'] = army
+    if item_id in inventory: inventory.remove(item_id)
+    elif item_id in equipped: equipped.remove(item_id)
+    state['inventory'] = inventory
+    state['equipped'] = equipped
+    _save_state(state_file, state)
+    print(f'Healed {healed} HP across your army!')
+    sys.exit(0)
 boss_items = {
-    'goblin_sapper': 10, 'demolisher_shot': 50, 'thunder_clap': 75,
-    'chain_lightning': 200, 'death_coil': 500, 'doom': 2000,
+    'firebolt': 5, 'goblin_sapper': 10, 'storm_bolt': 25,
+    'demolisher_shot': 50, 'thunder_clap': 75, 'chain_lightning': 200,
+    'death_coil': 500, 'finger_of_death': 1000, 'doom': 2000,
 }
 if item_id in boss_items:
     boss = state.get('active_boss')
@@ -4242,11 +4275,16 @@ if game_on:
         'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Pause fatigue for 2 hours (consumable)'),
         'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='revive',   desc='Undo last base raid (consumable)'),
         'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 1000 gold + 500 lumber. Mmm.'),
+        'scroll_of_heal':      dict(name='Scroll of Healing',      r='uncommon',  e='consumable',      v='heal_15',    desc='Heal all army units 15 HP (consumable)'),
+        'healing_ward':        dict(name='Healing Ward',            r='rare',      e='consumable',      v='heal_full',  desc='Fully heal all army units (consumable)'),
+        'firebolt':            dict(name='Firebolt',               r='common',    e='consumable',      v='boss_5',     desc='Deal 5 damage to active boss (consumable)'),
         'goblin_sapper':       dict(name='Goblin Sapper Charge',   r='uncommon',  e='consumable',      v='boss_10',    desc='Deal 10 damage to active boss (consumable)'),
+        'storm_bolt':          dict(name='Storm Bolt',             r='uncommon',  e='consumable',      v='boss_25',    desc='Deal 25 damage to active boss (consumable)'),
         'demolisher_shot':     dict(name='Demolisher Shot',        r='rare',      e='consumable',      v='boss_50',    desc='Deal 50 damage to active boss (consumable)'),
         'thunder_clap':        dict(name='Thunder Clap',           r='rare',      e='consumable',      v='boss_75',    desc='Deal 75 damage to active boss (consumable)'),
         'chain_lightning':     dict(name='Chain Lightning',        r='epic',      e='consumable',      v='boss_200',   desc='Deal 200 damage to active boss (consumable)'),
         'death_coil':          dict(name='Death Coil',             r='epic',      e='consumable',      v='boss_500',   desc='Deal 500 damage to active boss (consumable)'),
+        'finger_of_death':     dict(name='Finger of Death',        r='epic',      e='consumable',      v='boss_1000',  desc='Deal 1000 damage to active boss (consumable)'),
         'doom':                dict(name='Doom',                   r='legendary', e='consumable',      v='boss_2000',  desc='Deal 2000 damage to active boss (consumable)'),
         'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
         'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less gold lost from counter-attacks'),
@@ -4658,11 +4696,11 @@ if game_on:
     if category == 'task.complete':
         drop_chance = 0.05
         if combo >= 100:
-            drop_chance *= 2.0
-        elif combo >= 50:
             drop_chance *= 1.5
-        elif combo >= 10:
+        elif combo >= 50:
             drop_chance *= 1.2
+        elif combo >= 10:
+            drop_chance *= 1.1
     elif new_achiev:
         drop_chance = 0.5
     if 'citadel' in buildings and drop_chance > 0:
