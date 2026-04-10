@@ -2335,6 +2335,9 @@ if arg == 'status':
         print(f'  [{bar}] {boss[\"hp\"]}/{boss[\"max_hp\"]} HP')
         print(f'  Deadline: {dl} ({days_left} day{\"s\" if days_left != 1 else \"\"} left)')
         print(f'  Damage dealt: {boss[\"max_hp\"] - boss[\"hp\"]}')
+        _lt = boss.get('loot_tier', [])
+        if isinstance(_lt, str): _lt = [_lt]
+        if _lt: print(f'  Loot: {\", \".join(_lt)} ({len(_lt)} drop{\"s\" if len(_lt) != 1 else \"\"})')
     else:
         print('No active raid. Available bosses:')
         print()
@@ -2353,11 +2356,12 @@ if arg == 'status':
                     reqs.append(f'Build {rb}')
             kills = boss_kills.get(bid, 0)
             tag = f' (defeated {kills}x)' if kills else ''
+            loot_str = ', '.join(b['loot']) if len(b['loot']) > 1 else b['loot'][0]
             if locked:
                 print(f'  [LOCKED] {b[\"name\"]}{tag}  \u2014 requires: {\" + \".join(reqs)}')
             else:
                 fee_str = f'{b[\"fee\"]}g' if b['fee'] else 'free'
-                print(f'  {bid:12s} {b[\"name\"]}{tag}  \u2014 {b[\"hp\"]} HP / {b[\"days\"]}d / entry: {fee_str}')
+                print(f'  {bid:12s} {b[\"name\"]}{tag}  \u2014 {b[\"hp\"]} HP / {b[\"days\"]}d / entry: {fee_str} / loot: {loot_str}')
 elif arg in BOSSES:
     if boss:
         print(f'Already fighting {boss[\"name\"]}! Finish or wait for deadline.')
@@ -2387,8 +2391,9 @@ elif arg in BOSSES:
     state['economy'] = econ
     _save_state(state_file, state)
     fee_str = f' (-{b[\"fee\"]}g)' if b['fee'] else ''
+    loot_str = ', '.join(b['loot']) if len(b['loot']) > 1 else b['loot'][0]
     print(f'RAID STARTED: {b[\"name\"]}!{fee_str}')
-    print(f'  HP: {hp} | Deadline: {deadline}')
+    print(f'  HP: {hp} | Deadline: {deadline} | Loot: {loot_str} ({len(b[\"loot\"])} drop{\"s\" if len(b[\"loot\"]) != 1 else \"\"})')
     print(f'  No retreat. No surrender. Fight until victory or timeout.')
 else:
     print(f'Unknown boss tier: {arg}')
