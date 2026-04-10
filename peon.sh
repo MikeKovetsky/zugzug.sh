@@ -1712,7 +1712,7 @@ BUILDINGS = {
     'stronghold':      (2500, 1000, 'Rank upgrade. Unlocks random events.'),
     'spirit_lodge':    (2500, 1000, 'Unlocks idle peon wisdom.'),
     'barracks':        (3000, 1200, 'Subagent sessions count toward stats.'),
-    'blacksmith':      (4000, 1500, 'Equipped items get +50% effect values.'),
+    'blacksmith':      (4000, 1500, '3x slower durability loss.'),
     'arcane_sanctum':  (7500, 3000, 'Unlocks peon prophecies on session start.'),
     'fortress':        (10000, 4000, 'Max rank. Unlocks leaderboard title.'),
     'dark_portal':     (12000, 5000, 'Open the Dark Portal. Raid bosses await beyond.'),
@@ -2006,15 +2006,15 @@ ITEMS = {
     'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
     'scroll_of_heal':      ('Scroll of Healing',      'uncommon',  'Heal all army units 15 HP (consumable)'),
     'healing_ward':        ('Healing Ward',            'rare',      'Fully heal all army units (consumable)'),
-    'firebolt':            ('Firebolt',               'common',    'Deal 5 damage to active boss (consumable)'),
-    'goblin_sapper':       ('Goblin Sapper Charge',   'uncommon',  'Deal 10 damage to active boss (consumable)'),
-    'storm_bolt':          ('Storm Bolt',             'uncommon',  'Deal 25 damage to active boss (consumable)'),
-    'demolisher_shot':     ('Demolisher Shot',        'rare',      'Deal 50 damage to active boss (consumable)'),
-    'thunder_clap':        ('Thunder Clap',           'rare',      'Deal 75 damage to active boss (consumable)'),
-    'chain_lightning':     ('Chain Lightning',        'epic',      'Deal 200 damage to active boss (consumable)'),
-    'death_coil':          ('Death Coil',             'epic',      'Deal 500 damage to active boss (consumable)'),
-    'finger_of_death':     ('Finger of Death',        'epic',      'Deal 1000 damage to active boss (consumable)'),
-    'doom':                ('Doom',                   'legendary', 'Deal 2000 damage to active boss (consumable)'),
+    'firebolt':            ('Firebolt',               'common',    'Deal 50 damage to active boss (consumable)'),
+    'goblin_sapper':       ('Goblin Sapper Charge',   'common',    'Deal 100 damage to active boss (consumable)'),
+    'storm_bolt':          ('Storm Bolt',             'common',    'Deal 250 damage to active boss (consumable)'),
+    'demolisher_shot':     ('Demolisher Shot',        'common',    'Deal 500 damage to active boss (consumable)'),
+    'thunder_clap':        ('Thunder Clap',           'uncommon',  'Deal 750 damage to active boss (consumable)'),
+    'chain_lightning':     ('Chain Lightning',        'uncommon',  'Deal 2000 damage to active boss (consumable)'),
+    'death_coil':          ('Death Coil',             'uncommon',  'Deal 5000 damage to active boss (consumable)'),
+    'finger_of_death':     ('Finger of Death',        'rare',      'Deal 10000 damage to active boss (consumable)'),
+    'doom':                ('Doom',                   'epic',      'Deal 20000 damage to active boss (consumable)'),
     'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
     'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
     'serrated_blade':      ('Serrated Blade',         'uncommon',  '+2 raid damage per task'),
@@ -2166,9 +2166,9 @@ if item_id in heal_items:
     print(f'Healed {healed} HP across your army!')
     sys.exit(0)
 boss_items = {
-    'firebolt': 5, 'goblin_sapper': 10, 'storm_bolt': 25,
-    'demolisher_shot': 50, 'thunder_clap': 75, 'chain_lightning': 200,
-    'death_coil': 500, 'finger_of_death': 1000, 'doom': 2000,
+    'firebolt': 50, 'goblin_sapper': 100, 'storm_bolt': 250,
+    'demolisher_shot': 500, 'thunder_clap': 750, 'chain_lightning': 2000,
+    'death_coil': 5000, 'finger_of_death': 10000, 'doom': 20000,
 }
 if item_id in boss_items:
     boss = state.get('active_boss')
@@ -2178,7 +2178,7 @@ if item_id in boss_items:
     dmg = boss_items[item_id]
     boss['hp'] = max(0, boss['hp'] - dmg)
     log = boss.get('log', [])
-    log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}})
+    log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}, 'item': item_id})
     if len(log) > 50: log = log[-50:]
     boss['log'] = log
     if item_id in inventory: inventory.remove(item_id)
@@ -2293,17 +2293,17 @@ boss_kills = state.get('boss_kills', {})
 bk_total = state.get('boss_kills_total', 0)
 lvl = stats.get('level', 1)
 BOSSES = {
-    'kobold':      dict(name='Kobold Taskmaster',     hp=20,     days=1,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common'],                       gold_r=50,    lumber_r=15,    atk_min=0, atk_max=0),
-    'murloc':      dict(name='Murloc Tidecaller',     hp=60,     days=1,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common'],                       gold_r=100,   lumber_r=30,    atk_min=0, atk_max=0),
-    'troll':       dict(name='Forest Troll Warlord',  hp=200,    days=2,  unlock_kills=1,  unlock_lvl=0, unlock_bld=[], fee=50,    loot=['uncommon'],                     gold_r=200,   lumber_r=75,    atk_min=0, atk_max=1),
-    'ogre':        dict(name='Ogre Magi',             hp=800,    days=2,  unlock_kills=3,  unlock_lvl=0, unlock_bld=[], fee=200,   loot=['rare'],                         gold_r=600,   lumber_r=200,   atk_min=0, atk_max=1),
-    'whelps':      dict(name='Dragon Whelp Swarm',    hp=1500,   days=2,  unlock_kills=4,  unlock_lvl=0, unlock_bld=[], fee=100,   loot=['uncommon','uncommon'],           gold_r=800,   lumber_r=300,   atk_min=0, atk_max=1),
-    'naga':        dict(name='Naga Sea Witch',        hp=3000,   days=2,  unlock_kills=5,  unlock_lvl=5, unlock_bld=[], fee=400,   loot=['rare','uncommon'],               gold_r=1000,  lumber_r=400,   atk_min=0, atk_max=2),
-    'tichondrius': dict(name='Tichondrius',           hp=5000,   days=2,  unlock_kills=7,  unlock_lvl=6, unlock_bld=[], fee=750,   loot=['rare','rare'],                   gold_r=2500,  lumber_r=600,   atk_min=0, atk_max=2),
-    'illidan':     dict(name='Illidan Stormrage',     hp=15000,  days=3,  unlock_kills=10, unlock_lvl=7, unlock_bld=[], fee=1500,  loot=['epic','rare'],                   gold_r=4000,  lumber_r=1200,  atk_min=1, atk_max=3),
-    'mannoroth':   dict(name='Pit Lord Mannoroth',    hp=20000,  days=4,  unlock_kills=15, unlock_lvl=8, unlock_bld=['citadel'], fee=3000, loot=['epic','rare','uncommon'],  gold_r=10000, lumber_r=3000,  atk_min=1, atk_max=4),
-    'archimonde':  dict(name='Archimonde',            hp=50000,  days=7,  unlock_kills=20, unlock_lvl=9, unlock_bld=['citadel'], fee=5000, loot=['epic','epic','rare'],      gold_r=15000, lumber_r=5000,  atk_min=2, atk_max=6),
-    'lich_king':   dict(name='The Lich King',         hp=500000, days=14, unlock_kills=30, unlock_lvl=9, unlock_bld=['citadel'], fee=10000, loot=['legendary','epic','epic'], gold_r=50000, lumber_r=15000, atk_min=3, atk_max=10),
+    'kobold':      dict(name='Kobold Taskmaster',     hp=40,      days=1,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common'],                       gold_r=50,    lumber_r=15,    atk_min=0, atk_max=0),
+    'murloc':      dict(name='Murloc Tidecaller',     hp=120,     days=1,  unlock_kills=0,  unlock_lvl=0, unlock_bld=[], fee=0,     loot=['common','common'],                                          gold_r=100,   lumber_r=30,    atk_min=0, atk_max=0),
+    'troll':       dict(name='Forest Troll Warlord',  hp=400,     days=2,  unlock_kills=1,  unlock_lvl=0, unlock_bld=[], fee=50,    loot=['uncommon','common'],                                        gold_r=200,   lumber_r=75,    atk_min=0, atk_max=1),
+    'ogre':        dict(name='Ogre Magi',             hp=1600,    days=2,  unlock_kills=3,  unlock_lvl=0, unlock_bld=[], fee=200,   loot=['rare','common'],                                            gold_r=600,   lumber_r=200,   atk_min=0, atk_max=1),
+    'whelps':      dict(name='Dragon Whelp Swarm',    hp=3000,    days=2,  unlock_kills=4,  unlock_lvl=0, unlock_bld=[], fee=100,   loot=['rare','uncommon','common'],                                 gold_r=800,   lumber_r=300,   atk_min=1, atk_max=1),
+    'naga':        dict(name='Naga Sea Witch',        hp=6000,    days=2,  unlock_kills=5,  unlock_lvl=5, unlock_bld=[], fee=400,   loot=['rare','uncommon','uncommon'],                               gold_r=1000,  lumber_r=400,   atk_min=1, atk_max=2),
+    'tichondrius': dict(name='Tichondrius',           hp=10000,   days=2,  unlock_kills=7,  unlock_lvl=6, unlock_bld=[], fee=750,   loot=['rare','rare','uncommon'],                                   gold_r=2500,  lumber_r=600,   atk_min=1, atk_max=3),
+    'illidan':     dict(name='Illidan Stormrage',     hp=30000,   days=3,  unlock_kills=10, unlock_lvl=7, unlock_bld=[], fee=1500,  loot=['epic','rare','rare','uncommon'],                            gold_r=4000,  lumber_r=1200,  atk_min=1, atk_max=5),
+    'mannoroth':   dict(name='Pit Lord Mannoroth',    hp=40000,   days=4,  unlock_kills=15, unlock_lvl=8, unlock_bld=['citadel'], fee=3000, loot=['epic','rare','rare','uncommon','common','common'],    gold_r=10000, lumber_r=3000,  atk_min=2, atk_max=6),
+    'archimonde':  dict(name='Archimonde',            hp=100000,  days=7,  unlock_kills=20, unlock_lvl=9, unlock_bld=['citadel'], fee=5000, loot=['epic','epic','rare','rare','rare','uncommon','common'], gold_r=15000, lumber_r=5000, atk_min=3, atk_max=7),
+    'lich_king':   dict(name='The Lich King',         hp=1000000, days=14, unlock_kills=30, unlock_lvl=9, unlock_bld=['citadel'], fee=10000, loot=['legendary','epic','epic'], gold_r=50000, lumber_r=15000, atk_min=3, atk_max=10),
 }
 TROPHY_MAP = {'kobold': 'kobold_candle', 'troll': 'troll_totem', 'ogre': 'ogre_scepter', 'tichondrius': 'infernal_core', 'mannoroth': 'mannoroths_blood', 'archimonde': 'crown_of_eredar', 'lich_king': 'helm_of_domination'}
 boss = state.get('active_boss')
@@ -2698,7 +2698,7 @@ class H(http.server.BaseHTTPRequestHandler):
             import random as _rr
             bid = body.get('boss', '')
             st = self._load('.state.json')
-            BOSSES = {'kobold': dict(hp=20,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=50,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'murloc': dict(hp=60,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=100,lumber_r=30,atk_min=0,atk_max=0,name='Murloc Tidecaller'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon'],gold_r=200,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=800,days=2,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare'],gold_r=600,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'whelps': dict(hp=1500,days=2,unlock_kills=4,unlock_lvl=0,unlock_bld=[],fee=100,loot=['uncommon','uncommon'],gold_r=800,lumber_r=300,atk_min=0,atk_max=1,name='Dragon Whelp Swarm'), 'naga': dict(hp=3000,days=2,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon'],gold_r=1000,lumber_r=400,atk_min=0,atk_max=2,name='Naga Sea Witch'), 'tichondrius': dict(hp=5000,days=2,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare'],gold_r=2500,lumber_r=600,atk_min=0,atk_max=2,name='Tichondrius'), 'illidan': dict(hp=15000,days=3,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare'],gold_r=4000,lumber_r=1200,atk_min=1,atk_max=3,name='Illidan Stormrage'), 'mannoroth': dict(hp=20000,days=4,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','uncommon'],gold_r=10000,lumber_r=3000,atk_min=1,atk_max=4,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=50000,days=7,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare'],gold_r=15000,lumber_r=5000,atk_min=2,atk_max=6,name='Archimonde'), 'lich_king': dict(hp=500000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='The Lich King')}
+            BOSSES = {'kobold': dict(hp=40,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=50,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'murloc': dict(hp=120,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common','common'],gold_r=100,lumber_r=30,atk_min=0,atk_max=0,name='Murloc Tidecaller'), 'troll': dict(hp=400,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon','common'],gold_r=200,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=1600,days=2,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare','common'],gold_r=600,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'whelps': dict(hp=3000,days=2,unlock_kills=4,unlock_lvl=0,unlock_bld=[],fee=100,loot=['rare','uncommon','common'],gold_r=800,lumber_r=300,atk_min=1,atk_max=1,name='Dragon Whelp Swarm'), 'naga': dict(hp=6000,days=2,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon','uncommon'],gold_r=1000,lumber_r=400,atk_min=1,atk_max=2,name='Naga Sea Witch'), 'tichondrius': dict(hp=10000,days=2,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare','uncommon'],gold_r=2500,lumber_r=600,atk_min=1,atk_max=3,name='Tichondrius'), 'illidan': dict(hp=30000,days=3,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare','rare','uncommon'],gold_r=4000,lumber_r=1200,atk_min=1,atk_max=5,name='Illidan Stormrage'), 'mannoroth': dict(hp=40000,days=4,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','rare','uncommon','common','common'],gold_r=10000,lumber_r=3000,atk_min=2,atk_max=6,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=100000,days=7,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare','rare','rare','uncommon','common'],gold_r=15000,lumber_r=5000,atk_min=3,atk_max=7,name='Archimonde'), 'lich_king': dict(hp=1000000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='The Lich King')}
             if st.get('active_boss'):
                 return self._json(400, {'error': 'Already in a raid'})
             if 'dark_portal' not in st.get('buildings', {}):
@@ -2884,7 +2884,7 @@ class H(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
-            boss_items = {'goblin_sapper':10,'demolisher_shot':50,'thunder_clap':75,'chain_lightning':200,'death_coil':500,'doom':2000}
+            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':20000}
             if iid in boss_items:
                 boss = st.get('active_boss')
                 if not boss or boss.get('hp', 0) <= 0:
@@ -2892,7 +2892,7 @@ class H(http.server.BaseHTTPRequestHandler):
                 dmg = boss_items[iid]
                 boss['hp'] = max(0, boss['hp'] - dmg)
                 log = boss.get('log', [])
-                log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}})
+                log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}, 'item': iid})
                 if len(log) > 50: log = log[-50:]
                 boss['log'] = log
                 if iid in inv: inv.remove(iid)
@@ -4332,7 +4332,7 @@ if game_on:
             _durability[_eid] = _MAX_DUR.get(_r, 50)
 
     if (category == 'task.complete' or event == 'Stop') and equipped:
-        _dur_step = 4 if _has_blacksmith else 2
+        _dur_step = 6 if _has_blacksmith else 2
         _dur_tick = state.get('_dur_tick', 0) + 1
         state['_dur_tick'] = _dur_tick
         if _dur_tick % _dur_step == 0:
@@ -4348,10 +4348,7 @@ if game_on:
                 continue
             it = _ITEMS.get(eid)
             if it and it['e'] == eff:
-                v = it['v']
-                if _has_blacksmith and isinstance(v, (int, float)) and v > 0:
-                    v = int(v * 1.5)
-                return v
+                return it['v']
         return 0
 
     _TROPHY_IDS = {'kobold_candle', 'troll_totem', 'ogre_scepter', 'infernal_core', 'mannoroths_blood', 'crown_of_eredar', 'helm_of_domination'}
@@ -4429,7 +4426,7 @@ if game_on:
             combo_text = ''
             combo = state.get('combo_count', 0)
         cb = _has_effect('combo_bonus')
-        if cb and combo > 0:
+        if cb and combo > 0 and category == 'task.complete' and event == 'Stop':
             combo += cb
             state['combo_count'] = combo
 
@@ -4444,10 +4441,7 @@ if game_on:
                 continue
             it = _ITEMS.get(eid)
             if it and it['e'] == eff:
-                v = it['v']
-                if _has_blacksmith and isinstance(v, (int, float)) and v > 0:
-                    v = int(v * 1.5)
-                total += v
+                total += it['v']
         return total
 
     # --- Boss raid combat ---
@@ -4509,10 +4503,6 @@ if game_on:
                 if _army_dmg > 0:
                     _bdmg += _army_dmg
                     _bk['army'] = _army_dmg
-                if _has_blacksmith:
-                    _pre = _bdmg
-                    _bdmg = int(_bdmg * 1.5)
-                    if _bdmg > _pre: _bk['smith'] = _bdmg - _pre
                 if _sum_effect('boss_dmg_mult'):
                     _bdmg *= _sum_effect('boss_dmg_mult')
                 if _boss['hp'] <= _boss['max_hp'] * 0.2:
@@ -4699,7 +4689,7 @@ if game_on:
     # Drop check
     drop_chance = 0
     if category == 'task.complete':
-        drop_chance = 0.05
+        drop_chance = 0.025
         if combo >= 100:
             drop_chance *= 1.5
         elif combo >= 50:
@@ -5128,7 +5118,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             import random as _rr
             bid = body.get('boss', '')
             st = self._load('.state.json')
-            BOSSES = {'kobold': dict(hp=20,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=50,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'murloc': dict(hp=60,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=100,lumber_r=30,atk_min=0,atk_max=0,name='Murloc Tidecaller'), 'troll': dict(hp=200,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon'],gold_r=200,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=800,days=2,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare'],gold_r=600,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'whelps': dict(hp=1500,days=2,unlock_kills=4,unlock_lvl=0,unlock_bld=[],fee=100,loot=['uncommon','uncommon'],gold_r=800,lumber_r=300,atk_min=0,atk_max=1,name='Dragon Whelp Swarm'), 'naga': dict(hp=3000,days=2,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon'],gold_r=1000,lumber_r=400,atk_min=0,atk_max=2,name='Naga Sea Witch'), 'tichondrius': dict(hp=5000,days=2,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare'],gold_r=2500,lumber_r=600,atk_min=0,atk_max=2,name='Tichondrius'), 'illidan': dict(hp=15000,days=3,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare'],gold_r=4000,lumber_r=1200,atk_min=1,atk_max=3,name='Illidan Stormrage'), 'mannoroth': dict(hp=20000,days=4,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','uncommon'],gold_r=10000,lumber_r=3000,atk_min=1,atk_max=4,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=50000,days=7,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare'],gold_r=15000,lumber_r=5000,atk_min=2,atk_max=6,name='Archimonde'), 'lich_king': dict(hp=500000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='The Lich King')}
+            BOSSES = {'kobold': dict(hp=40,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common'],gold_r=50,lumber_r=15,atk_min=0,atk_max=0,name='Kobold Taskmaster'), 'murloc': dict(hp=120,days=1,unlock_kills=0,unlock_lvl=0,unlock_bld=[],fee=0,loot=['common','common'],gold_r=100,lumber_r=30,atk_min=0,atk_max=0,name='Murloc Tidecaller'), 'troll': dict(hp=400,days=2,unlock_kills=1,unlock_lvl=0,unlock_bld=[],fee=50,loot=['uncommon','common'],gold_r=200,lumber_r=75,atk_min=0,atk_max=1,name='Forest Troll Warlord'), 'ogre': dict(hp=1600,days=2,unlock_kills=3,unlock_lvl=0,unlock_bld=[],fee=200,loot=['rare','common'],gold_r=600,lumber_r=200,atk_min=0,atk_max=1,name='Ogre Magi'), 'whelps': dict(hp=3000,days=2,unlock_kills=4,unlock_lvl=0,unlock_bld=[],fee=100,loot=['rare','uncommon','common'],gold_r=800,lumber_r=300,atk_min=1,atk_max=1,name='Dragon Whelp Swarm'), 'naga': dict(hp=6000,days=2,unlock_kills=5,unlock_lvl=5,unlock_bld=[],fee=400,loot=['rare','uncommon','uncommon'],gold_r=1000,lumber_r=400,atk_min=1,atk_max=2,name='Naga Sea Witch'), 'tichondrius': dict(hp=10000,days=2,unlock_kills=7,unlock_lvl=6,unlock_bld=[],fee=750,loot=['rare','rare','uncommon'],gold_r=2500,lumber_r=600,atk_min=1,atk_max=3,name='Tichondrius'), 'illidan': dict(hp=30000,days=3,unlock_kills=10,unlock_lvl=7,unlock_bld=[],fee=1500,loot=['epic','rare','rare','uncommon'],gold_r=4000,lumber_r=1200,atk_min=1,atk_max=5,name='Illidan Stormrage'), 'mannoroth': dict(hp=40000,days=4,unlock_kills=15,unlock_lvl=8,unlock_bld=['citadel'],fee=3000,loot=['epic','rare','rare','uncommon','common','common'],gold_r=10000,lumber_r=3000,atk_min=2,atk_max=6,name='Pit Lord Mannoroth'), 'archimonde': dict(hp=100000,days=7,unlock_kills=20,unlock_lvl=9,unlock_bld=['citadel'],fee=5000,loot=['epic','epic','rare','rare','rare','uncommon','common'],gold_r=15000,lumber_r=5000,atk_min=3,atk_max=7,name='Archimonde'), 'lich_king': dict(hp=1000000,days=14,unlock_kills=30,unlock_lvl=9,unlock_bld=['citadel'],fee=10000,loot=['legendary','epic','epic'],gold_r=50000,lumber_r=15000,atk_min=3,atk_max=10,name='The Lich King')}
             if st.get('active_boss'):
                 return self._json(400, {'error': 'Already in a raid'})
             if 'dark_portal' not in st.get('buildings', {}):
@@ -5312,7 +5302,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
-            boss_items = {'goblin_sapper':10,'demolisher_shot':50,'thunder_clap':75,'chain_lightning':200,'death_coil':500,'doom':2000}
+            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':20000}
             if iid in boss_items:
                 boss = st.get('active_boss')
                 if not boss or boss.get('hp', 0) <= 0:
@@ -5320,7 +5310,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 dmg = boss_items[iid]
                 boss['hp'] = max(0, boss['hp'] - dmg)
                 log = boss.get('log', [])
-                log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}})
+                log.append({'t': int(time.time()), 'dmg': dmg, 'hp': boss['hp'], 'bk': {'item_use': dmg}, 'item': iid})
                 if len(log) > 50: log = log[-50:]
                 boss['log'] = log
                 if iid in inv: inv.remove(iid)

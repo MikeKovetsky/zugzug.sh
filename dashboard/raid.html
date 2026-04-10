@@ -141,6 +141,8 @@ a:hover { color: #e0c050; }
 .blog-hp { color: var(--text); min-width: 90px; }
 .blog-counter { color: var(--red); }
 .blog-combo { color: var(--gold); font-size: 0.9em; }
+.blog-item { color: var(--orange); font-weight: 700; }
+.blog-item img { width: 16px; height: 16px; image-rendering: pixelated; vertical-align: text-bottom; }
 
 .use-items { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
 .use-items-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
@@ -382,17 +384,17 @@ function w3img(p) { return '<img src="' + W3 + p + '" style="width:36px;height:3
 
 var BOSS_ART = 'assets/bosses/';
 var BOSSES = {
-  kobold:      {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:50,     lumber:15,    atk_min:0, atk_max:0, icon: w3img('neutral/goblinsapper.gif'), art: BOSS_ART+'kobold.png'},
-  murloc:      {name:'Murloc Tidecaller',    hp:60,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:100,    lumber:30,    atk_min:0, atk_max:0, icon: w3img('neutral/murloc.gif'), art: BOSS_ART+'murloc.png'},
-  troll:       {name:'Forest Troll Warlord', hp:200,    days:2,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:200,    lumber:75,    atk_min:0, atk_max:1, icon: w3img('neutral/foresttrollberserker.gif'), art: BOSS_ART+'troll.png'},
-  ogre:        {name:'Ogre Magi',            hp:800,    days:2,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:600,    lumber:200,   atk_min:0, atk_max:1, icon: w3img('neutral/ogremauler.gif'), art: BOSS_ART+'ogre.png'},
-  whelps:      {name:'Dragon Whelp Swarm',   hp:1500,   days:2,  kills:4,  lvl:0, bld:[], fee:100,   loot:'uncommon', gold:800,    lumber:300,   atk_min:0, atk_max:1, icon: w3img('neutral/blackdragonwhelp.gif'), art: BOSS_ART+'whelps.png'},
-  naga:        {name:'Naga Sea Witch',       hp:3000,   days:2,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:1000,   lumber:400,   atk_min:0, atk_max:2, icon: w3img('neutral/nagaseawitch.gif'), art: BOSS_ART+'naga.png'},
-  tichondrius: {name:'Tichondrius',          hp:5000,   days:2,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:2500,   lumber:600,   atk_min:0, atk_max:2, icon: w3img('undead/tichondrius.gif'), art: BOSS_ART+'tichondrius.png'},
-  illidan:     {name:'Illidan Stormrage',    hp:15000,  days:3,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:4000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3img('nightelf/illidandemon.gif'), art: BOSS_ART+'illidan.png'},
-  mannoroth:   {name:'Pit Lord Mannoroth',   hp:20000,  days:4,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:10000,  lumber:3000,  atk_min:1, atk_max:4, icon: w3img('neutral/pitlord.gif'), art: BOSS_ART+'mannoroth.png'},
-  archimonde:  {name:'Archimonde',           hp:50000,  days:7,  kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3img('orc/chieftain.gif'), art: BOSS_ART+'archimonde.png'},
-  lich_king:   {name:'The Lich King',        hp:500000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'legendary', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3img('undead/arthas.gif'), art: BOSS_ART+'lich_king.png'}
+  kobold:      {name:'Kobold Taskmaster',    hp:40,      days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',    drops:1, gold:50,     lumber:15,    atk_min:0, atk_max:0, icon: w3img('neutral/goblinsapper.gif'), art: BOSS_ART+'kobold.png'},
+  murloc:      {name:'Murloc Tidecaller',    hp:120,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',    drops:2, gold:100,    lumber:30,    atk_min:0, atk_max:0, icon: w3img('neutral/murloc.gif'), art: BOSS_ART+'murloc.png'},
+  troll:       {name:'Forest Troll Warlord', hp:400,     days:2,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon',  drops:2, gold:200,    lumber:75,    atk_min:0, atk_max:1, icon: w3img('neutral/foresttrollberserker.gif'), art: BOSS_ART+'troll.png'},
+  ogre:        {name:'Ogre Magi',            hp:1600,    days:2,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',      drops:2, gold:600,    lumber:200,   atk_min:0, atk_max:1, icon: w3img('neutral/ogremauler.gif'), art: BOSS_ART+'ogre.png'},
+  whelps:      {name:'Dragon Whelp Swarm',   hp:3000,    days:2,  kills:4,  lvl:0, bld:[], fee:100,   loot:'rare',      drops:3, gold:800,    lumber:300,   atk_min:1, atk_max:1, icon: w3img('neutral/blackdragonwhelp.gif'), art: BOSS_ART+'whelps.png'},
+  naga:        {name:'Naga Sea Witch',       hp:6000,    days:2,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',      drops:3, gold:1000,   lumber:400,   atk_min:1, atk_max:2, icon: w3img('neutral/nagaseawitch.gif'), art: BOSS_ART+'naga.png'},
+  tichondrius: {name:'Tichondrius',          hp:10000,   days:2,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',      drops:3, gold:2500,   lumber:600,   atk_min:1, atk_max:3, icon: w3img('undead/tichondrius.gif'), art: BOSS_ART+'tichondrius.png'},
+  illidan:     {name:'Illidan Stormrage',    hp:30000,   days:3,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',      drops:4, gold:4000,   lumber:1200,  atk_min:1, atk_max:5, icon: w3img('nightelf/illidandemon.gif'), art: BOSS_ART+'illidan.png'},
+  mannoroth:   {name:'Pit Lord Mannoroth',   hp:40000,   days:4,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic',  drops:6, gold:10000,  lumber:3000,  atk_min:2, atk_max:6, icon: w3img('neutral/pitlord.gif'), art: BOSS_ART+'mannoroth.png'},
+  archimonde:  {name:'Archimonde',           hp:100000,  days:7,  kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic',  drops:7, gold:15000,  lumber:5000,  atk_min:3, atk_max:7, icon: w3img('orc/chieftain.gif'), art: BOSS_ART+'archimonde.png'},
+  lich_king:   {name:'The Lich King',        hp:1000000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'legendary', drops:3, gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3img('undead/arthas.gif'), art: BOSS_ART+'lich_king.png'}
 };
 
 var pendingBoss = null;
@@ -459,12 +461,15 @@ function render(s) {
 }
 
 var BOSS_ITEMS = {
-  goblin_sapper:    {name:'Goblin Sapper Charge', dmg:10,   r:'uncommon',  icon:w3img('neutral/goblinsapper.gif')},
-  demolisher_shot:  {name:'Demolisher Shot',      dmg:50,   r:'rare',      icon:w3img('neutral/demolisher.gif')},
-  thunder_clap:     {name:'Thunder Clap',         dmg:75,   r:'rare',      icon:w3img('orc/thunderclap.png')},
-  chain_lightning:  {name:'Chain Lightning',      dmg:200,  r:'epic',      icon:w3img('orc/chainlightning.png')},
-  death_coil:       {name:'Death Coil',           dmg:500,  r:'epic',      icon:w3img('orc/deathcoil.gif')},
-  doom:             {name:'Doom',                 dmg:2000, r:'legendary', icon:w3img('orc/doom.gif')}
+  firebolt:         {name:'Firebolt',             dmg:50,    r:'common',   icon:w3img('human/firebolt.gif')},
+  goblin_sapper:    {name:'Goblin Sapper Charge', dmg:100,   r:'common',   icon:w3img('neutral/goblinsapper.gif')},
+  storm_bolt:       {name:'Storm Bolt',           dmg:250,   r:'common',   icon:w3img('human/stormbolt.gif')},
+  demolisher_shot:  {name:'Demolisher Shot',      dmg:500,   r:'common',   icon:w3img('neutral/demolisher.gif')},
+  thunder_clap:     {name:'Thunder Clap',         dmg:750,   r:'uncommon', icon:w3img('orc/thunderclap.png')},
+  chain_lightning:  {name:'Chain Lightning',      dmg:2000,  r:'uncommon', icon:w3img('orc/chainlightning.png')},
+  death_coil:       {name:'Death Coil',           dmg:5000,  r:'uncommon', icon:w3img('orc/deathcoil.gif')},
+  finger_of_death:  {name:'Finger of Death',      dmg:10000, r:'rare',     icon:w3img('undead/fingerofdeath.gif')},
+  doom:             {name:'Doom',                 dmg:20000, r:'epic',     icon:w3img('orc/doom.gif')}
 };
 
 function renderBossItems(inv, boss) {
@@ -544,7 +549,7 @@ function renderActiveBoss(boss) {
     if (totals.smith) parts.push('Blacksmith: +' + totals.smith);
     if (totals.execute) parts.push('Execute: +' + totals.execute);
     if (totals.crit) parts.push('Crits: +' + totals.crit);
-    if (totals.item_use) parts.push('<span style="color:var(--orange)">Items Used: ' + totals.item_use + '</span>');
+    if (totals.item_use) parts.push('<span style="color:var(--orange)">Consumables: +' + totals.item_use + '</span>');
     if (totals.tired) parts.push('<span style="color:var(--red)">Fatigue: ' + totals.tired + '</span>');
     html += parts.join(' &middot; ');
     if (hits.length > 0) html += ' &middot; Avg: ' + (total / hits.length).toFixed(1) + '/hit';
@@ -575,12 +580,22 @@ function renderBattleLog(boss) {
     var ts = e.t ? new Date(e.t * 1000).toLocaleTimeString() : '';
     var dmgClass = e.dmg > 0 ? 'blog-dmg' : 'blog-dmg zero';
     var dmgStr = e.dmg > 0 ? '-' + e.dmg + ' HP' : '0 dmg';
+    var isItemUse = e.bk && e.bk.item_use && !e.bk.base;
+    var itemInfo = null;
+    if (isItemUse && e.item && BOSS_ITEMS[e.item]) {
+      itemInfo = BOSS_ITEMS[e.item];
+    } else if (isItemUse) {
+      var itemDmg = e.bk.item_use;
+      Object.keys(BOSS_ITEMS).forEach(function(k) { if (BOSS_ITEMS[k].dmg === itemDmg && !itemInfo) itemInfo = BOSS_ITEMS[k]; });
+    }
     var comboStr = e.combo ? ' <span class="blog-combo">x' + e.combo + '</span>' : '';
     var counterStr = e.counter ? ' <span class="blog-counter">' + e.counter + '</span>' : '';
     if (e.boss_dmg) counterStr += ' <span class="blog-counter">\u2694 ' + e.boss_dmg + ' dmg to army</span>';
     if (e.boss_atk) counterStr += ' <span class="blog-counter">\u2620 -' + e.boss_atk + ' units</span>';
     var bkStr = '';
-    if (e.bk && e.dmg > 0) {
+    if (isItemUse && itemInfo) {
+      bkStr = ' <span class="blog-item">' + itemInfo.icon + ' ' + itemInfo.name + '</span>';
+    } else if (e.bk && e.dmg > 0) {
       var bp = [];
       if (e.bk.base) bp.push(e.bk.base);
       if (e.bk.combo) bp.push('+' + e.bk.combo + ' combo');
@@ -618,7 +633,7 @@ function renderBossGrid(buildings, bk, bkTotal, lvl, ec, hasPortal) {
     var feeStr = b.fee ? b.fee + 'g' : 'free';
     var canAfford = gold >= b.fee;
     var html = '<div class="card-top"><span class="card-icon">' + b.icon + '</span><div><div class="card-name">' + b.name + '</div></div></div>';
-    html += '<div class="card-stats"><span>' + b.hp + '</span> HP &middot; <span>' + b.days + '</span> day' + (b.days > 1 ? 's' : '') + ' &middot; Entry: <span>' + feeStr + '</span> &middot; Loot: <span class="loot-' + b.loot + '">' + b.loot + '</span></div>';
+    html += '<div class="card-stats"><span>' + b.hp + '</span> HP &middot; <span>' + b.days + '</span> day' + (b.days > 1 ? 's' : '') + ' &middot; Entry: <span>' + feeStr + '</span> &middot; Loot: <span class="loot-' + b.loot + '">' + b.drops + 'x ' + b.loot + '</span></div>';
     var penalty = Math.floor(b.fee / 2);
     var atkStr = b.atk_max > 0 ? ' &middot; Attack: <span style="color:var(--red)">' + b.atk_min + '-' + b.atk_max + ' kills/turn</span>' : '';
     html += '<div class="card-stats" style="margin-top:2px">Reward: <span style="color:var(--gold)">' + b.gold + 'g</span> + <span style="color:#5a5">' + b.lumber + 'l</span>' + atkStr + (penalty > 0 ? ' &middot; Fail: <span style="color:var(--red)">-' + penalty + 'g</span>' : '') + '</div>';
@@ -632,7 +647,7 @@ function renderBossGrid(buildings, bk, bkTotal, lvl, ec, hasPortal) {
         $('confirm-name').textContent = b.name;
         var pen = Math.floor(b.fee / 2);
         var atkInfo = b.atk_max > 0 ? '<br>Boss attack: ' + b.atk_min + '-' + b.atk_max + ' unit kills per turn' : '';
-        $('confirm-details').innerHTML = b.hp + ' HP &middot; ' + b.days + ' day' + (b.days > 1 ? 's' : '') + (b.fee ? ' &middot; Entry: ' + b.fee + 'g' : '') + '<br>Reward: ' + b.gold + 'g + ' + b.lumber + 'l &middot; Loot: ' + b.loot + ' drop' + atkInfo + (pen > 0 ? '<br>Fail penalty: -' + pen + 'g' : '');
+        $('confirm-details').innerHTML = b.hp + ' HP &middot; ' + b.days + ' day' + (b.days > 1 ? 's' : '') + (b.fee ? ' &middot; Entry: ' + b.fee + 'g' : '') + '<br>Reward: ' + b.gold + 'g + ' + b.lumber + 'l &middot; Loot: ' + b.drops + 'x ' + b.loot + ' drop' + (b.drops > 1 ? 's' : '') + atkInfo + (pen > 0 ? '<br>Fail penalty: -' + pen + 'g' : '');
         $('confirm-overlay').classList.add('active');
       });
     }
