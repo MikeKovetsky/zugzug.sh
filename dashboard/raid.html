@@ -43,7 +43,27 @@ a:hover { color: #e0c050; }
 }
 
 /* Active raid */
-.active-raid { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px; }
+.active-raid { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 0; margin-bottom: 24px; position: relative; overflow: hidden; }
+.boss-art-wrap {
+  position: relative; width: 100%; height: 240px; overflow: hidden;
+  background: #0a0e14;
+}
+.boss-art-img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 20%;
+  opacity: 0.65; transition: opacity 0.5s;
+}
+.boss-art-wrap::after {
+  content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 60%;
+  background: linear-gradient(to top, var(--panel) 0%, transparent 100%);
+}
+.boss-art-info {
+  position: absolute; bottom: 14px; left: 24px; right: 24px; z-index: 1;
+}
+.boss-art-name {
+  font-family: 'Cinzel', serif; font-size: 1.8em; font-weight: 900; color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+}
+.boss-body { padding: 16px 24px 24px; }
 .boss-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
 .boss-icon { font-size: 3em; line-height: 1; }
 .boss-icon img { width: 48px; height: 48px; image-rendering: pixelated; }
@@ -159,6 +179,11 @@ a:hover { color: #e0c050; }
 .result-box {
   text-align: center; max-width: 460px; width: 90%; padding: 40px 32px;
   background: var(--panel); border-radius: 14px; position: relative; overflow: hidden;
+}
+.result-boss-art {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 20%; opacity: 0.15; z-index: 0;
+  animation: resultSlide 0.8s ease-out both;
 }
 .result-overlay.victory .result-box { border: 2px solid var(--gold); box-shadow: 0 0 60px rgba(200,160,48,0.25), 0 0 120px rgba(200,160,48,0.1); }
 .result-overlay.defeat .result-box { border: 2px solid var(--red); box-shadow: 0 0 60px rgba(192,64,64,0.2); }
@@ -355,18 +380,19 @@ a:hover { color: #e0c050; }
 var W3 = 'https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/';
 function w3img(p) { return '<img src="' + W3 + p + '" style="width:36px;height:36px;image-rendering:pixelated">'; }
 
+var BOSS_ART = 'assets/bosses/';
 var BOSSES = {
-  kobold:      {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:50,     lumber:15,    atk_min:0, atk_max:0, icon: w3img('neutral/goblinsapper.gif')},
-  murloc:      {name:'Murloc Tidecaller',    hp:60,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:100,    lumber:30,    atk_min:0, atk_max:0, icon: w3img('neutral/murloc.gif')},
-  troll:       {name:'Forest Troll Warlord', hp:200,    days:2,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:200,    lumber:75,    atk_min:0, atk_max:1, icon: w3img('neutral/foresttrollberserker.gif')},
-  ogre:        {name:'Ogre Magi',            hp:800,    days:2,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:600,    lumber:200,   atk_min:0, atk_max:1, icon: w3img('neutral/ogremauler.gif')},
-  whelps:      {name:'Dragon Whelp Swarm',   hp:1000,   days:2,  kills:4,  lvl:0, bld:[], fee:100,   loot:'uncommon', gold:800,    lumber:300,   atk_min:0, atk_max:1, icon: w3img('neutral/blackdragonwhelp.gif')},
-  naga:        {name:'Naga Sea Witch',       hp:1500,   days:3,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:1000,   lumber:400,   atk_min:0, atk_max:2, icon: w3img('neutral/nagaseawitch.gif')},
-  tichondrius: {name:'Tichondrius',          hp:2500,   days:3,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:2500,   lumber:600,   atk_min:0, atk_max:2, icon: w3img('undead/tichondrius.gif')},
-  illidan:     {name:'Illidan Stormrage',    hp:6000,   days:3,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:4000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3img('nightelf/illidandemon.gif')},
-  mannoroth:   {name:'Pit Lord Mannoroth',   hp:15000,  days:5,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:10000,  lumber:3000,  atk_min:1, atk_max:4, icon: w3img('neutral/pitlord.gif')},
-  archimonde:  {name:'Archimonde',           hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3img('orc/chieftain.gif')},
-  lich_king:   {name:'The Lich King',        hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'legendary', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3img('undead/arthas.gif')}
+  kobold:      {name:'Kobold Taskmaster',    hp:20,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:50,     lumber:15,    atk_min:0, atk_max:0, icon: w3img('neutral/goblinsapper.gif'), art: BOSS_ART+'kobold.png'},
+  murloc:      {name:'Murloc Tidecaller',    hp:60,     days:1,  kills:0,  lvl:0, bld:[], fee:0,     loot:'common',   gold:100,    lumber:30,    atk_min:0, atk_max:0, icon: w3img('neutral/murloc.gif'), art: BOSS_ART+'murloc.png'},
+  troll:       {name:'Forest Troll Warlord', hp:200,    days:2,  kills:1,  lvl:0, bld:[], fee:50,    loot:'uncommon', gold:200,    lumber:75,    atk_min:0, atk_max:1, icon: w3img('neutral/foresttrollberserker.gif'), art: BOSS_ART+'troll.png'},
+  ogre:        {name:'Ogre Magi',            hp:800,    days:2,  kills:3,  lvl:0, bld:[], fee:200,   loot:'rare',     gold:600,    lumber:200,   atk_min:0, atk_max:1, icon: w3img('neutral/ogremauler.gif'), art: BOSS_ART+'ogre.png'},
+  whelps:      {name:'Dragon Whelp Swarm',   hp:1000,   days:2,  kills:4,  lvl:0, bld:[], fee:100,   loot:'uncommon', gold:800,    lumber:300,   atk_min:0, atk_max:1, icon: w3img('neutral/blackdragonwhelp.gif'), art: BOSS_ART+'whelps.png'},
+  naga:        {name:'Naga Sea Witch',       hp:1500,   days:3,  kills:5,  lvl:5, bld:[], fee:400,   loot:'rare',     gold:1000,   lumber:400,   atk_min:0, atk_max:2, icon: w3img('neutral/nagaseawitch.gif'), art: BOSS_ART+'naga.png'},
+  tichondrius: {name:'Tichondrius',          hp:2500,   days:3,  kills:7,  lvl:6, bld:[], fee:750,   loot:'rare',     gold:2500,   lumber:600,   atk_min:0, atk_max:2, icon: w3img('undead/tichondrius.gif'), art: BOSS_ART+'tichondrius.png'},
+  illidan:     {name:'Illidan Stormrage',    hp:6000,   days:3,  kills:10, lvl:7, bld:[], fee:1500,  loot:'epic',     gold:4000,   lumber:1200,  atk_min:1, atk_max:3, icon: w3img('nightelf/illidandemon.gif'), art: BOSS_ART+'illidan.png'},
+  mannoroth:   {name:'Pit Lord Mannoroth',   hp:15000,  days:5,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:'epic', gold:10000,  lumber:3000,  atk_min:1, atk_max:4, icon: w3img('neutral/pitlord.gif'), art: BOSS_ART+'mannoroth.png'},
+  archimonde:  {name:'Archimonde',           hp:40000,  days:10, kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:'epic', gold:15000,  lumber:5000,  atk_min:2, atk_max:6, icon: w3img('orc/chieftain.gif'), art: BOSS_ART+'archimonde.png'},
+  lich_king:   {name:'The Lich King',        hp:100000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:'legendary', gold:50000,  lumber:15000, atk_min:3, atk_max:10, icon: w3img('undead/arthas.gif'), art: BOSS_ART+'lich_king.png'}
 };
 
 var pendingBoss = null;
@@ -484,7 +510,14 @@ function renderActiveBoss(boss) {
   timeStr += mLeft + 'm';
   var dmg = boss.max_hp - boss.hp;
   var bossInfo = BOSSES[boss.id] || {};
-  var html = '<div class="boss-header"><span class="boss-icon">' + (bossInfo.icon || '\u2694\uFE0F') + '</span><div><div class="boss-name">' + boss.name + '</div></div></div>';
+  var html = '';
+  if (bossInfo.art) {
+    html += '<div class="boss-art-wrap"><img class="boss-art-img" src="' + bossInfo.art + '" alt="' + boss.name + '"><div class="boss-art-info"><div class="boss-art-name">' + boss.name + '</div></div></div>';
+    html += '<div class="boss-body">';
+  } else {
+    html += '<div class="boss-body" style="padding-top:24px">';
+    html += '<div class="boss-header"><span class="boss-icon">' + (bossInfo.icon || '\u2694\uFE0F') + '</span><div><div class="boss-name">' + boss.name + '</div></div></div>';
+  }
   html += '<div class="hp-bar-container"><div class="hp-bar-bg"><div class="hp-bar-fill ' + barClass + '" style="width:' + (pct * 100) + '%"></div><div class="hp-bar-text">' + boss.hp + ' / ' + boss.max_hp + ' HP</div></div></div>';
   html += '<div class="raid-stats">';
   html += '<div class="raid-stat"><div class="label">Damage Dealt</div><div class="value">' + dmg + '</div></div>';
@@ -520,6 +553,7 @@ function renderActiveBoss(boss) {
   var penalty = Math.floor((boss.entry_fee || 0) / 2);
   var penStr = penalty > 0 ? ' (-' + penalty + 'g penalty)' : '';
   html += '<div class="surrender-wrap"><button class="btn btn-red" onclick="promptSurrender(\'' + boss.name + '\', ' + penalty + ')">&#x1F3F3;&#xFE0F; Surrender</button></div>';
+  html += '</div>';
   $('active-raid').innerHTML = html;
 }
 
@@ -718,6 +752,17 @@ function showResult(entry) {
   var won = entry.result === 'victory';
   var overlay = $('result-overlay');
   overlay.className = 'result-overlay active ' + (won ? 'victory' : 'defeat');
+
+  var oldArt = overlay.querySelector('.result-boss-art');
+  if (oldArt) oldArt.remove();
+  var rbi = BOSSES[entry.id];
+  if (rbi && rbi.art) {
+    var artImg = document.createElement('img');
+    artImg.className = 'result-boss-art';
+    artImg.src = rbi.art;
+    artImg.alt = '';
+    overlay.querySelector('.result-box').insertBefore(artImg, overlay.querySelector('.result-box').firstChild);
+  }
 
   $('result-icon').textContent = won ? '\u2694\uFE0F' : '\uD83D\uDC80';
   $('result-title').textContent = won ? 'VICTORY' : 'DEFEAT';

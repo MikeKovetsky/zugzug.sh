@@ -331,6 +331,9 @@ if [ -n "$SCRIPT_DIR" ]; then
   if [ -f "$SCRIPT_DIR/dashboard/army.html" ]; then
     cp "$SCRIPT_DIR/dashboard/army.html" "$INSTALL_DIR/army.html"
   fi
+  if [ -d "$SCRIPT_DIR/dashboard/assets" ]; then
+    cp -r "$SCRIPT_DIR/dashboard/assets" "$INSTALL_DIR/assets"
+  fi
   if [ "$UPDATING" = false ]; then
     cp "$SCRIPT_DIR/config.json" "$INSTALL_DIR/"
   fi
@@ -360,6 +363,10 @@ else
   curl -fsSL "$REPO_BASE/dashboard/index.html" -o "$INSTALL_DIR/dashboard.html" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/dashboard/raid.html" -o "$INSTALL_DIR/raid.html" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/dashboard/army.html" -o "$INSTALL_DIR/army.html" 2>/dev/null || true
+  mkdir -p "$INSTALL_DIR/assets/bosses"
+  for _boss in kobold murloc troll ogre whelps naga tichondrius illidan mannoroth archimonde lich_king; do
+    curl -fsSL "$REPO_BASE/dashboard/assets/bosses/${_boss}.png" -o "$INSTALL_DIR/assets/bosses/${_boss}.png" 2>/dev/null || true
+  done
   if [ "$UPDATING" = false ]; then
     curl -fsSL "$REPO_BASE/config.json" -o "$INSTALL_DIR/config.json"
   fi
