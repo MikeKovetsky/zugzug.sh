@@ -2381,7 +2381,7 @@ UNITS = {
     'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, hp=30,  desc='Infantry. 30 HP. +1 raid damage.'),
     'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, hp=50,  desc='Wolf rider. 50 HP. +4 raid damage.'),
     'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, hp=80,  desc='Elite tank. 80 HP. +10 raid damage.'),
-    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=20, hp=20,  desc='Healer. 20 HP. Heals 20 HP/turn. 25% counter reduction.'),
+    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=3, hp=20,  desc='Healer. 20 HP. Heals 1-3 HP/turn. 25% counter reduction.'),
 }
 for _uk in list(army.keys()):
     if isinstance(army[_uk], int): army[_uk] = [UNITS.get(_uk, {}).get('hp', 3)] * army[_uk]
@@ -2445,7 +2445,7 @@ UNITS = {
     'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, hp=30),
     'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, hp=50),
     'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, hp=80),
-    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=20, hp=20),
+    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=3, hp=20),
 }
 unit_id = unit_id.lower().replace('-', '_')
 if unit_id not in UNITS:
@@ -2631,6 +2631,19 @@ class H(http.server.BaseHTTPRequestHandler):
             try: data = open(os.path.join(PEON_DIR,'army.html')).read()
             except: data = '<h1>Army page not found</h1>'
             self.wfile.write(data.encode())
+        elif self.path.startswith('/assets/') and '..' not in self.path:
+            fp = os.path.join(PEON_DIR, self.path.lstrip('/'))
+            if os.path.isfile(fp):
+                ext = os.path.splitext(fp)[1].lower()
+                ct = {'.png':'image/png','.jpg':'image/jpeg','.gif':'image/gif','.svg':'image/svg+xml','.webp':'image/webp'}.get(ext,'application/octet-stream')
+                self.send_response(200)
+                self.send_header('Content-Type', ct)
+                self.send_header('Cache-Control','public, max-age=86400')
+                self.end_headers()
+                with open(fp,'rb') as f: self.wfile.write(f.read())
+            else:
+                self.send_response(404)
+                self.end_headers()
         else:
             self.send_response(404)
             self.end_headers()
@@ -4516,7 +4529,7 @@ if game_on:
                         _tu, _ti = random.choice(_living)
                         _army[_tu][_ti] -= 1
                     _n_shamans = len([h for h in _army.get('shaman', []) if h > 0])
-                    _heal_pool = _n_shamans * 20
+                    _heal_pool = sum(random.randint(1, 3) for _ in range(_n_shamans))
                     while _heal_pool > 0:
                         _worst = (None, -1, 0)
                         for _huid in _army:
@@ -5043,6 +5056,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
             try: data = open(os.path.join(PEON_DIR, 'army.html')).read()
             except: data = '<h1>Army page not found</h1>'
             self.wfile.write(data.encode())
+        elif self.path.startswith('/assets/') and '..' not in self.path:
+            fp = os.path.join(PEON_DIR, self.path.lstrip('/'))
+            if os.path.isfile(fp):
+                ext = os.path.splitext(fp)[1].lower()
+                ct = {'.png':'image/png','.jpg':'image/jpeg','.gif':'image/gif','.svg':'image/svg+xml','.webp':'image/webp'}.get(ext,'application/octet-stream')
+                self.send_response(200)
+                self.send_header('Content-Type', ct)
+                self.send_header('Cache-Control','public, max-age=86400')
+                self.end_headers()
+                with open(fp,'rb') as f: self.wfile.write(f.read())
+            else:
+                self.send_response(404)
+                self.end_headers()
         else:
             self.send_response(404)
             self.end_headers()

@@ -240,8 +240,8 @@ dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
 s['active_boss'] = {'id': 'illidan', 'name': 'Illidan Stormrage', 'hp': 5000, 'max_hp': 6000, 'deadline': dl, 'loot_tier': 'epic', 'entry_fee': 0, 'gold_reward': 4000, 'lumber_reward': 1200, 'atk_min': 1, 'atk_max': 3}
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
-  # 2 shamans heal 20 HP each = 40 HP healed per turn
-  # Boss atk 1-3 damage, shaman heal covers all of it => units survive
+  # 2 shamans heal 1-3 HP each = 2-6 HP healed per turn
+  # Boss atk 1-3 damage, units have 20-30 HP so no deaths in one turn
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local total
   total=$(python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); a=s.get('army',{}); print(sum(len(v) if isinstance(v,list) else v for v in a.values()))")
