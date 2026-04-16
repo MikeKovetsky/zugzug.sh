@@ -4757,15 +4757,15 @@ if game_on:
                     state['item_durability'] = _durability
 
             _army_heal = _sum_effect('army_heal')
-            if _army_heal and army:
+            if _army_heal and _army:
                 _aheal_tick = state.get('_army_heal_tick', 0) + 1
                 state['_army_heal_tick'] = _aheal_tick
-                for uid, hps in army.items():
-                    max_hp = UNITS.get(uid, {}).get('hp', 30)
+                for uid, hps in _army.items():
+                    max_hp = _UHP.get(uid, 30)
                     for i in range(len(hps)):
                         if hps[i] < max_hp:
                             hps[i] = min(max_hp, hps[i] + _army_heal)
-                state['army'] = army
+                state['army'] = _army
 
     elif _boss and 'dark_portal' not in buildings:
         pass
@@ -4975,7 +4975,7 @@ print('GAME_NOTIFY=' + q(game_notify))
 print('GAME_SUBTITLE=' + q(game_subtitle))
 print('LEVELUP_SOUND=' + q(levelup_sound if game_on else ''))
 print('LEVELUP_DOWNLOAD=' + q(lvl_pack_missing if game_on else ''))
-" <<< "$INPUT" 2>/dev/null)"
+" <<< "$INPUT" 2>>"$PEON_DIR/.error.log")"
 
 # If Python signalled early exit (disabled, agent, unknown event), bail out
 [ "${PEON_EXIT:-true}" = "true" ] && exit 0

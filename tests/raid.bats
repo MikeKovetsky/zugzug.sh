@@ -171,6 +171,59 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$inv_len" -ge 1 ]
 }
 
+@test "task.complete with army_heal item equipped does not crash" {
+  # Regression test for silent NameError at line 4760 (`army`/`UNITS` instead of `_army`/`_UHP`)
+  # that aborted every Stop event and blocked boss damage for users with army_heal items equipped.
+  python3 -c "
+import json, datetime
+s = json.load(open('$TEST_DIR/.state.json'))
+dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 100, 'max_hp': 100, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'atk_min': 0, 'atk_max': 0}
+s['equipped'] = ['amulet_of_spell']
+s['item_durability'] = {'amulet_of_spell': 150}
+s['army'] = {'grunt': [30, 30], 'tauren': [40]}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ -z "$PEON_STDERR" ] || ! grep -q "NameError\|Traceback" <<< "$PEON_STDERR"
+  local hp_after
+  hp_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  [ "$hp_after" -lt 100 ]
+  local tauren_hp
+  tauren_hp=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['army']['tauren'][0])")
+  [ "$tauren_hp" -gt 40 ]
+}
+
+@test "task.complete with army_heal but no army does not crash" {
+  python3 -c "
+import json, datetime
+s = json.load(open('$TEST_DIR/.state.json'))
+dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 100, 'max_hp': 100, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'atk_min': 0, 'atk_max': 0}
+s['equipped'] = ['amulet_of_spell']
+s['item_durability'] = {'amulet_of_spell': 150}
+s['army'] = {}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ -z "$PEON_STDERR" ] || ! grep -q "NameError\|Traceback" <<< "$PEON_STDERR"
+  local hp_after
+  hp_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  [ "$hp_after" -lt 100 ]
+}
+
+@test "python stderr is captured to .error.log, not discarded" {
+  # Regression: previously 2>/dev/null swallowed silent NameError crashes.
+  # Ensure errors are now written to $PEON_DIR/.error.log.
+  rm -f "$TEST_DIR/.error.log"
+  # Force a python crash by feeding malformed JSON
+  run bash -c "printf 'not json' | bash '$PEON_SH'"
+  [ -f "$TEST_DIR/.error.log" ]
+  grep -q "Traceback\|Error" "$TEST_DIR/.error.log"
+}
+
 @test "build dark_portal command works" {
   python3 -c "
 import json

@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.5.1 (2026-04-16)
+
+### Fixed
+- **Silent boss damage regression**: `task.complete` / `Stop` events silently crashed with `NameError: name 'army' is not defined` when any item granting the `army_heal` effect (e.g. Amulet of Spell Shield) was equipped. The crash aborted the Python hook block mid-run, so `last_stop_time`, `active_boss.hp`, `active_boss.log`, and `activity_log` stopped updating while `last_active` (earlier in the pipeline) kept advancing — making it look like state was fine. Regression from v3.5.0's items balance pass. The buggy block now uses `_army` / `_UHP` (the correctly-scoped names).
+
+### Changed
+- **Hook errors are no longer swallowed**: The Python block in `peon.sh` now appends stderr to `$PEON_DIR/.error.log` instead of redirecting to `/dev/null`. Silent crashes like the one above are now debuggable via `tail -f ~/.claude/hooks/peon-ping/.error.log`.
+
+### Added
+- BATS regression tests covering `task.complete` with `army_heal` items equipped (with and without an army), and a test asserting that Python stderr lands in `.error.log`.
+
 ## v3.5.0 (2026-03-04)
 
 ### Added
