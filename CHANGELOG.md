@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.5.3 (2026-04-16)
+
+### Fixed
+- **Stale boss attack stats on main dashboard**: `dashboard/index.html`'s `RAID_BOSSES` table missed the `3c92a11` "bosses higher attack" rebalance and was showing outdated attack ranges for the four endgame bosses — Illidan `2–6` (should be `3–7`), Mannoroth `2–9` (`4–10`), Archimonde `3–7` (`4–15`), Lich King `4–10` (`5–20`). `raid.html` and the backend already had the correct numbers; only the main dashboard was drifting. All three sources now agree.
+
 ## v3.5.2 (2026-04-16)
 
 ### Fixed
