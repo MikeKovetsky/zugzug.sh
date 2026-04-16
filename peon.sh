@@ -1614,11 +1614,14 @@ if army:
     _UNIT_UPKEEP = {'grunt': 10, 'raider': 40, 'tauren': 100, 'shaman': 30}
     total_units = sum(len(v) for v in army.values())
     upkeep_cost = sum(_UNIT_UPKEEP.get(uid, 0) * len(hps) for uid, hps in army.items())
+    if 'goblin_lab' in buildings:
+        upkeep_cost //= 2
     food_cap = 12
     if 'fortress' in buildings:
         food_cap += 8
     if 'citadel' in buildings:
         food_cap += 10
+    food_cap += buildings.get('farm', {}).get('count', 0) * 5
     _UNIT_FOOD = {'grunt': 2, 'raider': 3, 'tauren': 5, 'shaman': 2}
     food_used = sum(_UNIT_FOOD.get(uid, 0) * len(hps) for uid, hps in army.items())
     _wounded = sum(1 for uid, hps in army.items() for h in hps if h < _UNIT_HP.get(uid, 30))
@@ -1670,6 +1673,16 @@ defs = [
     ('speed_lich_king', 'Lich King Any%', 'Kill The Lich King in under 4 days'),
     ('lich_kings_end', 'Arthas\\'s End', 'Defeat The Lich King'),
     ('loot_goblin', 'Loot Goblin', 'Loot 1000 items'),
+    ('iron_will', 'Iron Will', '30-day coding streak'),
+    ('unbreakable', 'Unbreakable', '365-day coding streak'),
+    ('duct_tape', 'Duct Tape Engineer', 'Repair items 500 times'),
+    ('trade_prince', 'Trade Prince', 'Earn 1,000,000 lifetime gold'),
+    ('witching_hour', 'The Witching Hour', 'Complete a task at exactly midnight'),
+    ('so_close', 'So Close', 'Lose a combo at exactly 99'),
+    ('all_nighter', 'All-Nighter', 'Session spanning midnight to past 5 AM'),
+    ('tgif_zombie', 'TGIF Zombie', 'Friday evening with 40+ fatigue'),
+    ('sunday_scaries', 'Sunday Scaries', 'Start a session Sunday after 8 PM'),
+    ('world_tour', 'World Tour', 'Work in 10 different repos'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
 print()
@@ -1717,7 +1730,11 @@ BUILDINGS = {
     'fortress':        (10000, 4000, 'Max rank. Unlocks leaderboard title.'),
     'dark_portal':     (12000, 5000, 'Open the Dark Portal. Raid bosses await beyond.'),
     'citadel':         (15000, 6000, 'Prestige rank. Boosts item drop rate.'),
+    'farm':            (8000, 3000, '+5 food cap. Build up to 3.'),
+    'goblin_lab':      (18000, 7000, 'Goblin tinkerers. Army upkeep halved.'),
+    'world_tree':      (25000, 10000, 'Nordrassil takes root. Gold mine yields last longer (80/120 task thresholds).'),
 }
+FARM_MAX = 3
 if arg == 'list':
     print(f'Gold: {gold} | Lumber: {lumber}')
     if discount:
@@ -1728,8 +1745,17 @@ if arg == 'list':
         g = gcost // 2 if discount else gcost
         l = lcost // 2 if discount else lcost
         built = bname in buildings
-        marker = '[x]' if built else '[ ]'
-        afford = '' if built else (' (can afford)' if gold >= g and lumber >= l else f' (need {g}g/{l}l)')
+        if bname == 'farm':
+            cnt = buildings.get('farm', {}).get('count', 1 if built else 0)
+            if built and cnt >= FARM_MAX:
+                marker = '[x]'
+                afford = f' ({cnt}/{FARM_MAX})'
+            else:
+                marker = f'[{cnt}/{FARM_MAX}]'
+                afford = (' (can afford)' if gold >= g and lumber >= l else f' (need {g}g/{l}l)')
+        else:
+            marker = '[x]' if built else '[ ]'
+            afford = '' if built else (' (can afford)' if gold >= g and lumber >= l else f' (need {g}g/{l}l)')
         print(f'  {marker} {bname:15s} {g}g/{l}l  {desc}{afford}')
 else:
     bname = arg.lower().replace('-', '_')
@@ -1737,7 +1763,12 @@ else:
         print('Unknown building: ' + arg)
         print('Available: ' + ', '.join(BUILDINGS.keys()))
         sys.exit(1)
-    if bname in buildings:
+    if bname == 'farm':
+        cur = buildings.get('farm', {}).get('count', 0) if 'farm' in buildings else 0
+        if cur >= FARM_MAX:
+            print(f'Farm limit reached ({cur}/{FARM_MAX})!')
+            sys.exit(0)
+    elif bname in buildings:
         print(bname + ' is already built!')
         sys.exit(0)
     gcost, lcost, desc = BUILDINGS[bname]
@@ -1755,14 +1786,23 @@ else:
         sys.exit(1)
     econ['gold'] = gold - gcost
     econ['lumber'] = lumber - lcost
-    buildings[bname] = dict(built_at=int(time.time()))
+    if bname == 'farm':
+        existing = buildings.get('farm', {})
+        cnt = existing.get('count', 0) + 1
+        buildings['farm'] = dict(built_at=int(time.time()), count=cnt)
+    else:
+        buildings[bname] = dict(built_at=int(time.time()))
     state['economy'] = econ
     state['buildings'] = buildings
     stats = state.get('stats', {})
     stats['buildings_built'] = len(buildings)
     state['stats'] = stats
     _save_state(state_file, state)
-    print(f'Built {bname}! (-{gcost}g/-{lcost}l)')
+    if bname == 'farm':
+        cnt = buildings['farm'].get('count', 1)
+        print(f'Built farm ({cnt}/{FARM_MAX})! (-{gcost}g/-{lcost}l)')
+    else:
+        print(f'Built {bname}! (-{gcost}g/-{lcost}l)')
     print('  ' + desc)
     print('  Gold: ' + str(econ['gold']) + ' | Lumber: ' + str(econ['lumber']))
 "
@@ -2429,12 +2469,15 @@ if 'fortress' in buildings:
     food_cap += 8
 if 'citadel' in buildings:
     food_cap += 10
+food_cap += buildings.get('farm', {}).get('count', 0) * 5
 food_used = sum(UNITS[uid]['food'] * len(hps) for uid, hps in army.items() if uid in UNITS)
 total_dmg = sum(UNITS[uid]['boss_dmg'] * len(hps) for uid, hps in army.items() if uid in UNITS)
 total_armor = min(50, sum(UNITS[uid]['armor'] * len(hps) for uid, hps in army.items() if uid in UNITS))
 total_heal = sum(UNITS[uid]['heal'] * len(hps) for uid, hps in army.items() if uid in UNITS)
 total_units = sum(len(v) for v in army.values())
 upkeep_gold = sum(UNITS[uid]['gold'] // 10 * len(hps) for uid, hps in army.items() if uid in UNITS)
+if 'goblin_lab' in buildings:
+    upkeep_gold //= 2
 print(f'=== Army ===')
 print(f'Food: {food_used}/{food_cap} | Units: {total_units} | Daily upkeep: {upkeep_gold}g')
 print(f'Army stats: +{total_dmg} raid damage | -{total_armor}% counter-attack gold | {total_heal} HP heal/turn')
@@ -2512,6 +2555,7 @@ if 'fortress' in buildings:
     food_cap += 8
 if 'citadel' in buildings:
     food_cap += 10
+food_cap += buildings.get('farm', {}).get('count', 0) * 5
 food_used = sum(UNITS[uid]['food'] * len(hps) for uid, hps in army.items() if uid in UNITS)
 food_needed = u['food'] * count
 if food_used + food_needed > food_cap:
@@ -2600,7 +2644,8 @@ if remaining > 0:
 import http.server, json, os, socketserver, time, datetime, tempfile, shutil
 PORT = $_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000),'farm':(8000,3000),'goblin_lab':(18000,7000),'world_tree':(25000,10000)}
+FARM_MAX = 3
 class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _json(self, code, data):
@@ -2734,7 +2779,12 @@ class H(http.server.BaseHTTPRequestHandler):
             if bname not in BCOSTS:
                 return self._json(400, {'error': 'Unknown building'})
             st = self._load('.state.json')
-            if bname in st.get('buildings', {}):
+            blds = st.get('buildings', {})
+            if bname == 'farm':
+                cur = blds.get('farm', {}).get('count', 0) if 'farm' in blds else 0
+                if cur >= FARM_MAX:
+                    return self._json(400, {'error': 'Farm limit reached'})
+            elif bname in blds:
                 return self._json(400, {'error': 'Already built'})
             ec = st.get('economy', {})
             g, l = ec.get('gold', 0), ec.get('lumber', 0)
@@ -2744,8 +2794,15 @@ class H(http.server.BaseHTTPRequestHandler):
             if g < gc or l < lc:
                 return self._json(400, {'error': 'Insufficient resources', 'need_gold': gc, 'need_lumber': lc})
             ec['gold'] = g - gc; ec['lumber'] = l - lc
-            bld = {'built_at': int(time.time())}
-            if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
+            if bname == 'farm':
+                prev = blds.get('farm', {})
+                cnt = prev.get('count', 0) + 1
+                bld = {'built_at': int(time.time()), 'count': cnt}
+                if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
+                elif 'pos' in prev: bld['pos'] = prev['pos']
+            else:
+                bld = {'built_at': int(time.time())}
+                if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
             st.setdefault('buildings', {})[bname] = bld
             st['economy'] = ec
             st.setdefault('stats', {})['buildings_built'] = len(st['buildings'])
@@ -3598,6 +3655,12 @@ if not project:
     project = 'claude'
 project = re.sub(r'[^a-zA-Z0-9 ._-]', '', project)
 
+projects_seen = state.get('projects_seen', [])
+if project and project != 'claude' and project not in projects_seen:
+    projects_seen.append(project)
+    state['projects_seen'] = projects_seen
+    state_dirty = True
+
 # --- Event routing ---
 category = ''
 status = ''
@@ -3859,6 +3922,8 @@ if game_on:
         if _army:
             _UNIT_UPKEEP = dict(grunt=10, raider=40, tauren=100, shaman=30)
             _army_upkeep = sum(_UNIT_UPKEEP.get(uid, 0) * len(hps) for uid, hps in _army.items())
+            if 'goblin_lab' in buildings:
+                _army_upkeep //= 2
             if _army_upkeep > 0:
                 econ['gold'] = econ.get('gold', 0) - _army_upkeep
                 econ['army_upkeep_paid'] = _army_upkeep
@@ -3889,12 +3954,14 @@ if game_on:
         _fatigue_thresh += 30
     _fatigue_exhaust = _fatigue_thresh + 30
 
+    _mine_low, _mine_out = (80, 120) if 'world_tree' in buildings else (50, 80)
+
     if econ_on:
         if category == 'task.complete' or event == 'Stop':
             base_gold = 10
-            if daily_tasks >= 80:
+            if daily_tasks >= _mine_out:
                 base_gold = 0
-            elif daily_tasks >= 50:
+            elif daily_tasks >= _mine_low:
                 base_gold = 5
             _fg = int(base_gold * upkeep_mult)
             if fatigue >= _fatigue_exhaust:
@@ -3950,9 +4017,9 @@ if game_on:
             up_msg = 'Low upkeep!' if upkeep == 'low' else 'High upkeep!'
             game_subtitle = game_subtitle or up_msg
 
-        if daily_tasks == 50 and base_gold == 5:
+        if daily_tasks == _mine_low and base_gold == 5:
             game_subtitle = game_subtitle or 'Gold mine is running low!'
-        elif daily_tasks == 80 and base_gold == 0:
+        elif daily_tasks == _mine_out and base_gold == 0:
             game_subtitle = game_subtitle or 'Gold mine has collapsed!'
 
     # --- Combo system (gated behind War Mill) ---
@@ -3962,6 +4029,8 @@ if game_on:
     if combo_on and has_war_mill:
         combo_idle = time.time() - state.get('combo_ts', 0)
         if combo > 0 and combo_idle >= 3600:
+            if combo == 99:
+                stats['combo_broke_99'] = True
             if combo >= 2:
                 combo_text = f'Combo broken at {combo}x.'
             combo = 0
@@ -3983,6 +4052,8 @@ if game_on:
             if combo > stats.get('max_combo', 0):
                 stats['max_combo'] = combo
         elif fatigue >= _fatigue_exhaust or category == 'resource.limit':
+            if combo == 99:
+                stats['combo_broke_99'] = True
             if combo >= 2:
                 combo_text = f'Combo broken at {combo}x.'
             combo = 0
@@ -4065,6 +4136,16 @@ if game_on:
         ('speed_lich_king',  lambda: stats.get('fastest_lich_king_pct', 1.0) <= 0.5, 'Lich King Any%', 'The Lich King in under 4 days. Speedrun.com wants your replay.'),
         ('lich_kings_end',   lambda: state.get('boss_kills', {}).get('lich_king', 0) >= 1, 'Arthas\'s End', 'No king rules forever. Peon... legendary.'),
         ('loot_goblin',      lambda: stats.get('total_items_looted', 0) >= 1000, 'Loot Goblin', 'Human loot 1000 items?! Peon need bigger bags!'),
+        ('iron_will',        lambda: stats.get('current_streak_days', 0) >= 30, 'Iron Will', 'Not even death can stop peon now.'),
+        ('unbreakable',      lambda: stats.get('current_streak_days', 0) >= 365, 'Unbreakable', 'Peon is eternal. Human is eternal. We are one.'),
+        ('duct_tape',        lambda: stats.get('repairs_total', 0) >= 500, 'Duct Tape Engineer', 'If it break, peon fix. If it not break, peon fix anyway.'),
+        ('trade_prince',     lambda: stats.get('total_gold_earned', 0) >= 1000000, 'Trade Prince', 'Time is money, friend! And you... you have ALL the money.'),
+        ('witching_hour',    lambda: _hour == 0 and _minute == 0 and category == 'task.complete', 'The Witching Hour', 'Dark magic strongest at midnight...'),
+        ('so_close',         lambda: stats.get('combo_broke_99'), 'So Close', 'Peon was THIS close to greatness.'),
+        ('all_nighter',      lambda: (lambda ss: ss and datetime.datetime.fromtimestamp(ss).date() < _now_dt.date() and _hour >= 5)(state.get('session_start_times', {}).get(session_id, 0)), 'All-Nighter', 'Sleep is for the weak. Peon is weak but peon do it anyway.'),
+        ('tgif_zombie',      lambda: _weekday == 4 and _hour >= 17 and fatigue >= 40, 'TGIF Zombie', 'It Friday... peon can barely stand...'),
+        ('sunday_scaries',   lambda: _weekday == 6 and _hour >= 20 and category == 'session.start', 'Sunday Scaries', 'Tomorrow is Monday... peon not ready...'),
+        ('world_tour',       lambda: len(state.get('projects_seen', [])) >= 10, 'World Tour', 'Peon been everywhere. 10 repos. Peon need vacation.'),
     ]
     if achiev_on:
         for aid, check_fn, aname, aflavor in _achiev_defs:
@@ -4112,6 +4193,16 @@ if game_on:
         'speed_lich_king':  [1 if stats.get('fastest_lich_king_pct', 1.0) <= 0.5 else 0, 1],
         'lich_kings_end':   [state.get('boss_kills', {}).get('lich_king', 0), 1],
         'loot_goblin':      [stats.get('total_items_looted', 0), 1000],
+        'iron_will':        [stats.get('current_streak_days', 0), 30],
+        'unbreakable':      [stats.get('current_streak_days', 0), 365],
+        'duct_tape':        [stats.get('repairs_total', 0), 500],
+        'trade_prince':     [stats.get('total_gold_earned', 0), 1000000],
+        'witching_hour':    [1 if 'witching_hour' in unlocked else 0, 1],
+        'so_close':         [1 if stats.get('combo_broke_99') else 0, 1],
+        'all_nighter':      [1 if 'all_nighter' in unlocked else 0, 1],
+        'tgif_zombie':      [1 if 'tgif_zombie' in unlocked else 0, 1],
+        'sunday_scaries':   [1 if 'sunday_scaries' in unlocked else 0, 1],
+        'world_tour':       [len(state.get('projects_seen', [])), 10],
     }
     stats['achievements_progress'] = _ach_progress
 
@@ -5034,7 +5125,8 @@ import http.server, json, os, sys, socketserver, time, datetime, tempfile, shuti
 
 PORT = $_dashboard_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000),'farm':(8000,3000),'goblin_lab':(18000,7000),'world_tree':(25000,10000)}
+FARM_MAX = 3
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -5171,7 +5263,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if bname not in BCOSTS:
                 return self._json(400, {'error': 'Unknown building'})
             st = self._load('.state.json')
-            if bname in st.get('buildings', {}):
+            blds = st.get('buildings', {})
+            if bname == 'farm':
+                cur = blds.get('farm', {}).get('count', 0) if 'farm' in blds else 0
+                if cur >= FARM_MAX:
+                    return self._json(400, {'error': 'Farm limit reached'})
+            elif bname in blds:
                 return self._json(400, {'error': 'Already built'})
             ec = st.get('economy', {})
             g, l = ec.get('gold', 0), ec.get('lumber', 0)
@@ -5181,8 +5278,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if g < gc or l < lc:
                 return self._json(400, {'error': 'Insufficient resources', 'need_gold': gc, 'need_lumber': lc})
             ec['gold'] = g - gc; ec['lumber'] = l - lc
-            bld = {'built_at': int(time.time())}
-            if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
+            if bname == 'farm':
+                prev = blds.get('farm', {})
+                cnt = prev.get('count', 0) + 1
+                bld = {'built_at': int(time.time()), 'count': cnt}
+                if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
+                elif 'pos' in prev: bld['pos'] = prev['pos']
+            else:
+                bld = {'built_at': int(time.time())}
+                if 'x' in body and 'y' in body: bld['pos'] = [body['x'], body['y']]
             st.setdefault('buildings', {})[bname] = bld
             st['economy'] = ec
             st.setdefault('stats', {})['buildings_built'] = len(st['buildings'])

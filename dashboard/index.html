@@ -135,6 +135,11 @@ body {
   animation: pulse 2s infinite;
 }
 .streak-badge { font-size: 14px; color: var(--gold); }
+.mine-badge { font-size: 13px; padding: 2px 8px; border-radius: 3px; font-weight: 700; }
+.mine-active { background: #1f3a1f; color: #6bc46b; }
+.mine-warn { background: #4a4320; color: #e0c050; }
+.mine-low { background: #5a3420; color: #e09050; }
+.mine-out { background: #5a2020; color: #e06060; animation: pulse 2s infinite; }
 
 /* Tab bar */
 .tab-bar {
@@ -1016,6 +1021,7 @@ body {
     </a>
     <div class="res-right">
       <span class="goblin-badge hidden" id="goblin-badge"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/neutral/goblinmerchant.png" class="w3i" style="width:14px;height:14px" alt=""> 50% OFF</span>
+      <span id="mine-status" class="mine-badge" style="display:none"></span>
       <span id="streak" class="streak-badge"></span>
     </div>
   </div>
@@ -1298,6 +1304,9 @@ var BLDS = {
   fortress:        { icon: w3i('orc/fortress.png'), name: 'Fortress', g: 10000, l: 4000, desc: 'Max rank. Unlocks leaderboard title.' },
   dark_portal:     { icon: w3i('neutral/pitlord.gif'), name: 'Dark Portal', g: 12000, l: 5000, desc: 'Open the Dark Portal. Raid bosses await beyond.' },
   citadel:         { icon: w3i('orc/taurentotem.png'), name: 'Citadel', g: 15000, l: 6000, desc: 'Prestige rank. 2x item drop rate.' },
+  farm:            { icon: wwi('BTNFarm.png'), name: 'Farm', g: 8000, l: 3000, desc: '+5 food cap. Build up to 3.', max: 3 },
+  goblin_lab:      { icon: w3i('neutral/goblinlaboratory.png'), name: 'Goblin Laboratory', g: 18000, l: 7000, desc: 'Goblin tinkerers. Army upkeep halved.' },
+  world_tree:      { icon: wwi('BTNTreeOfLife.png'), name: 'World Tree', g: 25000, l: 10000, desc: 'Nordrassil takes root. Gold mine yields last longer.' },
 };
 
 var ACHS = [
@@ -1330,6 +1339,16 @@ var ACHS = [
   { id: 'leeroy', icon: '\u{1F414}', name: 'LEEEEROY JENKINS!', how: 'Lose to Whelps below 20% HP', tgt: 1 },
   { id: 'speed_lich_king', icon: '\u{1F3CE}\uFE0F', name: 'Lich King Any%', how: 'Kill The Lich King in under 4 days', tgt: 1, secret: true },
   { id: 'lich_kings_end', icon: '\u{1F480}', name: "Arthas's End", how: 'Defeat The Lich King', tgt: 1, secret: true },
+  { id: 'iron_will', icon: '\u{1F9CA}', name: 'Iron Will', how: '30-day coding streak', tgt: 30 },
+  { id: 'unbreakable', icon: '\u{1F48E}', name: 'Unbreakable', how: '365-day coding streak', tgt: 365 },
+  { id: 'duct_tape', icon: '\u{1FA79}', name: 'Duct Tape Engineer', how: 'Repair items 500 times', tgt: 500 },
+  { id: 'trade_prince', icon: '\u{1F47A}', name: 'Trade Prince', how: 'Earn 1,000,000 lifetime gold', tgt: 1000000 },
+  { id: 'witching_hour', icon: '\u{1F54C}', name: 'The Witching Hour', how: 'Complete a task at exactly midnight', tgt: 1 },
+  { id: 'so_close', icon: '\u{1F62D}', name: 'So Close', how: 'Lose a combo at exactly 99', tgt: 1 },
+  { id: 'all_nighter', icon: '\u{1F971}', name: 'All-Nighter', how: 'Session spanning midnight to past 5 AM', tgt: 1 },
+  { id: 'tgif_zombie', icon: '\u{1F9DF}', name: 'TGIF Zombie', how: 'Friday evening with 40+ fatigue', tgt: 1 },
+  { id: 'sunday_scaries', icon: '\u{1F631}', name: 'Sunday Scaries', how: 'Start a session Sunday after 8 PM', tgt: 1 },
+  { id: 'world_tour', icon: '\u{1F30D}', name: 'World Tour', how: 'Work in 10 different repos', tgt: 10 },
 ];
 
 var EVT_LABELS = {
@@ -1574,6 +1593,26 @@ function updateRes(s) {
   $('streak').textContent = streak > 0 ? streak + ' day streak' : '';
   var gb = $('goblin-badge');
   gb.classList.toggle('hidden', s.goblin_discount_date !== today());
+  var mine = $('mine-status');
+  var dt = ec.daily_tasks || 0;
+  var hasWT = (s.buildings || {}).world_tree != null;
+  var mLow = hasWT ? 80 : 50, mOut = hasWT ? 120 : 80;
+  mine.className = 'mine-badge';
+  if (dt >= mOut) {
+    mine.textContent = '\u26CF Mine collapsed';
+    mine.classList.add('mine-out');
+    mine.style.display = '';
+  } else if (dt >= mLow) {
+    mine.textContent = '\u26CF Mine ' + dt + '/' + mOut;
+    mine.classList.add('mine-low');
+    mine.style.display = '';
+  } else if (dt >= mLow / 2) {
+    mine.textContent = '\u26CF Mine ' + dt + '/' + mLow;
+    mine.classList.add('mine-warn');
+    mine.style.display = '';
+  } else {
+    mine.style.display = 'none';
+  }
   var fat = s.fatigue || 0;
   var hasTavern = (s.buildings || {}).tavern != null;
   var thresh = hasTavern ? 90 : 60;
@@ -1678,16 +1717,21 @@ function updateSidebar(s) {
     var def = BLDS[key];
     if (def.free || key === 'great_hall') return;
     var isBuilt = key in built;
+    var cnt = isBuilt ? (built[key].count || 1) : 0;
+    var stackable = def.max && def.max > 1;
+    var atMax = stackable && cnt >= def.max;
+    if (isBuilt && !stackable) return;
+    if (atMax) return;
     var gc = def.g, lc = def.l;
-    if (disc && !isBuilt) { gc = Math.floor(gc / 2); lc = Math.floor(lc / 2); }
+    if (disc) { gc = Math.floor(gc / 2); lc = Math.floor(lc / 2); }
     var afford = g >= gc && l >= lc;
-    if (isBuilt) return;
     var opt = document.createElement('div');
     var cls = 'bld-opt';
     if (selectedBld === key) cls += ' sel';
     else if (!afford) cls += ' poor';
     opt.className = cls;
-    var h = '<span class="bld-opt-icon">' + def.icon + '</span><div class="bld-opt-info"><div class="bld-opt-name">' + def.name + '</div>';
+    var nameLbl = def.name + (stackable ? ' (' + cnt + '/' + def.max + ')' : '');
+    var h = '<span class="bld-opt-icon">' + def.icon + '</span><div class="bld-opt-info"><div class="bld-opt-name">' + nameLbl + '</div>';
     {
       var costCls = afford ? 'bld-opt-cost' : 'bld-opt-cost cant';
       h += '<div class="' + costCls + '">' + gc + 'g / ' + lc + 'l</div>';
@@ -1753,8 +1797,11 @@ function updateMap(s) {
         var def = BLDS[bKey];
         var fresh = prev && (bKey in built) && !(bKey in pBuilt);
         tile.className = 'tile built' + (fresh ? ' fresh' : '');
-        var tipHtml = def ? '<span class="tile-tip"><div class="tile-tip-name">' + def.name + '</div><div class="tile-tip-desc">' + def.desc + '</div></span>' : '';
-        tile.innerHTML = '<span class="tile-icon">' + (def ? def.icon : '?') + '</span><span class="tile-lbl">' + (def ? def.name : bKey) + '</span>' + tipHtml;
+        var bCnt = (built[bKey] && built[bKey].count) || 0;
+        var nm = def ? def.name : bKey;
+        var lbl = def && def.max && bCnt ? nm + ' (' + bCnt + '/' + def.max + ')' : nm;
+        var tipHtml = def ? '<span class="tile-tip"><div class="tile-tip-name">' + lbl + '</div><div class="tile-tip-desc">' + def.desc + '</div></span>' : '';
+        tile.innerHTML = '<span class="tile-icon">' + (def ? def.icon : '?') + '</span><span class="tile-lbl">' + lbl + '</span>' + tipHtml;
       } else {
         tile.className = 'tile open' + (selectedBld ? ' placing' : '');
         (function(cx, cy) {

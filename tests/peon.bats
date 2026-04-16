@@ -2423,6 +2423,67 @@ SCRIPT
   [ "$built" = "True" ]
 }
 
+@test "game: farm stacks up to 3 times" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':30000,'lumber':12000,'daily_date':'2026-02-18'}; s['buildings']={}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" build farm
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Built farm (1/3)"* ]]
+  run bash "$PEON_SH" build farm
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Built farm (2/3)"* ]]
+  run bash "$PEON_SH" build farm
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Built farm (3/3)"* ]]
+  run bash "$PEON_SH" build farm
+  [[ "$output" == *"Farm limit reached"* ]]
+  cnt=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['buildings']['farm']['count'])")
+  [ "$cnt" = "3" ]
+}
+
+@test "game: farm increases food cap by 5 each" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':100,'lumber':100,'daily_date':'2026-02-18'}; s['buildings']={'barracks':{'built_at':1},'farm':{'built_at':1,'count':2}}; s['army']={}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" army
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Food: 0/22"* ]]
+}
+
+@test "game: goblin_lab halves army upkeep" {
+  /usr/bin/python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['economy'] = {'gold':1000,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}
+s['buildings'] = {'barracks':{'built_at':1},'goblin_lab':{'built_at':1}}
+s['army'] = {'tauren':[80,80]}
+s['stats'] = {'last_active_date':'2026-02-17'}
+s['session_packs'] = {}
+json.dump(s, open('$TEST_DIR/.state.json','w'))
+"
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","source":"startup"}'
+  paid=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['army_upkeep_paid'])")
+  [ "$paid" = "100" ]
+}
+
+@test "game: goblin_lab army command shows halved upkeep" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':0,'lumber':0,'daily_date':'2026-02-18'}; s['buildings']={'barracks':{'built_at':1},'goblin_lab':{'built_at':1}}; s['army']={'tauren':[80]}; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run bash "$PEON_SH" army
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"upkeep: 50g"* ]]
+}
+
+@test "game: world_tree extends gold mine threshold" {
+  /usr/bin/python3 -c "import json, datetime; t=datetime.date.today().isoformat(); s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':0,'lumber':0,'daily_date':t,'daily_tasks':55,'daily_prompts':0}; s['buildings']={'world_tree':{'built_at':1}}; s['stats']={'last_active_date':t}; s['last_stop_time']=0; s['fatigue']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
+  [ "$gold" = "10" ]
+}
+
+@test "game: without world_tree gold halves past 50 tasks" {
+  /usr/bin/python3 -c "import json, datetime; t=datetime.date.today().isoformat(); s=json.load(open('$TEST_DIR/.state.json')); s['economy']={'gold':0,'lumber':0,'daily_date':t,'daily_tasks':55,'daily_prompts':0}; s['buildings']={}; s['stats']={'last_active_date':t}; s['last_stop_time']=0; s['fatigue']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
+  [ "$gold" = "5" ]
+}
+
 @test "game: peon achievements shows list" {
   run bash "$PEON_SH" achievements
   [ "$status" -eq 0 ]
