@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.5.2 (2026-04-16)
+
+### Fixed
+- **Doom consumable damage mismatch**: `dashboard/raid.html` showed Doom dealing 20000 HP while the backend actually dealt 40000. Frontend now shows the correct 40000.
+- **Stale item descriptions in `_ITEMS`**: All 9 boss-consumable items in the `_ITEMS` catalog (firebolt through doom) carried pre-v3.5.0 damage values in their `desc` and `v` fields (e.g. "Deal 5 damage" for firebolt, "Deal 4000 damage" for doom). These are used for tooltips, overlays, and `peon inspect`. Aligned to the real damage numbers (50 / 100 / 250 / 500 / 750 / 2000 / 5000 / 10000 / 40000).
+- **Rarity drift between CLI and dashboard**: `ITEMS` (CLI / `peon inventory`) and `BOSS_ITEMS` (dashboard) listed boss-consumable rarities lower than their actual drop-tier (`_ITEMS['r']`), which governs what boss loot rolls them. For example, Doom was shown as `epic` everywhere but dropped as `legendary`. CLI + dashboard rarities now match the runtime drop table.
+- **Damage breakdown missing entries**: When the boss log contained `bk` keys outside the hardcoded known set (e.g. the `compensation` key added in v3.5.1 post-mortems, or future fields like `exhausted`), the dashboard's "Damage Breakdown" row silently dropped them — making the sum diverge from the "Damage Dealt" headline. Added an "Other: +N" bucket on both dashboards so every numeric `bk` value contributes.
+
 ## v3.5.1 (2026-04-16)
 
 ### Fixed

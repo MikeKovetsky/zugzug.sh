@@ -2227,8 +2227,16 @@ function raidRenderActive(boss) {
   var log = boss.log || [];
   var hits = log.filter(function(e) { return e.dmg > 0 && !e.counter; });
   if (hits.length > 0) {
-    var totals = {base:0,combo:0,items:0,army:0,bloodstone:0,smith:0,execute:0,crit:0,tired:0};
-    hits.forEach(function(e) { var b = e.bk || {}; for (var k in totals) totals[k] += (b[k] || 0); });
+    var KNOWN_BK = {base:1,combo:1,items:1,army:1,bloodstone:1,smith:1,execute:1,crit:1,tired:1,item_use:1,exhausted:1};
+    var totals = {base:0,combo:0,items:0,army:0,bloodstone:0,smith:0,execute:0,crit:0,tired:0,item_use:0,other:0};
+    hits.forEach(function(e) {
+      var b = e.bk || {};
+      for (var k in b) {
+        if (typeof b[k] !== 'number') continue;
+        if (KNOWN_BK[k]) { if (k in totals) totals[k] += b[k]; }
+        else { totals.other += b[k]; }
+      }
+    });
     var total = hits.reduce(function(s,e){return s+e.dmg;}, 0);
     h += '<div class="raid-breakdown"><b>Damage Breakdown</b> (' + total.toLocaleString() + ' total, ' + hits.length + ' hits) &mdash; ';
     var ps = [];
@@ -2240,7 +2248,9 @@ function raidRenderActive(boss) {
     if (totals.smith) ps.push('Blacksmith: +' + totals.smith);
     if (totals.execute) ps.push('Execute: +' + totals.execute);
     if (totals.crit) ps.push('Crits: +' + totals.crit);
+    if (totals.item_use) ps.push('<span style="color:var(--orange)">Consumables: +' + totals.item_use + '</span>');
     if (totals.tired) ps.push('<span style="color:var(--red)">Fatigue: ' + totals.tired + '</span>');
+    if (totals.other) ps.push('Other: +' + totals.other);
     h += ps.join(' &middot; ');
     h += ' &middot; Avg: ' + (total / hits.length).toFixed(1) + '/hit</div>';
   }

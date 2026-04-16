@@ -461,15 +461,15 @@ function render(s) {
 }
 
 var BOSS_ITEMS = {
-  firebolt:         {name:'Firebolt',             dmg:50,    r:'common',   icon:w3img('human/firebolt.gif')},
-  goblin_sapper:    {name:'Goblin Sapper Charge', dmg:100,   r:'common',   icon:w3img('neutral/goblinsapper.gif')},
-  storm_bolt:       {name:'Storm Bolt',           dmg:250,   r:'common',   icon:w3img('human/stormbolt.gif')},
-  demolisher_shot:  {name:'Demolisher Shot',      dmg:500,   r:'common',   icon:w3img('neutral/demolisher.gif')},
-  thunder_clap:     {name:'Thunder Clap',         dmg:750,   r:'uncommon', icon:w3img('orc/thunderclap.png')},
-  chain_lightning:  {name:'Chain Lightning',      dmg:2000,  r:'uncommon', icon:w3img('orc/chainlightning.png')},
-  death_coil:       {name:'Death Coil',           dmg:5000,  r:'uncommon', icon:w3img('orc/deathcoil.gif')},
-  finger_of_death:  {name:'Finger of Death',      dmg:10000, r:'rare',     icon:w3img('undead/fingerofdeath.gif')},
-  doom:             {name:'Doom',                 dmg:20000, r:'epic',     icon:w3img('orc/doom.gif')}
+  firebolt:         {name:'Firebolt',             dmg:50,    r:'common',    icon:w3img('human/firebolt.gif')},
+  goblin_sapper:    {name:'Goblin Sapper Charge', dmg:100,   r:'uncommon',  icon:w3img('neutral/goblinsapper.gif')},
+  storm_bolt:       {name:'Storm Bolt',           dmg:250,   r:'uncommon',  icon:w3img('human/stormbolt.gif')},
+  demolisher_shot:  {name:'Demolisher Shot',      dmg:500,   r:'rare',      icon:w3img('neutral/demolisher.gif')},
+  thunder_clap:     {name:'Thunder Clap',         dmg:750,   r:'rare',      icon:w3img('orc/thunderclap.png')},
+  chain_lightning:  {name:'Chain Lightning',      dmg:2000,  r:'epic',      icon:w3img('orc/chainlightning.png')},
+  death_coil:       {name:'Death Coil',           dmg:5000,  r:'epic',      icon:w3img('orc/deathcoil.gif')},
+  finger_of_death:  {name:'Finger of Death',      dmg:10000, r:'epic',      icon:w3img('undead/fingerofdeath.gif')},
+  doom:             {name:'Doom',                 dmg:40000, r:'legendary', icon:w3img('orc/doom.gif')}
 };
 
 function renderBossItems(inv, boss) {
@@ -535,10 +535,15 @@ function renderActiveBoss(boss) {
   var log = boss.log || [];
   var hits = log.filter(function(e) { return e.dmg > 0 && !e.counter; });
   if (hits.length > 0) {
-    var totals = {base:0, combo:0, items:0, army:0, bloodstone:0, smith:0, execute:0, crit:0, tired:0, item_use:0};
+    var KNOWN_BK = {base:1, combo:1, items:1, army:1, bloodstone:1, smith:1, execute:1, crit:1, tired:1, item_use:1, exhausted:1};
+    var totals = {base:0, combo:0, items:0, army:0, bloodstone:0, smith:0, execute:0, crit:0, tired:0, item_use:0, other:0};
     hits.forEach(function(e) {
       var b = e.bk || {};
-      for (var k in totals) { totals[k] += (b[k] || 0); }
+      for (var k in b) {
+        if (typeof b[k] !== 'number') continue;
+        if (KNOWN_BK[k]) { if (k in totals) totals[k] += b[k]; }
+        else { totals.other += b[k]; }
+      }
     });
     var total = hits.reduce(function(s,e){return s+e.dmg;}, 0);
     html += '<div style="margin-top:16px;font-size:0.85em;color:var(--text-dim)">';
@@ -554,6 +559,7 @@ function renderActiveBoss(boss) {
     if (totals.crit) parts.push('Crits: +' + totals.crit);
     if (totals.item_use) parts.push('<span style="color:var(--orange)">Consumables: +' + totals.item_use + '</span>');
     if (totals.tired) parts.push('<span style="color:var(--red)">Fatigue: ' + totals.tired + '</span>');
+    if (totals.other) parts.push('Other: +' + totals.other);
     html += parts.join(' &middot; ');
     if (hits.length > 0) html += ' &middot; Avg: ' + (total / hits.length).toFixed(1) + '/hit';
     html += '</div>';
