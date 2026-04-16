@@ -1980,30 +1980,30 @@ ITEMS = {
     'periapt_of_vitality': ('Periapt of Vitality',    'uncommon',  'Gold mine depletion +25 tasks later'),
     'pendant_of_energy':   ('Pendant of Energy',      'uncommon',  '+5 bonus gold per task'),
     'tome_of_xp':          ('Tome of Experience',     'uncommon',  'Gain 500 gold (consumable)'),
-    'helm_of_valor':       ('Helm of Valor',          'rare',      'First 3 fatigue per session are free'),
+    'helm_of_valor':       ('Helm of Valor',          'rare',      '+4 raid damage'),
     'cloak_of_shadows':    ('Cloak of Shadows',       'rare',      'Fatigue paused while equipped'),
-    'orb_of_fire':         ('Orb of Fire',            'rare',      'Earn half gold even when tired'),
+    'orb_of_fire':         ('Orb of Fire',            'rare',      '+3 raid damage'),
     'gem_of_seeing':       ('Gem of True Seeing',     'rare',      '10% chance of 3x gold on task complete'),
-    'staff_of_negation':   ('Staff of Negation',      'rare',      'Immune to debt interest'),
+    'staff_of_negation':   ('Staff of Negation',      'rare',      '+10 bonus gold per task'),
     'sobi_mask':           ('Sobi Mask',              'rare',      '3x lumber from prompts'),
-    'inv_potion':          ('Potion of Invisibility',  'rare',     'Pause fatigue for 2 hours (consumable)'),
+    'inv_potion':          ('Potion of Invisibility',  'rare',     'Gain 1500 gold (consumable)'),
     'talisman_of_evasion': ('Talisman of Evasion',    'rare',      'First fatigue per session is free'),
     'ring_of_regen':       ('Ring of Regeneration',    'rare',      '+8 bonus gold per task'),
     'scourge_bone':        ('Scourge Bone Chimes',    'rare',      '+8 bonus gold per task'),
     'shadow_orb':          ('Shadow Orb +10',         'rare',      '5% chance of 3x gold on task complete'),
     'lion_horn':           ('Lion Horn of Stormwind',  'rare',      'Gold mine depletion +15 tasks later'),
     'crown_of_kings':      ('Crown of Kings +5',      'epic',      '2x all gold income'),
-    'mask_of_death':       ('Mask of Death',          'epic',      '50% off repair costs'),
-    'amulet_of_spell':     ('Amulet of Spell Shield', 'epic',      'Immune to base raids'),
-    'khadgars_pipe':       ('Khadgar\\'s Pipe',       'epic',      'Fatigue decays 2x faster'),
-    'ankh':                ('Ankh of Reincarnation',  'epic',      'Undo last base raid (consumable)'),
-    'frostmourne':         ('Frostmourne',            'legendary', 'Fatigue threshold +50'),
+    'mask_of_death':       ('Mask of Death',          'epic',      '20% crit chance (3x gold)'),
+    'amulet_of_spell':     ('Amulet of Spell Shield', 'epic',      'Heal army 3 HP per task'),
+    'khadgars_pipe':       ('Khadgar\\'s Pipe',       'epic',      '5x lumber from prompts'),
+    'ankh':                ('Ankh of Reincarnation',  'epic',      'Gain 5000 gold (consumable)'),
+    'frostmourne':         ('Frostmourne',            'legendary', '+20 raid damage. The blade hungers.'),
     'wirts_leg':           ('Wirt\\'s Leg',           'legendary', 'Does absolutely nothing. Peon confused.'),
-    'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', '+15 gold per task'),
+    'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', 'Poison: 10 damage per event in raids'),
     'unstoppable_force':   ('The Unstoppable Force',  'legendary', 'Combos never break from errors'),
     'azzinoth_blades':     ('Warglaives of Azzinoth', 'legendary', '+2 combo per task. You are not prepared.'),
-    'ashbringer':          ('Ashbringer',             'legendary', '2x achievement progress'),
-    'cheese':              ('Cheese',                 'legendary', 'Restore 1000g + 500l. Mmm. (consumable)'),
+    'ashbringer':          ('Ashbringer',             'legendary', '25% crit chance (3x gold). Holy light!'),
+    'cheese':              ('Cheese',                 'legendary', 'Restore 10000g + 5000l. Mmm. (consumable)'),
     'scroll_of_heal':      ('Scroll of Healing',      'uncommon',  'Heal all army units 15 HP (consumable)'),
     'healing_ward':        ('Healing Ward',            'rare',      'Fully heal all army units (consumable)'),
     'firebolt':            ('Firebolt',               'common',    'Deal 50 damage to active boss (consumable)'),
@@ -2014,7 +2014,7 @@ ITEMS = {
     'chain_lightning':     ('Chain Lightning',        'uncommon',  'Deal 2000 damage to active boss (consumable)'),
     'death_coil':          ('Death Coil',             'uncommon',  'Deal 5000 damage to active boss (consumable)'),
     'finger_of_death':     ('Finger of Death',        'rare',      'Deal 10000 damage to active boss (consumable)'),
-    'doom':                ('Doom',                   'epic',      'Deal 20000 damage to active boss (consumable)'),
+    'doom':                ('Doom',                   'epic',      'Deal 40000 damage to active boss (consumable)'),
     'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
     'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
     'serrated_blade':      ('Serrated Blade',         'uncommon',  '+2 raid damage per task'),
@@ -2022,14 +2022,14 @@ ITEMS = {
     'bloodstone':          ('Bloodstone',             'rare',      '+1 damage per 10 combo in raids'),
     'runed_gauntlets':     ('Runed Gauntlets',        'rare',      '+15% crit chance vs bosses'),
     'executioners_blade':  ('Executioner\\'s Blade',  'rare',      '3x damage when boss below 20% HP'),
-    'doom_hammer':         ('Doom Hammer',            'epic',      '+5 raid damage per task'),
+    'doom_hammer':         ('Doom Hammer',            'epic',      '+10 raid damage per task'),
     'black_arrow':         ('Black Arrow',            'epic',      '+3 poison per event + 1 flat raid damage'),
     'sulfuras':            ('Sulfuras, Hand of Ragnaros', 'legendary', '+10 raid damage. Overkill carries to next boss.'),
     'kobold_candle':       ('Kobold\\'s Candle',      'common',    '+3g per task during boss fights'),
     'troll_totem':         ('Troll Regeneration Totem', 'uncommon', 'Repair 1 durability per 5 tasks'),
     'ogre_scepter':        ('Ogre Magi Scepter',      'rare',      '+3 raid damage per task'),
     'infernal_core':       ('Infernal Core',          'rare',      'Counter-attacks deal 50% less gold damage'),
-    'mannoroths_blood':    ('Mannoroth\\'s Blood',    'epic',      '+10 fatigue threshold'),
+    'mannoroths_blood':    ('Mannoroth\\'s Blood',    'epic',      '5x damage when boss below 20% HP'),
     'crown_of_eredar':     ('Crown of the Eredar',    'legendary', '+1 bonus drop from bosses'),
     'helm_of_domination':  ('Helm of Domination',     'legendary', '+2 bonus drops from bosses'),
 }
@@ -2134,11 +2134,12 @@ consumables = {
     'potion_of_healing': ('Restored 200 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
     'potion_of_mana':   ('Gained 50 lumber!', lambda s: s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+50)),
     'tome_of_xp':       ('Gained 500 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+500)),
-    'inv_potion':       ('Fatigue paused for 2 hours!', lambda s: s.update(bunker_until=time.time()+7200)),
-    'ankh':             ('Base raid undone! Gold restored.', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+200)),
-    'cheese':           ('Mmm. +1000g +500l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+1000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+500))),
+    'inv_potion':       ('Gained 1500 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+1500)),
+    'ankh':             ('Reincarnation! +5000 gold!', lambda s: s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+5000)),
+    'invuln_potion':    ('Divine Shield! +3000g +1000l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+3000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+1000))),
+    'cheese':           ('Mmm. +10000g +5000l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+10000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+5000))),
 }
-heal_items = {'scroll_of_heal': 15, 'healing_ward': 999}
+heal_items = {'scroll_of_heal': 15, 'healing_ward': 999, 'ensnare_trap': 50}
 _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
 if item_id in heal_items:
     army = state.get('army', {})
@@ -2168,7 +2169,7 @@ if item_id in heal_items:
 boss_items = {
     'firebolt': 50, 'goblin_sapper': 100, 'storm_bolt': 250,
     'demolisher_shot': 500, 'thunder_clap': 750, 'chain_lightning': 2000,
-    'death_coil': 5000, 'finger_of_death': 10000, 'doom': 20000,
+    'death_coil': 5000, 'finger_of_death': 10000, 'doom': 40000,
 }
 if item_id in boss_items:
     boss = state.get('active_boss')
@@ -2884,7 +2885,7 @@ class H(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
-            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':20000}
+            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':40000}
             if iid in boss_items:
                 boss = st.get('active_boss')
                 if not boss or boss.get('hp', 0) <= 0:
@@ -2905,17 +2906,28 @@ class H(http.server.BaseHTTPRequestHandler):
                 self._save('.state.json', st)
                 self._json(200, {'ok': True, 'dmg': dmg, 'hp': boss['hp'], 'killed': boss['hp'] <= 0})
                 return
+            def _dash_heal(state, amount):
+                army = state.get('army', {})
+                if not army: return
+                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                for uid, hps in army.items():
+                    mx = _UNIT_HP.get(uid, 30)
+                    for i in range(len(hps)): hps[i] = min(mx, hps[i] + amount)
+                state['army'] = army
+
             cons = {
                 'scroll_of_tp':      lambda: st.update(combo_count=max(st.get('combo_count',0), st.get('stats',{}).get('max_combo',0)//2)),
                 'potion_of_healing':  lambda: ec.update(gold=ec.get('gold',0)+200),
                 'potion_of_mana':     lambda: ec.update(lumber=ec.get('lumber',0)+50),
                 'tome_of_xp':        lambda: ec.update(gold=ec.get('gold',0)+500),
                 'liquid_fire':        lambda: ec.update(gold=ec.get('gold',0)+150),
-                'inv_potion':         lambda: st.update(bunker_until=time.time()+7200),
-                'invuln_potion':      lambda: st.update(gold_shield_until=time.time()+14400),
-                'ankh':               lambda: ec.update(gold=ec.get('gold',0)+200),
-                'ensnare_trap':       lambda: st.update(raid_shield=True),
-                'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+1000), ec.update(lumber=ec.get('lumber',0)+500)),
+                'inv_potion':         lambda: ec.update(gold=ec.get('gold',0)+1500),
+                'invuln_potion':      lambda: (ec.update(gold=ec.get('gold',0)+3000), ec.update(lumber=ec.get('lumber',0)+1000)),
+                'ankh':               lambda: ec.update(gold=ec.get('gold',0)+5000),
+                'ensnare_trap':       lambda: _dash_heal(st, 50),
+                'scroll_of_heal':     lambda: _dash_heal(st, 15),
+                'healing_ward':       lambda: _dash_heal(st, 999),
+                'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+10000), ec.update(lumber=ec.get('lumber',0)+5000)),
             }
             if iid not in cons:
                 return self._json(400, {'error': 'Not consumable'})
@@ -4256,11 +4268,11 @@ if game_on:
         'periapt_of_vitality': dict(name='Periapt of Vitality',    r='uncommon',  e='depletion_ext',   v=25,   desc='Gold mine depletion +25 tasks later'),
         'pendant_of_energy':   dict(name='Pendant of Energy',      r='uncommon',  e='gold_bonus',      v=5,    desc='+5 bonus gold per task'),
         'tome_of_xp':          dict(name='Tome of Experience',     r='uncommon',  e='consumable',      v='gold500',   desc='Gain 500 gold (consumable)'),
-        'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='fatigue_resist',  v=3,    desc='First 3 fatigue per session are free'),
+        'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='boss_dmg',  v=4,    desc='+4 raid damage'),
         'cloak_of_shadows':    dict(name='Cloak of Shadows',       r='rare',      e='fatigue_immune',  v=1,    desc='Fatigue paused while equipped'),
-        'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='fatigue_gold',    v=1,    desc='Earn half gold even when tired'),
+        'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='boss_dmg',    v=3,    desc='+3 raid damage'),
         'gem_of_seeing':       dict(name='Gem of True Seeing',     r='rare',      e='crit_chance',     v=10,   desc='10% chance of 3x gold on task complete'),
-        'staff_of_negation':   dict(name='Staff of Negation',      r='rare',      e='debt_immune',     v=1,    desc='Immune to debt interest'),
+        'staff_of_negation':   dict(name='Staff of Negation',      r='rare',      e='gold_bonus',     v=10,   desc='+10 bonus gold per task'),
         'sobi_mask':           dict(name='Sobi Mask',              r='rare',      e='lumber_mult',     v=3,    desc='3x lumber from prompts'),
         'talisman_of_evasion': dict(name='Talisman of Evasion',    r='rare',      e='fatigue_resist',  v=1,    desc='First fatigue per session is free'),
         'ring_of_regen':       dict(name='Ring of Regeneration',    r='rare',      e='gold_bonus',      v=8,    desc='+8 bonus gold per task'),
@@ -4268,18 +4280,18 @@ if game_on:
         'shadow_orb':          dict(name='Shadow Orb +10',         r='rare',      e='crit_chance',     v=5,    desc='5% chance of 3x gold on task complete'),
         'lion_horn':           dict(name='Lion Horn of Stormwind',  r='rare',      e='depletion_ext',   v=15,   desc='Gold mine depletion +15 tasks later'),
         'crown_of_kings':      dict(name='Crown of Kings +5',      r='epic',      e='gold_mult',       v=2,    desc='2x all gold income'),
-        'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='repair_discount', v=50,   desc='50% off repair costs'),
-        'amulet_of_spell':     dict(name='Amulet of Spell Shield', r='epic',      e='raid_immune',     v=1,    desc='Immune to base raids'),
-        'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='fatigue_resist',  v=5,    desc='Fatigue decays 2x faster'),
-        'frostmourne':         dict(name='Frostmourne',            r='legendary', e='fatigue_thresh',   v=50,   desc='Fatigue threshold +50'),
+        'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='crit_chance',     v=20,   desc='20% chance of 3x gold on task complete'),
+        'amulet_of_spell':     dict(name='Amulet of Spell Shield', r='epic',      e='army_heal',     v=3,    desc='Heal army 3 HP per task'),
+        'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='lumber_mult',     v=5,    desc='5x lumber from prompts'),
+        'frostmourne':         dict(name='Frostmourne',            r='legendary', e='boss_dmg',         v=20,   desc='+20 raid damage. The blade hungers.'),
         'wirts_leg':           dict(name='Wirt\'s Leg',            r='legendary', e='none',             v=0,    desc='Does absolutely nothing. Peon confused.'),
-        'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='gold_bonus', v=15, desc='+15 gold per task. Did someone say Thunderfury?'),
+        'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='boss_dot', v=10, desc='Poison: 10 damage per event. Did someone say Thunderfury?'),
         'unstoppable_force':   dict(name='The Unstoppable Force',  r='legendary', e='combo_persist',    v=1,    desc='Combos never break from errors'),
         'azzinoth_blades':     dict(name='Warglaives of Azzinoth', r='legendary', e='combo_bonus',     v=2,    desc='+2 combo per task. You are not prepared.'),
-        'ashbringer':          dict(name='Ashbringer',             r='legendary', e='xp_boost',         v=2,    desc='2x achievement progress'),
-        'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='bunker2h', desc='Pause fatigue for 2 hours (consumable)'),
-        'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='revive',   desc='Undo last base raid (consumable)'),
-        'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 1000 gold + 500 lumber. Mmm.'),
+        'ashbringer':          dict(name='Ashbringer',             r='legendary', e='crit_chance',      v=25,   desc='25% chance of 3x gold. Holy light!'),
+        'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='gold1500', desc='Gain 1500 gold (consumable)'),
+        'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='gold5000',   desc='Gain 5000 gold (consumable)'),
+        'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 10000 gold + 5000 lumber. Mmm.'),
         'scroll_of_heal':      dict(name='Scroll of Healing',      r='uncommon',  e='consumable',      v='heal_15',    desc='Heal all army units 15 HP (consumable)'),
         'healing_ward':        dict(name='Healing Ward',            r='rare',      e='consumable',      v='heal_full',  desc='Fully heal all army units (consumable)'),
         'firebolt':            dict(name='Firebolt',               r='common',    e='consumable',      v='boss_5',     desc='Deal 5 damage to active boss (consumable)'),
@@ -4290,7 +4302,7 @@ if game_on:
         'chain_lightning':     dict(name='Chain Lightning',        r='epic',      e='consumable',      v='boss_200',   desc='Deal 200 damage to active boss (consumable)'),
         'death_coil':          dict(name='Death Coil',             r='epic',      e='consumable',      v='boss_500',   desc='Deal 500 damage to active boss (consumable)'),
         'finger_of_death':     dict(name='Finger of Death',        r='epic',      e='consumable',      v='boss_1000',  desc='Deal 1000 damage to active boss (consumable)'),
-        'doom':                dict(name='Doom',                   r='legendary', e='consumable',      v='boss_2000',  desc='Deal 2000 damage to active boss (consumable)'),
+        'doom':                dict(name='Doom',                   r='legendary', e='consumable',      v='boss_4000',  desc='Deal 4000 damage to active boss (consumable)'),
         'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
         'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less gold lost from counter-attacks'),
         'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=2,    desc='+2 raid damage per task'),
@@ -4298,14 +4310,14 @@ if game_on:
         'bloodstone':          dict(name='Bloodstone',             r='rare',      e='boss_combo_dmg',  v=1,    desc='+1 damage per 10 combo in raids'),
         'runed_gauntlets':     dict(name='Runed Gauntlets',        r='rare',      e='boss_crit',       v=15,   desc='+15% crit chance vs bosses'),
         'executioners_blade':  dict(name='Executioner\'s Blade',    r='rare',      e='boss_execute',    v=3,    desc='3x damage when boss below 20% HP'),
-        'doom_hammer':         dict(name='Doom Hammer',            r='epic',      e='boss_dmg',        v=5,    desc='+5 raid damage per task'),
+        'doom_hammer':         dict(name='Doom Hammer',            r='epic',      e='boss_dmg',        v=10,    desc='+10 raid damage per task'),
         'black_arrow':         dict(name='Black Arrow',            r='epic',      e='boss_dot',        v=3,    desc='+3 poison per event + 1 flat raid damage'),
         'sulfuras':            dict(name='Sulfuras, Hand of Ragnaros', r='legendary', e='boss_dmg',    v=10,   desc='+10 raid damage. Overkill carries to next boss.'),
         'kobold_candle':       dict(name='Kobold\'s Candle',        r='common',    e='boss_gold',       v=3,    desc='+3g per task during boss fights'),
         'troll_totem':         dict(name='Troll Regeneration Totem', r='uncommon', e='boss_regen',     v=1,    desc='Repair 1 durability per 5 tasks'),
         'ogre_scepter':        dict(name='Ogre Magi Scepter',      r='rare',      e='boss_dmg',        v=3,    desc='+3 raid damage per task'),
         'infernal_core':       dict(name='Infernal Core',          r='rare',      e='boss_armor',      v=50,   desc='Counter-attacks deal 50% less gold damage'),
-        'mannoroths_blood':    dict(name='Mannoroth\'s Blood',      r='epic',      e='fatigue_resist',  v=10,   desc='+10 fatigue threshold'),
+        'mannoroths_blood':    dict(name='Mannoroth\'s Blood',      r='epic',      e='boss_execute',    v=5,    desc='5x damage when boss below 20% HP'),
         'crown_of_eredar':     dict(name='Crown of the Eredar',    r='legendary', e='boss_double_loot', v=1,   desc='+1 bonus drop from bosses'),
         'helm_of_domination':  dict(name='Helm of Domination',    r='legendary', e='boss_double_loot', v=2,   desc='+2 bonus drops from bosses'),
     }
@@ -4395,33 +4407,15 @@ if game_on:
         if fr and fatigue > 0 and fatigue <= fr:
             fatigue = max(0, fatigue - 1)
             state['fatigue'] = fatigue
-        if _has_effect('fatigue_gold') and fatigue >= _fatigue_thresh and gold_delta == 0:
-            gold_delta = int(base_gold * upkeep_mult) // 2 if category == 'task.complete' else 0
-        if _has_effect('debt_immune'):
-            econ['debt_interest'] = False
-        if _has_effect('raid_immune') and game_subtitle and 'raided' in game_subtitle:
-            game_subtitle = ''
-            gold_delta = max(0, gold_delta)
         if _has_effect('crit_chance') and gold_delta > 0 and category == 'task.complete':
             if random.random() < _has_effect('crit_chance') / 100.0:
                 gold_delta *= 3
                 game_subtitle = (game_subtitle + ' CRITICAL STRIKE! 3x gold!' if game_subtitle else 'CRITICAL STRIKE! 3x gold!')
-        xp = _has_effect('xp_boost')
-        if xp:
-            if category == 'task.complete':
-                stats['tasks_completed'] = stats.get('tasks_completed', 0) + (xp - 1)
-                stats['fatigue_total'] = stats.get('fatigue_total', 0) + (xp - 1)
-            elif category == 'user.spam' or event == 'UserPromptSubmit':
-                stats['prompts_total'] = stats.get('prompts_total', 0) + (xp - 1)
 
     # Apply combo item effects
     if equipped:
         if _has_effect('fatigue_immune') and not in_bunker:
             in_bunker = True
-        ft = _has_effect('fatigue_thresh')
-        if ft:
-            _fatigue_thresh += ft
-            _fatigue_exhaust = _fatigue_thresh + 30
         if _has_effect('combo_persist') and combo_text and 'broken' in combo_text:
             combo_text = ''
             combo = state.get('combo_count', 0)
@@ -4670,6 +4664,18 @@ if game_on:
                             if _durability[_eid] < _mx:
                                 _durability[_eid] = min(_mx, _durability[_eid] + _tregen)
                     state['item_durability'] = _durability
+
+            _army_heal = _sum_effect('army_heal')
+            if _army_heal and army:
+                _aheal_tick = state.get('_army_heal_tick', 0) + 1
+                state['_army_heal_tick'] = _aheal_tick
+                for uid, hps in army.items():
+                    max_hp = UNITS.get(uid, {}).get('hp', 30)
+                    for i in range(len(hps)):
+                        if hps[i] < max_hp:
+                            hps[i] = min(max_hp, hps[i] + _army_heal)
+                state['army'] = army
+
     elif _boss and 'dark_portal' not in buildings:
         pass
 
@@ -5314,7 +5320,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
-            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':20000}
+            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':40000}
             if iid in boss_items:
                 boss = st.get('active_boss')
                 if not boss or boss.get('hp', 0) <= 0:
@@ -5335,17 +5341,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._save('.state.json', st)
                 self._json(200, {'ok': True, 'dmg': dmg, 'hp': boss['hp'], 'killed': boss['hp'] <= 0})
                 return
+            def _dash_heal(state, amount):
+                army = state.get('army', {})
+                if not army: return
+                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                for uid, hps in army.items():
+                    mx = _UNIT_HP.get(uid, 30)
+                    for i in range(len(hps)): hps[i] = min(mx, hps[i] + amount)
+                state['army'] = army
+
             cons = {
                 'scroll_of_tp':      lambda: st.update(combo_count=max(st.get('combo_count',0), st.get('stats',{}).get('max_combo',0)//2)),
                 'potion_of_healing':  lambda: ec.update(gold=ec.get('gold',0)+200),
                 'potion_of_mana':     lambda: ec.update(lumber=ec.get('lumber',0)+50),
                 'tome_of_xp':        lambda: ec.update(gold=ec.get('gold',0)+500),
                 'liquid_fire':        lambda: ec.update(gold=ec.get('gold',0)+150),
-                'inv_potion':         lambda: st.update(bunker_until=time.time()+7200),
-                'invuln_potion':      lambda: st.update(gold_shield_until=time.time()+14400),
-                'ankh':               lambda: ec.update(gold=ec.get('gold',0)+200),
-                'ensnare_trap':       lambda: st.update(raid_shield=True),
-                'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+1000), ec.update(lumber=ec.get('lumber',0)+500)),
+                'inv_potion':         lambda: ec.update(gold=ec.get('gold',0)+1500),
+                'invuln_potion':      lambda: (ec.update(gold=ec.get('gold',0)+3000), ec.update(lumber=ec.get('lumber',0)+1000)),
+                'ankh':               lambda: ec.update(gold=ec.get('gold',0)+5000),
+                'ensnare_trap':       lambda: _dash_heal(st, 50),
+                'scroll_of_heal':     lambda: _dash_heal(st, 15),
+                'healing_ward':       lambda: _dash_heal(st, 999),
+                'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+10000), ec.update(lumber=ec.get('lumber',0)+5000)),
             }
             if iid not in cons:
                 return self._json(400, {'error': 'Not consumable'})
