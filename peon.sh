@@ -3036,7 +3036,7 @@ class H(http.server.BaseHTTPRequestHandler):
             for _uk in list(army.keys()):
                 if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             bld = st.get('buildings', {})
-            fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0)
+            fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0) + bld.get('farm', {}).get('count', 0) * 5
             fu = sum(UNITS.get(u, (0,0,0,0))[2] * len(hps) for u, hps in army.items())
             if fu + uf * cnt > fc:
                 return self._json(400, {'error': 'Not enough food'})
@@ -5518,7 +5518,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             for _uk in list(army.keys()):
                 if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             bld = st.get('buildings', {})
-            fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0)
+            fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0) + bld.get('farm', {}).get('count', 0) * 5
             fu = sum(UNITS.get(u, (0,0,0,0))[2] * len(hps) for u, hps in army.items())
             if fu + uf * cnt > fc:
                 return self._json(400, {'error': 'Not enough food'})

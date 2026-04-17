@@ -2560,7 +2560,8 @@ function armyCnt(army, uid) {
 var armyPendingUnit = null, armyHireQty = 1;
 
 function armyFoodCap(bld) {
-  return 12 + (bld.fortress ? 8 : 0) + (bld.citadel ? 10 : 0);
+  var farmCnt = (bld.farm && bld.farm.count) || 0;
+  return 12 + (bld.fortress ? 8 : 0) + (bld.citadel ? 10 : 0) + farmCnt * 5;
 }
 
 function armyFoodUsed(army) {

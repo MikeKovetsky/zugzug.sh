@@ -209,6 +209,8 @@ function getFoodCap(buildings) {
   var cap = 12;
   if (buildings.fortress) cap += 8;
   if (buildings.citadel) cap += 10;
+  var farm = buildings.farm;
+  if (farm) cap += (farm.count || 0) * 5;
   return cap;
 }
 
