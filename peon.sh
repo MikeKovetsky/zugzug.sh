@@ -1886,17 +1886,19 @@ if fatigue == 0:
     print('Peon not tired. Peon strong!')
     exit(0)
 econ = state.get('economy', {})
+gold = econ.get('gold', 0)
 lumber = econ.get('lumber', 0)
-cost = 20
-if lumber < cost:
-    print(f'Not enough lumber! Need {cost}l, have {lumber}l')
+cost = 100
+if gold < cost or lumber < cost:
+    print(f'Not enough resources! Need {cost}g/{cost}l, have {gold}g/{lumber}l')
     exit(1)
+econ['gold'] = gold - cost
 econ['lumber'] = lumber - cost
 state['economy'] = econ
 state['fatigue'] = 0
 _save_state(state_file, state)
-print(f'Peon rested! Fatigue reset to 0. (-{cost} lumber)')
-print(f'Lumber: {econ[\"lumber\"]}')
+print(f'Peon rested! Fatigue reset to 0. (-{cost}g/-{cost}l)')
+print(f'Gold: {econ[\"gold\"]} | Lumber: {econ[\"lumber\"]}')
 "
     exit $? ;;
   repair)
@@ -1909,9 +1911,10 @@ $_PY_STATE_IO
 state = _load_state(state_file)
 econ = state.get('economy', {})
 gold = econ.get('gold', 0)
+lumber = econ.get('lumber', 0)
 equipped = state.get('equipped', [])
 durability = state.get('item_durability', {})
-REPAIR_COSTS = {'common': 12, 'uncommon': 25, 'rare': 50, 'epic': 100, 'legendary': 250}
+REPAIR_COSTS = {'common': 6, 'uncommon': 12, 'rare': 25, 'epic': 50, 'legendary': 125}
 ITEMS_R = {
     'claws_of_attack': 'common', 'gauntlets_of_str': 'common', 'ring_of_protection': 'common',
     'slippers_of_agility': 'common', 'circlet_of_nobility': 'common', 'mantle_of_intel': 'common',
@@ -1962,16 +1965,17 @@ was_broken = set(eid for eid in damaged if durability.get(eid, 0) <= 0)
 total_cost = 0
 for eid in damaged:
     r = ITEMS_R.get(eid, 'common')
-    c = REPAIR_COSTS.get(r, 25)
+    c = REPAIR_COSTS.get(r, 12)
     if eid in was_broken:
         c *= 2
     if has_discount:
         c = c // 2
     total_cost += c
-if gold < total_cost:
-    print(f'Not enough gold! Need {total_cost}g, have {gold}g')
+if gold < total_cost or lumber < total_cost:
+    print(f'Not enough resources! Need {total_cost}g/{total_cost}l, have {gold}g/{lumber}l')
     exit(1)
 econ['gold'] = gold - total_cost
+econ['lumber'] = lumber - total_cost
 for eid in damaged:
     r = ITEMS_R.get(eid, 'common')
     durability[eid] = MAX_DUR.get(r, 50)
@@ -1981,11 +1985,11 @@ stats = state.get('stats', {})
 stats['repairs_total'] = stats.get('repairs_total', 0) + len(damaged)
 state['stats'] = stats
 _save_state(state_file, state)
-print(f'Repaired {len(damaged)} item(s)! (-{total_cost}g)')
+print(f'Repaired {len(damaged)} item(s)! (-{total_cost}g/-{total_cost}l)')
 for eid in damaged:
     tag = ' (broken - 2x cost)' if eid in was_broken else ''
     print(f'  {eid} restored{tag}')
-print(f'Gold: {econ[\"gold\"]}')
+print(f'Gold: {econ[\"gold\"]} | Lumber: {econ[\"lumber\"]}')
 "
     exit $? ;;
   inventory)
@@ -2861,14 +2865,16 @@ class H(http.server.BaseHTTPRequestHandler):
             if f == 0:
                 return self._json(200, {'ok': True, 'msg': 'Not tired'})
             ec = st.setdefault('economy', {})
+            g = ec.get('gold', 0)
             l = ec.get('lumber', 0)
-            if l < 20:
-                return self._json(400, {'error': 'Need 20 lumber', 'have': l})
-            ec['lumber'] = l - 20
+            if g < 100 or l < 100:
+                return self._json(400, {'error': 'Need 100g/100l', 'gold': g, 'lumber': l})
+            ec['gold'] = g - 100
+            ec['lumber'] = l - 100
             st['fatigue'] = 0
             st['economy'] = ec
             self._save('.state.json', st)
-            self._json(200, {'ok': True, 'lumber': ec['lumber']})
+            self._json(200, {'ok': True, 'gold': ec['gold'], 'lumber': ec['lumber']})
         elif self.path == '/api/repair':
             st = self._load('.state.json')
             eq = st.get('equipped', [])
@@ -2880,9 +2886,11 @@ class H(http.server.BaseHTTPRequestHandler):
             if not items:
                 return self._json(200, {'ok': True, 'msg': 'Nothing to repair'})
             g = ec.get('gold', 0)
-            if g < cost:
-                return self._json(400, {'error': 'Need ' + str(cost) + 'g', 'have': g})
+            l = ec.get('lumber', 0)
+            if g < cost or l < cost:
+                return self._json(400, {'error': 'Need ' + str(cost) + 'g/' + str(cost) + 'l', 'gold': g, 'lumber': l})
             ec['gold'] = g - cost
+            ec['lumber'] = l - cost
             for e in items:
                 r = body.get('rarities', {}).get(e, 'common')
                 dur[e] = MAXD.get(r, 50)
@@ -2891,7 +2899,7 @@ class H(http.server.BaseHTTPRequestHandler):
             stats = st.setdefault('stats', {})
             stats['repairs_total'] = stats.get('repairs_total', 0) + len(items)
             self._save('.state.json', st)
-            self._json(200, {'ok': True, 'repaired': len(items), 'cost': cost, 'gold': ec['gold']})
+            self._json(200, {'ok': True, 'repaired': len(items), 'cost': cost, 'gold': ec['gold'], 'lumber': ec['lumber']})
         elif self.path == '/api/harvest':
             pos = body.get('pos', '')
             st = self._load('.state.json')
@@ -5345,14 +5353,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if f == 0:
                 return self._json(200, {'ok': True, 'msg': 'Not tired'})
             ec = st.setdefault('economy', {})
+            g = ec.get('gold', 0)
             l = ec.get('lumber', 0)
-            if l < 20:
-                return self._json(400, {'error': 'Need 20 lumber', 'have': l})
-            ec['lumber'] = l - 20
+            if g < 100 or l < 100:
+                return self._json(400, {'error': 'Need 100g/100l', 'gold': g, 'lumber': l})
+            ec['gold'] = g - 100
+            ec['lumber'] = l - 100
             st['fatigue'] = 0
             st['economy'] = ec
             self._save('.state.json', st)
-            self._json(200, {'ok': True, 'lumber': ec['lumber']})
+            self._json(200, {'ok': True, 'gold': ec['gold'], 'lumber': ec['lumber']})
         elif self.path == '/api/repair':
             st = self._load('.state.json')
             ec = st.setdefault('economy', {})
@@ -5362,9 +5372,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if not items:
                 return self._json(200, {'ok': True, 'msg': 'Nothing to repair'})
             g = ec.get('gold', 0)
-            if g < cost:
-                return self._json(400, {'error': 'Need ' + str(cost) + 'g', 'have': g})
+            l = ec.get('lumber', 0)
+            if g < cost or l < cost:
+                return self._json(400, {'error': 'Need ' + str(cost) + 'g/' + str(cost) + 'l', 'gold': g, 'lumber': l})
             ec['gold'] = g - cost
+            ec['lumber'] = l - cost
             dur = st.get('item_durability', {})
             for e in items:
                 r = body.get('rarities', {}).get(e, 'common')
@@ -5374,7 +5386,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             stats = st.setdefault('stats', {})
             stats['repairs_total'] = stats.get('repairs_total', 0) + len(items)
             self._save('.state.json', st)
-            self._json(200, {'ok': True, 'repaired': len(items), 'cost': cost, 'gold': ec['gold']})
+            self._json(200, {'ok': True, 'repaired': len(items), 'cost': cost, 'gold': ec['gold'], 'lumber': ec['lumber']})
         elif self.path == '/api/harvest':
             pos = body.get('pos', '')
             st = self._load('.state.json')

@@ -1054,7 +1054,7 @@ body {
       </div>
       <div class="help-block">
         <div class="help-heading">💤 Fatigue</div>
-        <div class="help-text">+1 per task completed. At 60: tired (half gold). At 90: exhausted (no gold, combos break). Use <code>peon rest</code> (20 lumber) or click Rest to reset. Tavern raises thresholds by 30.</div>
+        <div class="help-text">+1 per task completed. At 60: tired (half gold). At 90: exhausted (no gold, combos break). Use <code>peon rest</code> (100g/100l) or click Rest to reset. Tavern raises thresholds by 30.</div>
       </div>
       <div class="help-block">
         <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/greathall.png" class="w3i" alt=""> Buildings</div>
@@ -1066,7 +1066,7 @@ body {
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F6E0;&#xFE0F; Durability</div>
-        <div class="help-text">Equipped items lose 1 durability per 2 tasks. At 0 they break and their effect stops. Use <code>peon repair</code> to fix damaged items. Broken items cost 2x. Blacksmith slows durability loss by 3x. Mask of Death halves repair cost.<br><b>Repair costs:</b> Common 12g &middot; Uncommon 25g &middot; Rare 50g &middot; Epic 100g &middot; Legendary 250g</div>
+        <div class="help-text">Equipped items lose 1 durability per 2 tasks. At 0 they break and their effect stops. Use <code>peon repair</code> to fix damaged items. Broken items cost 2x. Blacksmith slows durability loss by 3x. Mask of Death halves repair cost.<br><b>Repair costs (gold = lumber):</b> Common 6 &middot; Uncommon 12 &middot; Rare 25 &middot; Epic 50 &middot; Legendary 125</div>
       </div>
       <div class="help-block">
         <div class="help-heading">&#x1F6CC; Fatigue</div>
@@ -1875,8 +1875,8 @@ function updateActions(s) {
     var rbtn = document.createElement('button');
     rbtn.className = 'act-btn';
     var ec = s.economy || {};
-    if (ec.lumber >= 20) {
-      rbtn.innerHTML = '\u{1F4A4} Rest (' + fat + ') \u2014 20l';
+    rbtn.innerHTML = '\u{1F4A4} Rest (' + fat + ') \u2014 100g/100l';
+    if (ec.gold >= 100 && ec.lumber >= 100) {
       rbtn.addEventListener('click', function() {
         apiPost('/api/rest').then(function(res) {
           if (res.ok) { addToast('', '\u{1F4A4}', 'Peon rested! Fatigue reset.'); poll(); }
@@ -1884,7 +1884,6 @@ function updateActions(s) {
         });
       });
     } else {
-      rbtn.innerHTML = '\u{1F4A4} Rest (' + fat + ') \u2014 20l';
       rbtn.disabled = true;
     }
     div.appendChild(rbtn);
@@ -1897,14 +1896,14 @@ function updateActions(s) {
     return d < mx;
   });
   if (damaged.length > 0) {
-    var RCOST = {common:12,uncommon:25,rare:50,epic:100,legendary:250};
+    var RCOST = {common:6,uncommon:12,rare:25,epic:50,legendary:125};
     var hasDisc = eq.indexOf('mask_of_death') >= 0 && (dur['mask_of_death'] == null || dur['mask_of_death'] > 0);
     var cost = 0, rarities = {}, nBroken = 0;
     damaged.forEach(function(e) {
       var it = ITEMS[e];
       var r = it ? it.r : 'common';
       rarities[e] = r;
-      var c = RCOST[r] || 25;
+      var c = RCOST[r] || 12;
       if (dur[e] != null && dur[e] <= 0) { c *= 2; nBroken++; }
       if (hasDisc) c = Math.floor(c / 2);
       cost += c;
@@ -1914,16 +1913,15 @@ function updateActions(s) {
     var ec2 = s.economy || {};
     var lbl = damaged.length + ' item' + (damaged.length > 1 ? 's' : '');
     if (nBroken > 0) lbl += ' (' + nBroken + ' broken)';
-    if (ec2.gold >= cost) {
-      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair ' + lbl + ' \u2014 ' + cost + 'g';
+    rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair ' + lbl + ' \u2014 ' + cost + 'g/' + cost + 'l';
+    if (ec2.gold >= cost && ec2.lumber >= cost) {
       rpbtn.addEventListener('click', function() {
         apiPost('/api/repair', {items: damaged, rarities: rarities, cost: cost}).then(function(res) {
-          if (res.ok) { addToast('', '\u{1F6E0}\uFE0F', 'Repaired ' + res.repaired + ' item(s)! -' + res.cost + 'g'); poll(); }
+          if (res.ok) { addToast('', '\u{1F6E0}\uFE0F', 'Repaired ' + res.repaired + ' item(s)! -' + res.cost + 'g/-' + res.cost + 'l'); poll(); }
           else { addToast('err', '\u274C', res.error || 'Failed'); }
         });
       });
     } else {
-      rpbtn.innerHTML = '\u{1F6E0}\uFE0F Repair ' + lbl + ' \u2014 ' + cost + 'g';
       rpbtn.disabled = true;
     }
     div.appendChild(rpbtn);
