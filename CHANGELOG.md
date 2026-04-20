@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.5.4 (2026-04-20)
+
+### Fixed
+- **Army-heal items trivialised raid combat**: Items with the `army_heal` effect (Amulet of Spell Shield) and the heal consumables (Scroll of Healing, Ensnare) all healed `v` HP **per unit** instead of `v` HP **total** across the army, contradicting their "Heal army X HP" descriptions. With even a single Amulet equipped, every non-shaman unit was fully restored every task because per-unit heal (3 × N units = 21 HP/turn for a typical army) outpaced every boss in the game (Lich King caps at 20 HP/turn). Shamans died first because their 20-HP cap couldn't soak the random 1-HP-per-attack damage before they got fully picked, masking the bug as a shaman-only issue. All four heal sites — passive `army_heal` (`peon.sh`), CLI `peon use` (`peon.sh`), and both copies of dashboard `_dash_heal` — now distribute a total HP pool to the most-wounded unit by **percentage** deficit, so low-HP units like shamans aren't perma-starved of healing. `healing_ward` retains "fully heal every unit" since its description is explicit.
+- **Stale `scroll_of_heal` description**: Catalog said "Heal all army units 15 HP" (ambiguous, suggested per-unit). Aligned with the dashboard's "Heal army 15 HP" wording.
+
+### Added
+- BATS regression tests covering: amulet heal pool ≤ v HP per task, percentage-based heal targeting prioritising low-HP units, scroll_of_heal total-pool behavior, and healing_ward still fully healing.
+
 ## v3.5.3 (2026-04-16)
 
 ### Fixed

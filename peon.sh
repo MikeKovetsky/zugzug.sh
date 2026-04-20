@@ -2048,7 +2048,7 @@ ITEMS = {
     'azzinoth_blades':     ('Warglaives of Azzinoth', 'legendary', '+2 combo per task. You are not prepared.'),
     'ashbringer':          ('Ashbringer',             'legendary', '25% crit chance (3x gold). Holy light!'),
     'cheese':              ('Cheese',                 'legendary', 'Restore 10000g + 5000l. Mmm. (consumable)'),
-    'scroll_of_heal':      ('Scroll of Healing',      'uncommon',  'Heal all army units 15 HP (consumable)'),
+    'scroll_of_heal':      ('Scroll of Healing',      'uncommon',  'Heal army 15 HP (consumable)'),
     'healing_ward':        ('Healing Ward',            'rare',      'Fully heal all army units (consumable)'),
     'firebolt':            ('Firebolt',               'common',    'Deal 50 damage to active boss (consumable)'),
     'goblin_sapper':       ('Goblin Sapper Charge',   'uncommon',  'Deal 100 damage to active boss (consumable)'),
@@ -2183,22 +2183,37 @@ consumables = {
     'invuln_potion':    ('Divine Shield! +3000g +1000l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+3000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+1000))),
     'cheese':           ('Mmm. +10000g +5000l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+10000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+5000))),
 }
-heal_items = {'scroll_of_heal': 15, 'healing_ward': 999, 'ensnare_trap': 50}
+heal_items = {'scroll_of_heal': 15, 'ensnare_trap': 50}
 _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
-if item_id in heal_items:
+if item_id in heal_items or item_id == 'healing_ward':
     army = state.get('army', {})
     if not army:
         print('No army to heal! Hire units first: peon hire <unit>')
         sys.exit(1)
-    amount = heal_items[item_id]
     healed = 0
-    for uid, hps in army.items():
-        mx = _UNIT_HP.get(uid, 30)
-        for i in range(len(hps)):
-            if hps[i] < mx:
-                old = hps[i]
-                hps[i] = min(mx, hps[i] + amount)
-                healed += hps[i] - old
+    if item_id == 'healing_ward':
+        for uid, hps in army.items():
+            mx = _UNIT_HP.get(uid, 30)
+            for i in range(len(hps)):
+                if hps[i] < mx:
+                    healed += mx - hps[i]
+                    hps[i] = mx
+    else:
+        pool = heal_items[item_id]
+        while pool > 0:
+            worst = (None, -1, 0.0)
+            for uid in army:
+                mx = _UNIT_HP.get(uid, 30)
+                for i, h in enumerate(army[uid]):
+                    if 0 < h < mx:
+                        pct = (mx - h) / mx
+                        if pct > worst[2]:
+                            worst = (uid, i, pct)
+            if worst[0] is None:
+                break
+            army[worst[0]][worst[1]] += 1
+            healed += 1
+            pool -= 1
     if healed == 0:
         print('Army is already at full health!')
         sys.exit(0)
@@ -2971,13 +2986,31 @@ class H(http.server.BaseHTTPRequestHandler):
                 self._save('.state.json', st)
                 self._json(200, {'ok': True, 'dmg': dmg, 'hp': boss['hp'], 'killed': boss['hp'] <= 0})
                 return
-            def _dash_heal(state, amount):
+            def _dash_heal(state, pool):
+                army = state.get('army', {})
+                if not army: return
+                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                while pool > 0:
+                    worst = (None, -1, 0.0)
+                    for uid in army:
+                        mx = _UNIT_HP.get(uid, 30)
+                        for i, h in enumerate(army[uid]):
+                            if 0 < h < mx:
+                                pct = (mx - h) / mx
+                                if pct > worst[2]:
+                                    worst = (uid, i, pct)
+                    if worst[0] is None: break
+                    army[worst[0]][worst[1]] += 1
+                    pool -= 1
+                state['army'] = army
+
+            def _dash_heal_full(state):
                 army = state.get('army', {})
                 if not army: return
                 _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
                 for uid, hps in army.items():
                     mx = _UNIT_HP.get(uid, 30)
-                    for i in range(len(hps)): hps[i] = min(mx, hps[i] + amount)
+                    for i in range(len(hps)): hps[i] = mx
                 state['army'] = army
 
             cons = {
@@ -2991,7 +3024,7 @@ class H(http.server.BaseHTTPRequestHandler):
                 'ankh':               lambda: ec.update(gold=ec.get('gold',0)+5000),
                 'ensnare_trap':       lambda: _dash_heal(st, 50),
                 'scroll_of_heal':     lambda: _dash_heal(st, 15),
-                'healing_ward':       lambda: _dash_heal(st, 999),
+                'healing_ward':       lambda: _dash_heal_full(st),
                 'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+10000), ec.update(lumber=ec.get('lumber',0)+5000)),
             }
             if iid not in cons:
@@ -4391,7 +4424,7 @@ if game_on:
         'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='gold1500', desc='Gain 1500 gold (consumable)'),
         'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='gold5000',   desc='Gain 5000 gold (consumable)'),
         'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 10000 gold + 5000 lumber. Mmm.'),
-        'scroll_of_heal':      dict(name='Scroll of Healing',      r='uncommon',  e='consumable',      v='heal_15',    desc='Heal all army units 15 HP (consumable)'),
+        'scroll_of_heal':      dict(name='Scroll of Healing',      r='uncommon',  e='consumable',      v='heal_15',    desc='Heal army 15 HP (consumable)'),
         'healing_ward':        dict(name='Healing Ward',            r='rare',      e='consumable',      v='heal_full',  desc='Fully heal all army units (consumable)'),
         'firebolt':            dict(name='Firebolt',               r='common',    e='consumable',      v='boss_50',     desc='Deal 50 damage to active boss (consumable)'),
         'goblin_sapper':       dict(name='Goblin Sapper Charge',   r='uncommon',  e='consumable',      v='boss_100',    desc='Deal 100 damage to active boss (consumable)'),
@@ -4768,11 +4801,20 @@ if game_on:
             if _army_heal and _army:
                 _aheal_tick = state.get('_army_heal_tick', 0) + 1
                 state['_army_heal_tick'] = _aheal_tick
-                for uid, hps in _army.items():
-                    max_hp = _UHP.get(uid, 30)
-                    for i in range(len(hps)):
-                        if hps[i] < max_hp:
-                            hps[i] = min(max_hp, hps[i] + _army_heal)
+                _ahp = _army_heal
+                while _ahp > 0:
+                    _aw = (None, -1, 0.0)
+                    for _auid in _army:
+                        _amx = _UHP.get(_auid, 30)
+                        for _ai, _ah in enumerate(_army[_auid]):
+                            if 0 < _ah < _amx:
+                                _apct = (_amx - _ah) / _amx
+                                if _apct > _aw[2]:
+                                    _aw = (_auid, _ai, _apct)
+                    if _aw[0] is None:
+                        break
+                    _army[_aw[0]][_aw[1]] += 1
+                    _ahp -= 1
                 state['army'] = _army
 
     elif _boss and 'dark_portal' not in buildings:
@@ -5457,13 +5499,31 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._save('.state.json', st)
                 self._json(200, {'ok': True, 'dmg': dmg, 'hp': boss['hp'], 'killed': boss['hp'] <= 0})
                 return
-            def _dash_heal(state, amount):
+            def _dash_heal(state, pool):
+                army = state.get('army', {})
+                if not army: return
+                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                while pool > 0:
+                    worst = (None, -1, 0.0)
+                    for uid in army:
+                        mx = _UNIT_HP.get(uid, 30)
+                        for i, h in enumerate(army[uid]):
+                            if 0 < h < mx:
+                                pct = (mx - h) / mx
+                                if pct > worst[2]:
+                                    worst = (uid, i, pct)
+                    if worst[0] is None: break
+                    army[worst[0]][worst[1]] += 1
+                    pool -= 1
+                state['army'] = army
+
+            def _dash_heal_full(state):
                 army = state.get('army', {})
                 if not army: return
                 _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
                 for uid, hps in army.items():
                     mx = _UNIT_HP.get(uid, 30)
-                    for i in range(len(hps)): hps[i] = min(mx, hps[i] + amount)
+                    for i in range(len(hps)): hps[i] = mx
                 state['army'] = army
 
             cons = {
@@ -5477,7 +5537,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 'ankh':               lambda: ec.update(gold=ec.get('gold',0)+5000),
                 'ensnare_trap':       lambda: _dash_heal(st, 50),
                 'scroll_of_heal':     lambda: _dash_heal(st, 15),
-                'healing_ward':       lambda: _dash_heal(st, 999),
+                'healing_ward':       lambda: _dash_heal_full(st),
                 'cheese':             lambda: (ec.update(gold=ec.get('gold',0)+10000), ec.update(lumber=ec.get('lumber',0)+5000)),
             }
             if iid not in cons:

@@ -214,6 +214,86 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$hp_after" -lt 100 ]
 }
 
+@test "amulet_of_spell heals at most v HP total per task (not per unit)" {
+  # Regression: previously army_heal applied v HP to EVERY unit, so an army of N units gained
+  # v*N HP per task and bosses could not damage the army. Should now heal v HP TOTAL.
+  python3 -c "
+import json, datetime
+s = json.load(open('$TEST_DIR/.state.json'))
+dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 100, 'max_hp': 100, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'atk_min': 0, 'atk_max': 0}
+s['equipped'] = ['amulet_of_spell']
+s['item_durability'] = {'amulet_of_spell': 150}
+s['army'] = {'grunt': [10, 10, 10, 10, 10], 'tauren': [40, 40, 40]}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  local total_hp before_hp delta
+  before_hp=$((10*5 + 40*3))
+  total_hp=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json'))['army']; print(sum(h for hps in a.values() for h in hps))")
+  delta=$((total_hp - before_hp))
+  # Amulet v=3, kobold atk_max=0 → exactly 3 HP total restored
+  [ "$delta" -eq 3 ]
+}
+
+@test "amulet_of_spell heal targets most-wounded by percentage" {
+  # With a tauren at 79/80 (1.25% deficit) and a grunt at 28/30 (6.7% deficit),
+  # the 3-HP heal pool should go to the grunt first.
+  python3 -c "
+import json, datetime
+s = json.load(open('$TEST_DIR/.state.json'))
+dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 100, 'max_hp': 100, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'atk_min': 0, 'atk_max': 0}
+s['equipped'] = ['amulet_of_spell']
+s['item_durability'] = {'amulet_of_spell': 150}
+s['army'] = {'tauren': [79], 'grunt': [28]}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  local grunt tauren
+  grunt=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['army']['grunt'][0])")
+  tauren=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['army']['tauren'][0])")
+  # Grunt should be fully healed first (deficit 2 HP, 6.7%), then tauren gets the remaining 1 HP.
+  [ "$grunt" -eq 30 ]
+  [ "$tauren" -eq 80 ]
+}
+
+@test "scroll_of_heal consumable heals 15 HP TOTAL across army" {
+  bash "$PEON_SH" hire grunt 5
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['inventory'] = ['scroll_of_heal']
+s['army'] = {'grunt': [5, 5, 5, 5, 5]}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" use scroll_of_heal
+  [ "$status" -eq 0 ]
+  local total
+  total=$(python3 -c "import json; print(sum(json.load(open('$TEST_DIR/.state.json'))['army']['grunt']))")
+  # Started at 25, +15 = 40
+  [ "$total" -eq 40 ]
+}
+
+@test "healing_ward consumable still fully heals every unit" {
+  bash "$PEON_SH" hire grunt 5
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['inventory'] = ['healing_ward']
+s['army'] = {'grunt': [1, 1, 1, 1, 1]}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" use healing_ward
+  [ "$status" -eq 0 ]
+  local total
+  total=$(python3 -c "import json; print(sum(json.load(open('$TEST_DIR/.state.json'))['army']['grunt']))")
+  # 5 grunts at full = 150
+  [ "$total" -eq 150 ]
+}
+
 @test "python stderr is captured to .error.log, not discarded" {
   # Regression: previously 2>/dev/null swallowed silent NameError crashes.
   # Ensure errors are now written to $PEON_DIR/.error.log.
