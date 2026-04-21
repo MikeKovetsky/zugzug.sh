@@ -1073,6 +1073,14 @@ body {
         <div class="help-text">Accumulates with each task. Past the threshold, gold income drops. Past exhaustion, gold stops entirely. Burrow pauses fatigue for 1 hour. Resets daily.</div>
       </div>
       <div class="help-block">
+        <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/darkportal.png" class="w3i" alt=""> Raids</div>
+        <div class="help-text">Requires Dark Portal. Pay an entry fee to summon a boss with HP and a deadline (1&ndash;14 days). <code>task.complete</code> events deal damage based on combo, items, and your army. Bosses counter-attack on errors. Win before the deadline to claim gold + item drops; miss it and the boss escapes (half the entry fee as penalty).</div>
+      </div>
+      <div class="help-block">
+        <div class="help-heading"><img src="https://raw.githubusercontent.com/aaronjewell/w3-icons/main/images/orc/envenomedspears.gif" class="w3i" alt=""> Poison (DoT)</div>
+        <div class="help-text">Three items deal a percentage of the boss's max HP <em>every real-world hour</em>, even while you're AFK: <b>Venom Orb</b> (0.05%/hr), <b>Black Arrow</b> (0.1%/hr), <b>Thunderfury</b> (0.2%/hr). Stacks additively (0.35%/hr with all three). Rate is constant for the whole fight &mdash; no cap, no decay. A long absence banks proportional damage on the next event. Poison bypasses fatigue/exhaustion: it's the one thing that ticks while you're not working. If a poison tick lands the killing blow, the kill is tagged <em>"Slain by venom."</em><br><b>Example:</b> Thunderfury vs. a 40,000 HP boss = 80 dmg/hr (~1,920 dmg/day). Stacked all three vs. Lich King over 14 days &asymp; the whole boss.</div>
+      </div>
+      <div class="help-block">
         <div class="help-heading">&#x1F3C6; Achievements</div>
         <div class="help-text">17 achievements (3 secret). Track fatigue, task milestones, streaks, repairs, and more. Hover any achievement to see progress.</div>
       </div>
@@ -1455,7 +1463,7 @@ var ITEMS = {
   invuln_potion:       { icon: w3i('neutral/potionoflesserinvulnerability.gif'), name: 'Potion of Invulnerability', r: 'epic', desc: '+3000g +1000l (use)', cons: true },
   frostmourne:         { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Frostmourne', r: 'legendary', desc: '+20 raid damage' },
   wirts_leg:           { icon: w3i('orc/spikedbarricades.png'), name: "Wirt's Leg", r: 'legendary', desc: 'Does nothing.' },
-  thunderfury:         { icon: w3i('orc/orboflightning.png'), name: 'Thunderfury', r: 'legendary', desc: 'Poison: 10 dmg/event' },
+  thunderfury:         { icon: w3i('orc/orboflightning.png'), name: 'Thunderfury', r: 'legendary', desc: 'Poison: 0.2% boss HP/hr (passive)' },
   unstoppable_force:   { icon: w3i('orc/pulverizedamageincrease.png'), name: 'The Unstoppable Force', r: 'legendary', desc: 'Combos never break' },
   azzinoth_blades:     { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Warglaives of Azzinoth', r: 'legendary', desc: '+2 combo per task' },
   ashbringer:          { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Ashbringer', r: 'legendary', desc: '25% crit (3x gold)' },
@@ -1477,7 +1485,7 @@ var ITEMS = {
   iron_shield:         { icon: w3i('orc/steelarmor.png'), name: 'Iron Shield', r: 'common', desc: '-25% counter-attack' },
   kobold_candle:       { icon: w3i('orc/liquidfire.gif'), name: "Kobold's Candle", r: 'common', desc: '+3g in boss fights' },
   serrated_blade:      { icon: w3i('orc/steelrangedweapons.png'), name: 'Serrated Blade', r: 'uncommon', desc: '+2 raid damage' },
-  venom_orb:           { icon: w3i('orc/envenomedspears.gif'), name: 'Venom Orb', r: 'uncommon', desc: 'Poison: 1 dmg/event' },
+  venom_orb:           { icon: w3i('orc/envenomedspears.gif'), name: 'Venom Orb', r: 'uncommon', desc: 'Poison: 0.05% boss HP/hr (passive)' },
   troll_totem:         { icon: w3i('orc/trollregeneration.png'), name: 'Troll Regen Totem', r: 'uncommon', desc: 'Repair 1 dur/5 tasks' },
   bloodstone:          { icon: w3i('orc/shamanmastertraining.png'), name: 'Bloodstone', r: 'rare', desc: '+1 dmg per 10 combo' },
   runed_gauntlets:     { icon: w3i('orc/reinforceddefenses.png'), name: 'Runed Gauntlets', r: 'rare', desc: '+15% boss crit' },
@@ -1485,7 +1493,7 @@ var ITEMS = {
   ogre_scepter:        { icon: w3i('orc/spiritwalkeradepttraining.png'), name: 'Ogre Magi Scepter', r: 'rare', desc: '+3 raid damage' },
   infernal_core:       { icon: w3i('orc/improvedspikedbarricades.png'), name: 'Infernal Core', r: 'rare', desc: '-50% counter-attack' },
   doom_hammer:         { icon: w3i('orc/pulverizedamageincrease.png'), name: 'Doom Hammer', r: 'epic', desc: '+10 raid damage' },
-  black_arrow:         { icon: w3i('orc/thoriumrangedweapons.png'), name: 'Black Arrow', r: 'epic', desc: '+3 poison +1 dmg' },
+  black_arrow:         { icon: w3i('orc/thoriumrangedweapons.png'), name: 'Black Arrow', r: 'epic', desc: 'Poison: 0.1% boss HP/hr (+1 dmg/task)' },
   mannoroths_blood:    { icon: w3i('orc/berserkerupgrade.png'), name: "Mannoroth's Blood", r: 'epic', desc: '5x dmg below 20% HP' },
   sulfuras:            { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Sulfuras', r: 'legendary', desc: '+10 dmg, overkill carries' },
   crown_of_eredar:     { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Crown of the Eredar', r: 'legendary', desc: 'Boss double loot' },

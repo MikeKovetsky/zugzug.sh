@@ -2043,7 +2043,7 @@ ITEMS = {
     'ankh':                ('Ankh of Reincarnation',  'epic',      'Gain 5000 gold (consumable)'),
     'frostmourne':         ('Frostmourne',            'legendary', '+20 raid damage. The blade hungers.'),
     'wirts_leg':           ('Wirt\\'s Leg',           'legendary', 'Does absolutely nothing. Peon confused.'),
-    'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', 'Poison: 10 damage per event in raids'),
+    'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', 'Poison: 0.2% of boss HP per hour'),
     'unstoppable_force':   ('The Unstoppable Force',  'legendary', 'Combos never break from errors'),
     'azzinoth_blades':     ('Warglaives of Azzinoth', 'legendary', '+2 combo per task. You are not prepared.'),
     'ashbringer':          ('Ashbringer',             'legendary', '25% crit chance (3x gold). Holy light!'),
@@ -2062,12 +2062,12 @@ ITEMS = {
     'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
     'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
     'serrated_blade':      ('Serrated Blade',         'uncommon',  '+2 raid damage per task'),
-    'venom_orb':           ('Venom Orb',              'uncommon',  'Poison: 1 damage per event during raids'),
+    'venom_orb':           ('Venom Orb',              'uncommon',  'Poison: 0.05% of boss HP per hour'),
     'bloodstone':          ('Bloodstone',             'rare',      '+1 damage per 10 combo in raids'),
     'runed_gauntlets':     ('Runed Gauntlets',        'rare',      '+15% crit chance vs bosses'),
     'executioners_blade':  ('Executioner\\'s Blade',  'rare',      '3x damage when boss below 20% HP'),
     'doom_hammer':         ('Doom Hammer',            'epic',      '+10 raid damage per task'),
-    'black_arrow':         ('Black Arrow',            'epic',      '+3 poison per event + 1 flat raid damage'),
+    'black_arrow':         ('Black Arrow',            'epic',      'Poison: 0.1% of boss HP per hour (+1 dmg/task)'),
     'sulfuras':            ('Sulfuras, Hand of Ragnaros', 'legendary', '+10 raid damage. Overkill carries to next boss.'),
     'kobold_candle':       ('Kobold\\'s Candle',      'common',    '+3g per task during boss fights'),
     'troll_totem':         ('Troll Regeneration Totem', 'uncommon', 'Repair 1 durability per 5 tasks'),
@@ -2395,6 +2395,11 @@ if arg == 'status':
         print(f'  [{bar}] {boss[\"hp\"]}/{boss[\"max_hp\"]} HP')
         print(f'  Deadline: {dl} ({days_left} day{\"s\" if days_left != 1 else \"\"} left)')
         print(f'  Damage dealt: {boss[\"max_hp\"] - boss[\"hp\"]}')
+        _DOT_PCT = {'venom_orb': 0.05, 'black_arrow': 0.1, 'thunderfury': 0.2}
+        _ppct = sum(_DOT_PCT.get(eid, 0) for eid in state.get('equipped', []))
+        if _ppct > 0:
+            _rate_hr = boss['max_hp'] * _ppct / 100.0
+            print(f'  Poisoned: {_rate_hr:.1f} dmg/hr ({_ppct}% of boss HP per hour)')
         _lt = boss.get('loot_tier', [])
         if isinstance(_lt, str): _lt = [_lt]
         if _lt: print(f'  Loot: {\", \".join(_lt)} ({len(_lt)} drop{\"s\" if len(_lt) != 1 else \"\"})')
@@ -4417,7 +4422,7 @@ if game_on:
         'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='lumber_mult',     v=5,    desc='5x lumber from prompts'),
         'frostmourne':         dict(name='Frostmourne',            r='legendary', e='boss_dmg',         v=20,   desc='+20 raid damage. The blade hungers.'),
         'wirts_leg':           dict(name='Wirt\'s Leg',            r='legendary', e='none',             v=0,    desc='Does absolutely nothing. Peon confused.'),
-        'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='boss_dot', v=10, desc='Poison: 10 damage per event. Did someone say Thunderfury?'),
+        'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='boss_dot', v=0.2, desc='Poison: 0.2% of boss HP per hour. Did someone say Thunderfury?'),
         'unstoppable_force':   dict(name='The Unstoppable Force',  r='legendary', e='combo_persist',    v=1,    desc='Combos never break from errors'),
         'azzinoth_blades':     dict(name='Warglaives of Azzinoth', r='legendary', e='combo_bonus',     v=2,    desc='+2 combo per task. You are not prepared.'),
         'ashbringer':          dict(name='Ashbringer',             r='legendary', e='crit_chance',      v=25,   desc='25% chance of 3x gold. Holy light!'),
@@ -4438,12 +4443,12 @@ if game_on:
         'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
         'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less gold lost from counter-attacks'),
         'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=2,    desc='+2 raid damage per task'),
-        'venom_orb':           dict(name='Venom Orb',              r='uncommon',  e='boss_dot',        v=1,    desc='Poison: 1 damage per event during raids'),
+        'venom_orb':           dict(name='Venom Orb',              r='uncommon',  e='boss_dot',        v=0.05, desc='Poison: 0.05% of boss HP per hour'),
         'bloodstone':          dict(name='Bloodstone',             r='rare',      e='boss_combo_dmg',  v=1,    desc='+1 damage per 10 combo in raids'),
         'runed_gauntlets':     dict(name='Runed Gauntlets',        r='rare',      e='boss_crit',       v=15,   desc='+15% crit chance vs bosses'),
         'executioners_blade':  dict(name='Executioner\'s Blade',    r='rare',      e='boss_execute',    v=3,    desc='3x damage when boss below 20% HP'),
         'doom_hammer':         dict(name='Doom Hammer',            r='epic',      e='boss_dmg',        v=10,    desc='+10 raid damage per task'),
-        'black_arrow':         dict(name='Black Arrow',            r='epic',      e='boss_dot',        v=3,    desc='+3 poison per event + 1 flat raid damage'),
+        'black_arrow':         dict(name='Black Arrow',            r='epic',      e='boss_dot',        v=0.1,  desc='Poison: 0.1% of boss HP per hour (+1 flat dmg per task)'),
         'sulfuras':            dict(name='Sulfuras, Hand of Ragnaros', r='legendary', e='boss_dmg',    v=10,   desc='+10 raid damage. Overkill carries to next boss.'),
         'kobold_candle':       dict(name='Kobold\'s Candle',        r='common',    e='boss_gold',       v=3,    desc='+3g per task during boss fights'),
         'troll_totem':         dict(name='Troll Regeneration Totem', r='uncommon', e='boss_regen',     v=1,    desc='Repair 1 durability per 5 tasks'),
@@ -4597,8 +4602,26 @@ if game_on:
             _bdmg = 0
             _bcounter = ''
             _bk = {}
+
+            # --- Poison: flat % of boss HP per hour. Computed now, applied after fatigue clamp ---
+            _now = time.time()
+            if 'poison_last_tick' not in _boss:
+                _boss['poison_last_tick'] = _now
+            _pct_per_hr = _sum_effect('boss_dot')
+            _last_tick = _boss.get('poison_last_tick', _now)
+            _pdmg_pending = 0
+            _new_last_tick = _now
+            if _pct_per_hr > 0:
+                _elapsed_hr = (_now - _last_tick) / 3600.0
+                _rate = _boss['max_hp'] * _pct_per_hr / 100.0
+                _pdmg_pending = int(_elapsed_hr * _rate)
+                if _pdmg_pending > 0 and _rate > 0:
+                    _new_last_tick = _last_tick + (_pdmg_pending / _rate) * 3600.0
+                else:
+                    _new_last_tick = _last_tick
+
             if category == 'task.complete' or event == 'Stop':
-                _bdmg = 1
+                _bdmg += 1
                 _bk['base'] = 1
                 if combo > 0:
                     _cb = combo // 10
@@ -4607,14 +4630,9 @@ if game_on:
                 _bi = _sum_effect('boss_dmg')
                 _bdmg += _bi
                 if _bi: _bk['items'] = _bi
-                if _ITEMS.get('black_arrow', {}).get('e') == 'boss_dot':
-                    ba_dmg = _sum_effect('boss_dot')
-                    if ba_dmg:
-                        for eid in equipped:
-                            it = _ITEMS.get(eid)
-                            if it and it['e'] == 'boss_dot' and eid == 'black_arrow' and _durability.get(eid, 1) > 0:
-                                _bdmg += 1
-                                _bk['items'] = _bk.get('items', 0) + 1
+                if 'black_arrow' in equipped and _durability.get('black_arrow', 1) > 0:
+                    _bdmg += 1
+                    _bk['items'] = _bk.get('items', 0) + 1
                 _bcombo = _sum_effect('boss_combo_dmg')
                 if _bcombo and combo > 0:
                     _bc2 = _bcombo * (combo // 10)
@@ -4661,10 +4679,13 @@ if game_on:
                         if _eid in _durability and _durability[_eid] > 0:
                             _durability[_eid] = max(0, _durability[_eid] - 1)
                     state['item_durability'] = _durability
+            if _pdmg_pending > 0:
+                _bdmg += _pdmg_pending
+                _bk['poison'] = _pdmg_pending
+                _boss['poison_last_tick'] = _new_last_tick
             else:
-                _dot = _sum_effect('boss_dot')
-                if _dot:
-                    _bdmg += _dot
+                _boss['poison_last_tick'] = _new_last_tick
+            _hp_before = _boss['hp']
             _boss['hp'] = max(0, _boss['hp'] - _bdmg)
             _blog = _boss.get('log', [])
             _bentry = dict(t=int(time.time()), dmg=_bdmg, hp=_boss['hp'], bk=_bk)
@@ -4770,19 +4791,29 @@ if game_on:
                     stats['fastest_kill_secs'] = int(_kill_time)
                 if bid == 'lich_king' and _pct_used < stats.get('fastest_lich_king_pct', 1.0):
                     stats['fastest_lich_king_pct'] = round(_pct_used, 3)
+                _poisoned_kill = _bk.get('poison', 0) > 0 and (_bdmg - _bk.get('poison', 0)) < _hp_before
                 hist = state.get('boss_history', [])
-                hist.append(dict(id=bid, name=_boss['name'], result='victory', gold=_reward_g, lumber=_reward_l, drops=drop_names, t=int(time.time()), pct=round(_pct_used, 3)))
+                hist.append(dict(id=bid, name=_boss['name'], result='victory', gold=_reward_g, lumber=_reward_l, drops=drop_names, t=int(time.time()), pct=round(_pct_used, 3), poisoned=_poisoned_kill))
                 if len(hist) > 30: hist = hist[-30:]
                 state['boss_history'] = hist
                 state['active_boss'] = None
                 drops_str = ', '.join(drop_names) if drop_names else 'none'
-                boss_text = f'{_boss[\"name\"]} DEFEATED! +{_reward_g}g +{_reward_l}l | Drops: {drops_str}'
+                _venom = ' Slain by venom.' if _poisoned_kill else ''
+                boss_text = f'{_boss[\"name\"]} DEFEATED!{_venom} +{_reward_g}g +{_reward_l}l | Drops: {drops_str}'
             else:
                 pct = _boss['hp'] / _boss['max_hp']
                 bar_len = 12
                 filled = int(pct * bar_len)
                 bar = chr(9608) * filled + chr(9617) * (bar_len - filled)
-                dmg_str = f' -{_bdmg} HP' if _bdmg > 0 else ''
+                _venom_amt = _bk.get('poison', 0)
+                if _bdmg > 0 and _venom_amt > 0 and _venom_amt < _bdmg:
+                    dmg_str = f' -{_bdmg} HP ({_venom_amt} venom)'
+                elif _bdmg > 0 and _venom_amt == _bdmg:
+                    dmg_str = f' -{_bdmg} venom'
+                elif _bdmg > 0:
+                    dmg_str = f' -{_bdmg} HP'
+                else:
+                    dmg_str = ''
                 boss_text = f'{_boss[\"name\"]} [{bar}] {_boss[\"hp\"]}/{_boss[\"max_hp\"]}{dmg_str}{_bcounter} ({_days_left}d left)'
             _tregen = _sum_effect('boss_regen')
             if _tregen:

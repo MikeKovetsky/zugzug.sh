@@ -315,3 +315,118 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$status" -eq 0 ]
   [[ "$output" == *"Built dark_portal"* ]]
 }
+
+# ============================================================
+# Poison (real-time DoT)
+# ============================================================
+# Setup helper: stand up a 4-day Mannoroth-shaped boss with poison_last_tick
+# exactly 1h ago. Equips the requested items.
+# Rates: venom_orb 0.05%/hr, black_arrow 0.1%/hr, thunderfury 0.2%/hr.
+# vs 40000 HP → 20, 40, 80 dmg/hr respectively.
+_poison_setup() {
+  local equip_json="$1"
+  python3 -c "
+import json, time, datetime
+s = json.load(open('$TEST_DIR/.state.json'))
+dl = (datetime.date.today() + datetime.timedelta(days=3)).isoformat()
+s['active_boss'] = {
+    'id':'mannoroth','name':'Pit Lord Mannoroth',
+    'hp':40000,'max_hp':40000,'deadline':dl,'spawned_at':int(time.time()) - 86400,
+    'loot_tier':'common','entry_fee':0,'gold_reward':50,'lumber_reward':25,
+    'atk_min':0,'atk_max':0,
+    'poison_last_tick': int(time.time()) - 3600,
+}
+s['equipped'] = $equip_json
+s['item_durability'] = {e: 200 for e in $equip_json}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+}
+
+@test "poison ticks on a non-task event (PermissionRequest)" {
+  _poison_setup "['thunderfury']"
+  # Thunderfury 0.2%/hr × 40000 = 80 dmg/hr. ~80 over 1 hour.
+  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  local hp poison
+  hp=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
+  [ "$poison" -ge 75 ]
+  [ "$poison" -le 85 ]
+  [ "$hp" -eq $((40000 - poison)) ]
+}
+
+@test "poison rate is additive across stacked items" {
+  _poison_setup "['venom_orb','black_arrow','thunderfury']"
+  # 0.05+0.1+0.2 = 0.35%/hr × 40000 = 140 dmg/hr.
+  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local poison
+  poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
+  [ "$poison" -ge 135 ]
+  [ "$poison" -le 145 ]
+}
+
+@test "poison ticks during task.complete in addition to attack damage" {
+  _poison_setup "['thunderfury']"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local base poison
+  base=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('base',0))")
+  poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
+  [ "$base" -eq 1 ]
+  [ "$poison" -ge 75 ]
+}
+
+@test "poison bypasses fatigue exhaustion" {
+  _poison_setup "['thunderfury']"
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['fatigue'] = 999  # well past _fatigue_exhaust threshold
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local poison
+  poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
+  # Even with EXHAUSTED zeroing the attack, poison still lands.
+  [ "$poison" -ge 75 ]
+}
+
+@test "poison is uncapped over a long AFK gap" {
+  _poison_setup "['thunderfury']"
+  # Simulate 100 hours since last tick. 80 dmg/hr × 100h = 8000 dmg.
+  python3 -c "
+import json, time
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['poison_last_tick'] = int(time.time()) - (100 * 3600)
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local poison
+  poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
+  [ "$poison" -ge 7900 ]
+  [ "$poison" -le 8100 ]
+}
+
+@test "poison-only kill is tagged 'poisoned' in history" {
+  _poison_setup "['thunderfury']"
+  python3 -c "
+import json, time
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['hp'] = 50  # 80 dmg/hr × 1h overkills
+s['active_boss']['poison_last_tick'] = int(time.time()) - 3600
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local poisoned
+  poisoned=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('boss_history',[{}])[-1].get('poisoned'))")
+  [ "$poisoned" = "True" ]
+}
+
+@test "no poison equipped means no tick" {
+  _poison_setup "[]"
+  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local hp poison
+  hp=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
+  [ "$poison" -eq 0 ]
+  [ "$hp" -eq 40000 ]
+}
