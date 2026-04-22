@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- **Doom is now epic everywhere**: v3.5.2 fixed a CLI/dashboard mismatch by promoting Doom's display rarity from `epic` to `legendary` to match the runtime drop tier in `_ITEMS`. We're going the other direction instead — Doom is conceptually a top-end *consumable*, not a true legendary loot piece, so the runtime drop tier (`_ITEMS['doom']['r']`) and the rarity lookup table (`ITEMS_R`) now align with the long-standing display rarity of `epic`. Effective change: Doom now drops from epic-tier loot rolls (more common) rather than legendary-tier rolls. Display in `peon inventory`, `dashboard/index.html`, and `dashboard/raid.html` all match.
+
 ### Added
 - **Legendary item overlay theming**: When one of the five named legendaries is equipped, the macOS overlay banner (and the WSL Forms popup background) recolors to match the item's lore — Frostmourne paints icy cyan with pale-blue edges, Ashbringer turns holy gold, Thunderfury goes electric purple with lightning-yellow edges, The Unstoppable Force burns fiery red, and Wirt's Leg picks bone-grey. The matching emoji glyph is also prepended to the tab title `MARKER` (so it appears in the terminal tab title, the toast title, and the overlay text). Wearing several named legendaries at once stacks all their glyphs (e.g. `✨❄`) while the highest-priority item drives the colors (Ashbringer > Frostmourne > Unstoppable Force > Thunderfury > Wirt's Leg). `mac-overlay.js` gained three optional positional args (`accent_rgb`, `edge_rgb`, `text_rgb`) and is fully backward-compatible. BATS coverage in `tests/peon.bats`.
 

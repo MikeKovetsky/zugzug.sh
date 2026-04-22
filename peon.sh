@@ -2061,7 +2061,7 @@ ITEMS = {
     'chain_lightning':     ('Chain Lightning',        'epic',      'Deal 2000 damage to active boss (consumable)'),
     'death_coil':          ('Death Coil',             'epic',      'Deal 5000 damage to active boss (consumable)'),
     'finger_of_death':     ('Finger of Death',        'epic',      'Deal 10000 damage to active boss (consumable)'),
-    'doom':                ('Doom',                   'legendary', 'Deal 40000 damage to active boss (consumable)'),
+    'doom':                ('Doom',                   'epic',      'Deal 40000 damage to active boss (consumable)'),
     'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
     'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
     'serrated_blade':      ('Serrated Blade',         'uncommon',  '+2 raid damage per task'),
@@ -2315,7 +2315,7 @@ ITEMS_R = {
     'chain_lightning': 'epic', 'death_coil': 'epic',
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
     'unstoppable_force': 'legendary', 'azzinoth_blades': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
-    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary', 'helm_of_domination': 'legendary', 'doom': 'legendary',
+    'sulfuras': 'legendary', 'crown_of_eredar': 'legendary', 'helm_of_domination': 'legendary', 'doom': 'epic',
 }
 if item_id in equipped:
     print('Unequip it first: peon unequip ' + item_id)
@@ -4442,7 +4442,7 @@ if game_on:
         'chain_lightning':     dict(name='Chain Lightning',        r='epic',      e='consumable',      v='boss_2000',   desc='Deal 2000 damage to active boss (consumable)'),
         'death_coil':          dict(name='Death Coil',             r='epic',      e='consumable',      v='boss_5000',   desc='Deal 5000 damage to active boss (consumable)'),
         'finger_of_death':     dict(name='Finger of Death',        r='epic',      e='consumable',      v='boss_10000',  desc='Deal 10000 damage to active boss (consumable)'),
-        'doom':                dict(name='Doom',                   r='legendary', e='consumable',      v='boss_40000',  desc='Deal 40000 damage to active boss (consumable)'),
+        'doom':                dict(name='Doom',                   r='epic',      e='consumable',      v='boss_40000',  desc='Deal 40000 damage to active boss (consumable)'),
         'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
         'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less gold lost from counter-attacks'),
         'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=2,    desc='+2 raid damage per task'),
