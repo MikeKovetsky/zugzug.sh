@@ -2604,6 +2604,7 @@ function updateArmy(s) {
     maxHp += u.hp * cnt;
     hps.forEach(function(h) { totalHp += h; if (h < u.hp) wounded++; });
   }
+  if (bld.goblin_lab) upkeep = Math.floor(upkeep / 2);
   totalArmor = Math.min(50, totalArmor);
   var sh = '';
   sh += '<span>Units: <b>' + totalUnits + '</b></span>';
