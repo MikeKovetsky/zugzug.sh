@@ -1,0 +1,70 @@
+{
+  "iconDefinitions": {
+    "_folder":       { "iconPath": "./icons/folder.svg" },
+    "_folder_open":  { "iconPath": "./icons/folder-open.svg" },
+    "_file":         { "iconPath": "./icons/file.svg" },
+    "_json":         { "iconPath": "./icons/json.svg" },
+    "_sh":           { "iconPath": "./icons/sh.svg" },
+    "_md":           { "iconPath": "./icons/md.svg" },
+    "_readme":       { "iconPath": "./icons/readme.svg" },
+    "_ts":           { "iconPath": "./icons/ts.svg" },
+    "_js":           { "iconPath": "./icons/js.svg" },
+    "_py":           { "iconPath": "./icons/py.svg" },
+    "_env":          { "iconPath": "./icons/env.svg" },
+    "_package":      { "iconPath": "./icons/package-json.svg" },
+    "_docker":       { "iconPath": "./icons/dockerfile.svg" },
+    "_modules":      { "iconPath": "./icons/node_modules.svg" },
+    "_git":          { "iconPath": "./icons/git.svg" },
+    "_test":         { "iconPath": "./icons/test.svg" }
+  },
+  "folder": "_folder",
+  "folderExpanded": "_folder_open",
+  "file": "_file",
+  "fileExtensions": {
+    "json":  "_json",
+    "json5": "_json",
+    "jsonc": "_json",
+    "sh":    "_sh",
+    "bash":  "_sh",
+    "zsh":   "_sh",
+    "ps1":   "_sh",
+    "md":    "_md",
+    "mdx":   "_md",
+    "ts":    "_ts",
+    "tsx":   "_ts",
+    "js":    "_js",
+    "jsx":   "_js",
+    "mjs":   "_js",
+    "cjs":   "_js",
+    "py":    "_py",
+    "env":   "_env"
+  },
+  "fileNames": {
+    "package.json":       "_package",
+    "package-lock.json":  "_package",
+    "Dockerfile":         "_docker",
+    "dockerfile":         "_docker",
+    "Dockerfile.dev":     "_docker",
+    "README.md":          "_readme",
+    "README":             "_readme",
+    ".env":               "_env",
+    ".env.local":         "_env",
+    ".env.example":       "_env"
+  },
+  "folderNames": {
+    "node_modules": "_modules",
+    ".git":         "_git",
+    "tests":        "_test",
+    "test":         "_test",
+    "__tests__":    "_test",
+    "spec":         "_test"
+  },
+  "folderNamesExpanded": {
+    "node_modules": "_modules",
+    ".git":         "_git",
+    "tests":        "_test",
+    "test":         "_test",
+    "__tests__":    "_test",
+    "spec":         "_test"
+  }
+}

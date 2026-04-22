@@ -1,8 +1,8 @@
 {
   "name": "peon-mascot",
   "displayName": "Peon Mascot",
-  "description": "A tiny WC3 peon lives in your status bar, reacts to peon-ping events. Find legendaries, unlock secret themes.",
-  "version": "0.3.0",
+  "description": "WC3 peon in your status bar. Legendary items unlock secret themes, fonts, cursors, and editor decorations.",
+  "version": "0.5.0",
   "publisher": "zugzug",
   "engines": { "vscode": "^1.75.0" },
   "categories": ["Other", "Themes"],
@@ -10,9 +10,11 @@
   "activationEvents": ["onStartupFinished"],
   "contributes": {
     "commands": [
-      { "command": "peonMascot.poke",   "title": "Peon: Poke the peon" },
-      { "command": "peonMascot.toggle", "title": "Peon: Toggle mascot" },
-      { "command": "peonMascot.themes", "title": "Peon: Show unlocked themes" }
+      { "command": "peonMascot.poke",                  "title": "Peon: Poke the peon" },
+      { "command": "peonMascot.toggle",                "title": "Peon: Toggle mascot" },
+      { "command": "peonMascot.themes",                "title": "Peon: Show unlocked themes" },
+      { "command": "peonMascot.resetCustomizations",   "title": "Peon: Reset all customizations (font, cursor, title)" },
+      { "command": "peonMascot.previewCelebration",    "title": "Peon: Preview celebration (legendary / level up / boss kill)" }
     ],
     "themes": [
       { "label": "Peon: Frostmourne",              "uiTheme": "vs-dark", "path": "./themes/frostmourne.json" },
@@ -23,12 +25,31 @@
       { "label": "Peon: Ashbringer",               "uiTheme": "vs",      "path": "./themes/ashbringer.json" },
       { "label": "Peon: Cheese (Mmm)",             "uiTheme": "vs",      "path": "./themes/cheese.json" }
     ],
+    "iconThemes": [
+      { "id": "peon-wc3", "label": "Peon: WC3 Icons", "path": "./icon-theme.json" }
+    ],
     "configuration": {
       "title": "Peon Mascot",
       "properties": {
         "peonMascot.statePath": {
           "type": "string", "default": "",
           "description": "Path to peon-ping .state.json (defaults to ~/.claude/hooks/peon-ping/.state.json)"
+        },
+        "peonMascot.outfits.enabled": {
+          "type": "boolean", "default": true,
+          "description": "When a Peon theme is active, also swap font, cursor style, and blink animation."
+        },
+        "peonMascot.windowTitle.enabled": {
+          "type": "boolean", "default": true,
+          "description": "Show live peon stats (level, fatigue, gold) in the window title bar."
+        },
+        "peonMascot.decorations.enabled": {
+          "type": "boolean", "default": true,
+          "description": "Show WC3 gutter icons next to TODO / FIXME / HACK / NOTE / errors."
+        },
+        "peonMascot.celebrations.enabled": {
+          "type": "boolean", "default": true,
+          "description": "Open a CSS-animated celebration panel beside the editor for legendary drops, level ups, and boss kills."
         }
       }
     }
