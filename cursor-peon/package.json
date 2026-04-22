@@ -1,0 +1,33 @@
+{
+  "name": "peon-mascot",
+  "displayName": "Peon Mascot",
+  "description": "A tiny WC3 peon lives in your status bar, reacts to peon-ping events.",
+  "version": "0.2.0",
+  "publisher": "zugzug",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Other"],
+  "main": "./extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "peonMascot.poke",   "title": "Peon: Poke the peon" },
+      { "command": "peonMascot.toggle", "title": "Peon: Toggle mascot" }
+    ],
+    "configuration": {
+      "title": "Peon Mascot",
+      "properties": {
+        "peonMascot.statePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to peon-ping .state.json (defaults to ~/.claude/hooks/peon-ping/.state.json)"
+        },
+        "peonMascot.frameMs": {
+          "type": "number", "default": 350,
+          "description": "Animation frame interval in milliseconds."
+        }
+      }
+    }
+  },
+  "repository": { "type": "git", "url": "https://github.com/zugzug/peon-mascot" },
+  "license": "MIT"
+}

@@ -1,0 +1,4 @@
+install.sh
+*.vsix
+.vscode/
+node_modules/
