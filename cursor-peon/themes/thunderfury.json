@@ -1,0 +1,41 @@
+{
+  "name": "Peon: Thunderfury",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#0d0a1f",
+    "editor.foreground": "#c4b5fd",
+    "editor.lineHighlightBackground": "#1a1535",
+    "editor.selectionBackground": "#3b2d6b",
+    "editorCursor.foreground": "#fbbf24",
+    "editorLineNumber.foreground": "#3d3470",
+    "editorLineNumber.activeForeground": "#fbbf24",
+    "activityBar.background": "#080515",
+    "activityBar.foreground": "#fbbf24",
+    "activityBarBadge.background": "#7c3aed",
+    "sideBar.background": "#0a0719",
+    "sideBar.foreground": "#a78bfa",
+    "statusBar.background": "#3b2d6b",
+    "statusBar.foreground": "#fbbf24",
+    "titleBar.activeBackground": "#080515",
+    "titleBar.activeForeground": "#fbbf24",
+    "tab.activeBackground": "#1a1535",
+    "tab.activeForeground": "#fde68a",
+    "tab.activeBorder": "#fbbf24",
+    "tab.inactiveBackground": "#080515",
+    "panel.background": "#0d0a1f",
+    "terminal.background": "#080515",
+    "terminal.foreground": "#c4b5fd",
+    "focusBorder": "#fbbf24",
+    "button.background": "#7c3aed",
+    "input.background": "#1a1535"
+  },
+  "tokenColors": [
+    { "scope": ["comment"], "settings": { "foreground": "#5b4d8a", "fontStyle": "italic" } },
+    { "scope": ["keyword", "storage"], "settings": { "foreground": "#fbbf24" } },
+    { "scope": ["string"], "settings": { "foreground": "#fde047" } },
+    { "scope": ["constant.numeric", "constant.language"], "settings": { "foreground": "#a78bfa" } },
+    { "scope": ["entity.name.function", "support.function"], "settings": { "foreground": "#facc15" } },
+    { "scope": ["entity.name.type", "entity.name.class"], "settings": { "foreground": "#c4b5fd" } },
+    { "scope": ["variable"], "settings": { "foreground": "#ddd6fe" } }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "Peon: Cheese (Mmm)",
+  "type": "light",
+  "colors": {
+    "editor.background": "#fef3c7",
+    "editor.foreground": "#78350f",
+    "editor.lineHighlightBackground": "#fde68a",
+    "editor.selectionBackground": "#fcd34d",
+    "editorCursor.foreground": "#d97706",
+    "editorLineNumber.foreground": "#d4a017",
+    "editorLineNumber.activeForeground": "#92400e",
+    "activityBar.background": "#fde68a",
+    "activityBar.foreground": "#92400e",
+    "activityBarBadge.background": "#f59e0b",
+    "sideBar.background": "#fef3c7",
+    "sideBar.foreground": "#92400e",
+    "statusBar.background": "#f59e0b",
+    "statusBar.foreground": "#78350f",
+    "titleBar.activeBackground": "#fde68a",
+    "titleBar.activeForeground": "#78350f",
+    "tab.activeBackground": "#fef9e0",
+    "tab.activeForeground": "#78350f",
+    "tab.activeBorder": "#f59e0b",
+    "tab.inactiveBackground": "#fde68a",
+    "panel.background": "#fef3c7",
+    "terminal.background": "#fef3c7",
+    "terminal.foreground": "#78350f",
+    "focusBorder": "#f59e0b",
+    "button.background": "#d97706",
+    "input.background": "#fef9e0"
+  },
+  "tokenColors": [
+    { "scope": ["comment"], "settings": { "foreground": "#bf923a", "fontStyle": "italic" } },
+    { "scope": ["keyword", "storage"], "settings": { "foreground": "#b45309" } },
+    { "scope": ["string"], "settings": { "foreground": "#a16207" } },
+    { "scope": ["constant.numeric", "constant.language"], "settings": { "foreground": "#92400e" } },
+    { "scope": ["entity.name.function", "support.function"], "settings": { "foreground": "#c2410c" } },
+    { "scope": ["entity.name.type", "entity.name.class"], "settings": { "foreground": "#78350f" } },
+    { "scope": ["variable"], "settings": { "foreground": "#92400e" } }
+  ]
+}

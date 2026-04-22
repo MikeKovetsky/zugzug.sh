@@ -16,9 +16,61 @@ const POKE_LINES = [
   'Me busy!', 'Why you poke?', 'Stop touching me.', 'For the Horde!',
 ];
 
-let item, watcher, revertTimer;
+const LEGENDARY_THEMES = {
+  frostmourne:        { theme: 'Peon: Frostmourne',              flavor: 'The blade hungers.' },
+  wirts_leg:          { theme: "Peon: Wirt's Leg",               flavor: 'Peon confused. But theme unlocked!' },
+  thunderfury:        { theme: 'Peon: Thunderfury',              flavor: 'Did someone say THUNDERFURY?!' },
+  unstoppable_force:  { theme: 'Peon: The Unstoppable Force',    flavor: 'NOTHING can stop you now.' },
+  azzinoth_blades:    { theme: 'Peon: Warglaives of Azzinoth',   flavor: 'You are not prepared.' },
+  ashbringer:         { theme: 'Peon: Ashbringer',               flavor: 'By the Holy Light!' },
+  cheese:             { theme: 'Peon: Cheese (Mmm)',             flavor: 'Mmm. Cheese.' },
+};
+const LEGENDARY_NAMES = {
+  Frostmourne:                                     'frostmourne',
+  "Wirt's Leg":                                    'wirts_leg',
+  "Thunderfury, Blessed Blade of the Windseeker":  'thunderfury',
+  "The Unstoppable Force":                         'unstoppable_force',
+  "Warglaives of Azzinoth":                        'azzinoth_blades',
+  Ashbringer:                                      'ashbringer',
+  Cheese:                                          'cheese',
+};
+
+let item, watcher, revertTimer, ctxRef;
 let lastState = null, statePath = '', enabled = true;
 let revertAt = 0;
+
+function getUnlocked() {
+  return new Set(ctxRef.globalState.get('unlockedThemes', []));
+}
+function setUnlocked(set) {
+  ctxRef.globalState.update('unlockedThemes', Array.from(set));
+}
+function unlockTheme(itemId, silent = false) {
+  const meta = LEGENDARY_THEMES[itemId];
+  if (!meta) return false;
+  const unlocked = getUnlocked();
+  if (unlocked.has(itemId)) return false;
+  unlocked.add(itemId);
+  setUnlocked(unlocked);
+  if (!silent) celebrateUnlock(itemId);
+  return true;
+}
+function celebrateUnlock(itemId) {
+  const meta = LEGENDARY_THEMES[itemId];
+  if (!meta) return;
+  flash(`🟡✨ THEME UNLOCKED: ${meta.theme}`, 12000);
+  vscode.window.showInformationMessage(
+    `🟡 Legendary unlock: ${meta.theme} — ${meta.flavor}`,
+    'Apply Theme', 'Later'
+  ).then(choice => {
+    if (choice === 'Apply Theme') applyTheme(meta.theme);
+  });
+}
+function applyTheme(themeName) {
+  vscode.workspace.getConfiguration().update(
+    'workbench.colorTheme', themeName, vscode.ConfigurationTarget.Global
+  );
+}
 
 function resolveStatePath() {
   const cfg = vscode.workspace.getConfiguration('peonMascot').get('statePath');
@@ -87,6 +139,11 @@ function diffEvents(prev, cur) {
     if (!m) continue;
     const name = m[1].trim();
     const rarity = m[2].trim();
+    if (rarity === 'Legendary' && LEGENDARY_NAMES[name]) {
+      const itemId = LEGENDARY_NAMES[name];
+      const wasNew = unlockTheme(itemId, false);
+      if (wasNew) return;
+    }
     if (rarity === 'Common') continue;
     const icon = RARITY_ICON[rarity] || '🎁';
     flash(`${icon} DROP: ${name} (${rarity})`, 8000);
@@ -107,6 +164,8 @@ function buildTooltip(s) {
   const lvl = s.level || 1, title = s.level_title || 'Peon';
   const fat = s.fatigue || 0, combo = s.combo_count || 0;
   const boss = s.active_boss;
+  const unlocked = getUnlocked();
+  const total = Object.keys(LEGENDARY_THEMES).length;
   const md = new vscode.MarkdownString();
   md.appendMarkdown(`**${ORC} Peon Mascot**\n\n`);
   md.appendMarkdown(`Level **${lvl}** — *${title}*\n\n`);
@@ -117,8 +176,25 @@ function buildTooltip(s) {
     const pct = Math.round((boss.hp / boss.max_hp) * 100);
     md.appendMarkdown(`👿 **${boss.name}** — ${pct}% HP\n\n`);
   }
+  md.appendMarkdown(`🟡 Themes: **${unlocked.size}/${total}** unlocked\n\n`);
   md.appendMarkdown(`---\n*Click to poke peon.*`);
   return md;
+}
+
+function scanInventoryForLegendaries(s) {
+  if (!s) return;
+  const owned = new Set([...(s.inventory || []), ...(s.equipped || [])]);
+  let newlyUnlocked = 0;
+  for (const itemId of Object.keys(LEGENDARY_THEMES)) {
+    if (owned.has(itemId)) {
+      if (unlockTheme(itemId, true)) newlyUnlocked++;
+    }
+  }
+  if (newlyUnlocked > 0) {
+    vscode.window.showInformationMessage(
+      `🟡 Peon Mascot: ${newlyUnlocked} legendary theme(s) auto-unlocked from your inventory. Run "Peon: Show unlocked themes" to apply.`
+    );
+  }
 }
 
 function refreshTooltip() {
@@ -135,6 +211,7 @@ function poll() {
 }
 
 function activate(ctx) {
+  ctxRef = ctx;
   statePath = resolveStatePath();
   item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   item.command = 'peonMascot.poke';
@@ -153,8 +230,26 @@ function activate(ctx) {
     else { item.hide(); }
   }));
 
+  ctx.subscriptions.push(vscode.commands.registerCommand('peonMascot.themes', async () => {
+    const unlocked = getUnlocked();
+    const total = Object.keys(LEGENDARY_THEMES).length;
+    const items = Object.entries(LEGENDARY_THEMES).map(([id, m]) => ({
+      label: unlocked.has(id) ? `✨ ${m.theme}` : `🔒 ???`,
+      description: unlocked.has(id) ? m.flavor : 'Find the legendary item to unlock.',
+      detail: unlocked.has(id) ? `Source: ${id}` : '',
+      themeName: unlocked.has(id) ? m.theme : null,
+    }));
+    items.unshift({ label: '↩ Default Dark+', themeName: 'Default Dark+' });
+    items.unshift({ label: `🟡 Unlocked: ${unlocked.size}/${total}`, kind: vscode.QuickPickItemKind.Separator });
+    const pick = await vscode.window.showQuickPick(items, {
+      placeHolder: 'Pick a theme to apply (locked themes do nothing)',
+    });
+    if (pick && pick.themeName) applyTheme(pick.themeName);
+  }));
+
   setInterval(poll, 1500);
   poll();
+  scanInventoryForLegendaries(lastState);
 
   try {
     watcher = fs.watch(statePath, { persistent: false }, () => poll());

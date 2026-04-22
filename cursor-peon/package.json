@@ -1,29 +1,34 @@
 {
   "name": "peon-mascot",
   "displayName": "Peon Mascot",
-  "description": "A tiny WC3 peon lives in your status bar, reacts to peon-ping events.",
-  "version": "0.2.0",
+  "description": "A tiny WC3 peon lives in your status bar, reacts to peon-ping events. Find legendaries, unlock secret themes.",
+  "version": "0.3.0",
   "publisher": "zugzug",
   "engines": { "vscode": "^1.75.0" },
-  "categories": ["Other"],
+  "categories": ["Other", "Themes"],
   "main": "./extension.js",
   "activationEvents": ["onStartupFinished"],
   "contributes": {
     "commands": [
       { "command": "peonMascot.poke",   "title": "Peon: Poke the peon" },
-      { "command": "peonMascot.toggle", "title": "Peon: Toggle mascot" }
+      { "command": "peonMascot.toggle", "title": "Peon: Toggle mascot" },
+      { "command": "peonMascot.themes", "title": "Peon: Show unlocked themes" }
+    ],
+    "themes": [
+      { "label": "Peon: Frostmourne",              "uiTheme": "vs-dark", "path": "./themes/frostmourne.json" },
+      { "label": "Peon: Wirt's Leg",               "uiTheme": "vs-dark", "path": "./themes/wirts-leg.json" },
+      { "label": "Peon: Thunderfury",              "uiTheme": "vs-dark", "path": "./themes/thunderfury.json" },
+      { "label": "Peon: The Unstoppable Force",    "uiTheme": "vs-dark", "path": "./themes/unstoppable.json" },
+      { "label": "Peon: Warglaives of Azzinoth",   "uiTheme": "vs-dark", "path": "./themes/azzinoth.json" },
+      { "label": "Peon: Ashbringer",               "uiTheme": "vs",      "path": "./themes/ashbringer.json" },
+      { "label": "Peon: Cheese (Mmm)",             "uiTheme": "vs",      "path": "./themes/cheese.json" }
     ],
     "configuration": {
       "title": "Peon Mascot",
       "properties": {
         "peonMascot.statePath": {
-          "type": "string",
-          "default": "",
+          "type": "string", "default": "",
           "description": "Path to peon-ping .state.json (defaults to ~/.claude/hooks/peon-ping/.state.json)"
-        },
-        "peonMascot.frameMs": {
-          "type": "number", "default": 350,
-          "description": "Animation frame interval in milliseconds."
         }
       }
     }

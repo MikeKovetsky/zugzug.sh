@@ -1,0 +1,41 @@
+{
+  "name": "Peon: The Unstoppable Force",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#1a0606",
+    "editor.foreground": "#fca5a5",
+    "editor.lineHighlightBackground": "#2d0a0a",
+    "editor.selectionBackground": "#5a1414",
+    "editorCursor.foreground": "#f43f5e",
+    "editorLineNumber.foreground": "#5a1f1f",
+    "editorLineNumber.activeForeground": "#f43f5e",
+    "activityBar.background": "#0d0303",
+    "activityBar.foreground": "#f43f5e",
+    "activityBarBadge.background": "#dc2626",
+    "sideBar.background": "#150505",
+    "sideBar.foreground": "#fca5a5",
+    "statusBar.background": "#7f1d1d",
+    "statusBar.foreground": "#fee2e2",
+    "titleBar.activeBackground": "#0d0303",
+    "titleBar.activeForeground": "#f43f5e",
+    "tab.activeBackground": "#2d0a0a",
+    "tab.activeForeground": "#fee2e2",
+    "tab.activeBorder": "#f43f5e",
+    "tab.inactiveBackground": "#0d0303",
+    "panel.background": "#1a0606",
+    "terminal.background": "#0d0303",
+    "terminal.foreground": "#fca5a5",
+    "focusBorder": "#f43f5e",
+    "button.background": "#991b1b",
+    "input.background": "#2d0a0a"
+  },
+  "tokenColors": [
+    { "scope": ["comment"], "settings": { "foreground": "#7a3030", "fontStyle": "italic" } },
+    { "scope": ["keyword", "storage"], "settings": { "foreground": "#f97316" } },
+    { "scope": ["string"], "settings": { "foreground": "#fbbf24" } },
+    { "scope": ["constant.numeric", "constant.language"], "settings": { "foreground": "#fca5a5" } },
+    { "scope": ["entity.name.function", "support.function"], "settings": { "foreground": "#fb7185" } },
+    { "scope": ["entity.name.type", "entity.name.class"], "settings": { "foreground": "#fdba74" } },
+    { "scope": ["variable"], "settings": { "foreground": "#fecaca" } }
+  ]
+}

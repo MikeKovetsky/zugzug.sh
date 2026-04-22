@@ -1,0 +1,41 @@
+{
+  "name": "Peon: Ashbringer",
+  "type": "light",
+  "colors": {
+    "editor.background": "#fdf6e3",
+    "editor.foreground": "#5d4724",
+    "editor.lineHighlightBackground": "#f5ecd0",
+    "editor.selectionBackground": "#fde68a",
+    "editorCursor.foreground": "#b45309",
+    "editorLineNumber.foreground": "#bfa978",
+    "editorLineNumber.activeForeground": "#b45309",
+    "activityBar.background": "#f5ecd0",
+    "activityBar.foreground": "#92400e",
+    "activityBarBadge.background": "#d97706",
+    "sideBar.background": "#faf3dc",
+    "sideBar.foreground": "#78581b",
+    "statusBar.background": "#d97706",
+    "statusBar.foreground": "#fef3c7",
+    "titleBar.activeBackground": "#f5ecd0",
+    "titleBar.activeForeground": "#92400e",
+    "tab.activeBackground": "#fef9e0",
+    "tab.activeForeground": "#5d4724",
+    "tab.activeBorder": "#d97706",
+    "tab.inactiveBackground": "#f5ecd0",
+    "panel.background": "#faf3dc",
+    "terminal.background": "#fdf6e3",
+    "terminal.foreground": "#5d4724",
+    "focusBorder": "#d97706",
+    "button.background": "#b45309",
+    "input.background": "#fef9e0"
+  },
+  "tokenColors": [
+    { "scope": ["comment"], "settings": { "foreground": "#a08458", "fontStyle": "italic" } },
+    { "scope": ["keyword", "storage"], "settings": { "foreground": "#b45309" } },
+    { "scope": ["string"], "settings": { "foreground": "#92400e" } },
+    { "scope": ["constant.numeric", "constant.language"], "settings": { "foreground": "#a16207" } },
+    { "scope": ["entity.name.function", "support.function"], "settings": { "foreground": "#c2410c" } },
+    { "scope": ["entity.name.type", "entity.name.class"], "settings": { "foreground": "#78350f" } },
+    { "scope": ["variable"], "settings": { "foreground": "#5d4724" } }
+  ]
+}

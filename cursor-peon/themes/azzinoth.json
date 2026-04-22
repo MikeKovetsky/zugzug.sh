@@ -1,0 +1,41 @@
+{
+  "name": "Peon: Warglaives of Azzinoth",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#0a1f0d",
+    "editor.foreground": "#86efac",
+    "editor.lineHighlightBackground": "#0f2e15",
+    "editor.selectionBackground": "#1f5a2e",
+    "editorCursor.foreground": "#22c55e",
+    "editorLineNumber.foreground": "#2d5a3a",
+    "editorLineNumber.activeForeground": "#22c55e",
+    "activityBar.background": "#051a08",
+    "activityBar.foreground": "#22c55e",
+    "activityBarBadge.background": "#15803d",
+    "sideBar.background": "#08220e",
+    "sideBar.foreground": "#86efac",
+    "statusBar.background": "#14532d",
+    "statusBar.foreground": "#bbf7d0",
+    "titleBar.activeBackground": "#051a08",
+    "titleBar.activeForeground": "#22c55e",
+    "tab.activeBackground": "#0f2e15",
+    "tab.activeForeground": "#bbf7d0",
+    "tab.activeBorder": "#22c55e",
+    "tab.inactiveBackground": "#051a08",
+    "panel.background": "#0a1f0d",
+    "terminal.background": "#051a08",
+    "terminal.foreground": "#86efac",
+    "focusBorder": "#22c55e",
+    "button.background": "#15803d",
+    "input.background": "#0f2e15"
+  },
+  "tokenColors": [
+    { "scope": ["comment"], "settings": { "foreground": "#3a6a4a", "fontStyle": "italic" } },
+    { "scope": ["keyword", "storage"], "settings": { "foreground": "#4ade80" } },
+    { "scope": ["string"], "settings": { "foreground": "#a3e635" } },
+    { "scope": ["constant.numeric", "constant.language"], "settings": { "foreground": "#fbbf24" } },
+    { "scope": ["entity.name.function", "support.function"], "settings": { "foreground": "#86efac" } },
+    { "scope": ["entity.name.type", "entity.name.class"], "settings": { "foreground": "#bbf7d0" } },
+    { "scope": ["variable"], "settings": { "foreground": "#d9f99d" } }
+  ]
+}

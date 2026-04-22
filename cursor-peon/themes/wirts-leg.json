@@ -1,0 +1,41 @@
+{
+  "name": "Peon: Wirt's Leg",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#2d1f10",
+    "editor.foreground": "#d4a574",
+    "editor.lineHighlightBackground": "#3d2c18",
+    "editor.selectionBackground": "#5a3a1f",
+    "editorCursor.foreground": "#a0522d",
+    "editorLineNumber.foreground": "#5a3a1f",
+    "editorLineNumber.activeForeground": "#d4a574",
+    "activityBar.background": "#1f1408",
+    "activityBar.foreground": "#a0522d",
+    "activityBarBadge.background": "#8b4513",
+    "sideBar.background": "#241810",
+    "sideBar.foreground": "#b08968",
+    "statusBar.background": "#3d2c18",
+    "statusBar.foreground": "#d4a574",
+    "titleBar.activeBackground": "#1f1408",
+    "titleBar.activeForeground": "#a0522d",
+    "tab.activeBackground": "#3d2c18",
+    "tab.activeForeground": "#d4a574",
+    "tab.activeBorder": "#8b4513",
+    "tab.inactiveBackground": "#1f1408",
+    "panel.background": "#2d1f10",
+    "terminal.background": "#1f1408",
+    "terminal.foreground": "#d4a574",
+    "focusBorder": "#8b4513",
+    "button.background": "#5a3a1f",
+    "input.background": "#3d2c18"
+  },
+  "tokenColors": [
+    { "scope": ["comment"], "settings": { "foreground": "#7a5a3a", "fontStyle": "italic" } },
+    { "scope": ["keyword", "storage"], "settings": { "foreground": "#cd853f" } },
+    { "scope": ["string"], "settings": { "foreground": "#daa520" } },
+    { "scope": ["constant.numeric", "constant.language"], "settings": { "foreground": "#deb887" } },
+    { "scope": ["entity.name.function", "support.function"], "settings": { "foreground": "#f4a460" } },
+    { "scope": ["entity.name.type", "entity.name.class"], "settings": { "foreground": "#bc8f5f" } },
+    { "scope": ["variable"], "settings": { "foreground": "#d4a574" } }
+  ]
+}
