@@ -319,7 +319,7 @@ send_notification() {
             find "$slot_dir" -maxdepth 1 -name 'slot-*' -mmin +1 -exec rm -rf {} + 2>/dev/null
             slot=0; mkdir -p "$slot_dir/slot-0"
           fi
-          osascript -l JavaScript "$overlay_script" "$msg" "$color" "$icon_arg" "$slot" "4" "" "${PEON_DASHBOARD_PORT:-19997}" >/dev/null 2>&1 || true
+          osascript -l JavaScript "$overlay_script" "$msg" "$color" "$icon_arg" "$slot" "4" "" "${PEON_DASHBOARD_PORT:-19997}" "${OVERLAY_ACCENT_RGB:-}" "${OVERLAY_EDGE_RGB:-}" "${OVERLAY_TEXT_RGB:-}" >/dev/null 2>&1 || true
           rm -rf "$slot_dir/slot-$slot"
         )
         if [ "$use_bg" = true ]; then _run_overlay & else _run_overlay; fi
@@ -386,11 +386,7 @@ APPLESCRIPT
           cp "$icon_path" "${tmpdir_wsl}peon-ping-icon.png" 2>/dev/null
           icon_xml="<image placement=\"appLogoOverride\" hint-crop=\"circle\" src=\"${tmpdir}peon-ping-icon.png\" />"
         fi
-        # Extract just the action part from msg (remove repeated project name)
         local toast_body="$msg"
-        if [[ "$msg" == *" — "* ]]; then
-          toast_body="${msg##* — }"
-        fi
         # Strip leading marker (● ) from title for cleaner toast
         local toast_title="${title#● }"
         # Escape XML special characters to prevent malformed toast XML
@@ -423,6 +419,13 @@ TOASTEOF
           yellow) rgb_r=200 rgb_g=160 rgb_b=0   ;;
           red)    rgb_r=180 rgb_g=0   rgb_b=0   ;;
         esac
+        # Legendary item accent color override (e.g. icy cyan when Frostmourne equipped)
+        if [ -n "${OVERLAY_ACCENT_RGB:-}" ]; then
+          read -r _lr _lg _lb <<< "$OVERLAY_ACCENT_RGB"
+          if [[ "$_lr" =~ ^[0-9]+$ ]] && [[ "$_lg" =~ ^[0-9]+$ ]] && [[ "$_lb" =~ ^[0-9]+$ ]]; then
+            rgb_r="$_lr"; rgb_g="$_lg"; rgb_b="$_lb"
+          fi
+        fi
         local icon_win_path=""
         if [ -f "$icon_path" ]; then
           icon_win_path=$(wslpath -w "$icon_path" 2>/dev/null || true)
@@ -3761,7 +3764,7 @@ elif event == 'Stop':
         marker = '\u25cf '
         notify = '1'
         notify_color = 'blue'
-        msg = project + '  \u2014  Task complete'
+        msg = 'Task complete'
     else:
         category = ''
 elif event == 'Notification':
@@ -3774,7 +3777,7 @@ elif event == 'Notification':
         marker = '\u25cf '
         notify = '1'
         notify_color = 'yellow'
-        msg = project + '  \u2014  Waiting for input'
+        msg = 'Waiting for input'
     else:
         print('PEON_EXIT=true')
         sys.exit(0)
@@ -3784,7 +3787,7 @@ elif event == 'PermissionRequest':
     marker = '\u25cf '
     notify = '1'
     notify_color = 'red'
-    msg = project + '  \u2014  Permission needed'
+    msg = 'Permission needed'
 elif event == 'PostToolUseFailure':
     # Bash failures arrive here with error field (e.g. Exit code 1)
     tool_name = event_data.get('tool_name', '')
@@ -5029,6 +5032,38 @@ if tab_color_enabled:
         rgb = colors[status_key]
         tab_color_rgb = f'{rgb[0]} {rgb[1]} {rgb[2]}'
 
+# --- Legendary item overlay theming ---
+# Five named legendaries change the look of the notification while equipped.
+# Higher priority wins for accent/edge/text colors; glyphs from ALL equipped
+# named legendaries stack into the marker prefix (e.g. wearing both
+# Frostmourne and Ashbringer shows "✨❄" before the dot).
+LEGENDARY_THEMES = {
+    'ashbringer':       dict(prio=5, glyph='\u2728', accent=(255, 220, 80),  edge=(255, 200, 40),  text=(255, 250, 220)),
+    'frostmourne':      dict(prio=4, glyph='\u2744', accent=(90, 200, 255),  edge=(180, 220, 255), text=(220, 240, 255)),
+    'unstoppable_force':dict(prio=3, glyph='\U0001f525', accent=(255, 100, 30), edge=(255, 60, 30),   text=(255, 240, 200)),
+    'thunderfury':      dict(prio=2, glyph='\u26a1', accent=(140, 120, 255), edge=(140, 100, 220), text=(230, 220, 255)),
+    'wirts_leg':        dict(prio=1, glyph='\U0001f9b4', accent=(200, 200, 180), edge=(130, 120, 100), text=(220, 220, 210)),
+}
+overlay_accent_rgb = ''
+overlay_edge_rgb = ''
+overlay_text_rgb = ''
+legendary_glyphs = ''
+legendary_theme_name = ''
+_eq_now = state.get('equipped', [])
+if isinstance(_eq_now, list):
+    _named_eq = [(LEGENDARY_THEMES[_e]['prio'], _e) for _e in _eq_now if _e in LEGENDARY_THEMES]
+    if _named_eq:
+        _named_eq.sort(reverse=True)
+        legendary_glyphs = ''.join(LEGENDARY_THEMES[_e]['glyph'] for _, _e in _named_eq)
+        _winner = _named_eq[0][1]
+        _theme = LEGENDARY_THEMES[_winner]
+        legendary_theme_name = _winner
+        overlay_accent_rgb = '{} {} {}'.format(*_theme['accent'])
+        overlay_edge_rgb = '{} {} {}'.format(*_theme['edge'])
+        overlay_text_rgb = '{} {} {}'.format(*_theme['text'])
+        if marker and notify:
+            marker = legendary_glyphs + marker
+
 # --- Output shell variables ---
 print('PEON_EXIT=' + ('true' if _agent_silent else 'false'))
 print('EVENT=' + q(event))
@@ -5038,6 +5073,11 @@ print('STATUS=' + q(status))
 print('MARKER=' + q(marker))
 print('NOTIFY=' + q(notify))
 print('NOTIFY_COLOR=' + q(notify_color))
+print('OVERLAY_ACCENT_RGB=' + q(overlay_accent_rgb))
+print('OVERLAY_EDGE_RGB=' + q(overlay_edge_rgb))
+print('OVERLAY_TEXT_RGB=' + q(overlay_text_rgb))
+print('LEGENDARY_GLYPHS=' + q(legendary_glyphs))
+print('LEGENDARY_THEME_NAME=' + q(legendary_theme_name))
 print('MSG=' + q(msg))
 print('DESKTOP_NOTIF=' + ('true' if desktop_notif else 'false'))
 print('NOTIFY_ALWAYS=' + ('true' if notify_always else 'false'))
@@ -5144,6 +5184,14 @@ fi
 # In test mode, write resolved color to file for BATS verification.
 [ "${PEON_TEST:-0}" = "1" ] && [ -n "$TAB_COLOR_RGB" ] && echo "$TAB_COLOR_RGB" > "$PEON_DIR/.tab_color_rgb"
 [ "${PEON_TEST:-0}" = "1" ] && [ -n "$ICON_PATH" ] && echo "$ICON_PATH" > "$PEON_DIR/.icon_path"
+if [ "${PEON_TEST:-0}" = "1" ]; then
+  [ -n "${OVERLAY_ACCENT_RGB:-}" ] && echo "$OVERLAY_ACCENT_RGB" > "$PEON_DIR/.legendary_accent_rgb"
+  [ -n "${OVERLAY_EDGE_RGB:-}" ]   && echo "$OVERLAY_EDGE_RGB"   > "$PEON_DIR/.legendary_edge_rgb"
+  [ -n "${OVERLAY_TEXT_RGB:-}" ]   && echo "$OVERLAY_TEXT_RGB"   > "$PEON_DIR/.legendary_text_rgb"
+  [ -n "${LEGENDARY_GLYPHS:-}" ]   && echo "$LEGENDARY_GLYPHS"   > "$PEON_DIR/.legendary_glyphs"
+  [ -n "${LEGENDARY_THEME_NAME:-}" ] && echo "$LEGENDARY_THEME_NAME" > "$PEON_DIR/.legendary_theme_name"
+  echo "$MARKER" > "$PEON_DIR/.marker"
+fi
 if [ -n "$TAB_COLOR_RGB" ] && [[ "${TERM_PROGRAM:-}" == "iTerm.app" ]]; then
   read -r _R _G _B <<< "$TAB_COLOR_RGB"
   printf "\033]6;1;bg;red;brightness;%d\a" "$_R" > /dev/tty 2>/dev/null || true

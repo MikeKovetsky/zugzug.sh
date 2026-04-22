@@ -1,12 +1,26 @@
 #!/usr/bin/env osascript -l JavaScript
 // mac-overlay.js — WC3-themed Cocoa overlay notification for macOS
-// Usage: osascript -l JavaScript mac-overlay.js <message> <color> <icon_path> <slot> <dismiss_seconds> [category] [dashboard_port]
+// Usage: osascript -l JavaScript mac-overlay.js <message> <color> <icon_path> <slot> <dismiss_seconds> [category] [dashboard_port] [accent_rgb] [edge_rgb] [text_rgb]
+//
+// accent_rgb / edge_rgb / text_rgb are optional space-separated "R G B" triples
+// (0-255 each) used to override the left accent bar, the gold edge bars, and
+// the message text color respectively. Used by the legendary item overlay
+// theming (Frostmourne, Ashbringer, Thunderfury, Unstoppable Force, Wirt's Leg).
 //
 // JXA constraint: only one view per window may use layer.backgroundColor (CGColor).
 // Additional colored elements use NSTextField with setDrawsBackground/setBackgroundColor.
 // Click anywhere on the notification to open the dashboard in a browser.
 
 ObjC.import('Cocoa');
+
+function parseRgb(s, fallback) {
+  if (!s) return fallback;
+  var p = String(s).trim().split(/\s+/);
+  if (p.length !== 3) return fallback;
+  var r = parseInt(p[0], 10), g = parseInt(p[1], 10), b = parseInt(p[2], 10);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return fallback;
+  return [r/255, g/255, b/255];
+}
 
 function run(argv) {
   var message  = argv[0] || 'peon-ping';
@@ -16,13 +30,24 @@ function run(argv) {
   var dismiss  = parseFloat(argv[4]) || 4;
   var category = argv[5] || '';
   var dashPort = argv[6] || '19997';
+  var accentRgb = argv[7] || '';
+  var edgeRgb   = argv[8] || '';
+  var textRgb   = argv[9] || '';
 
-  var acR = 180/255, acG = 30/255, acB = 30/255;
+  var defaultAccent = [180/255, 30/255, 30/255];
   switch (color) {
-    case 'blue':   acR = 60/255;  acG = 130/255; acB = 220/255; break;
-    case 'yellow': acR = 220/255; acG = 180/255; acB = 30/255;  break;
-    case 'red':    acR = 180/255; acG = 30/255;  acB = 30/255;  break;
+    case 'blue':   defaultAccent = [60/255,  130/255, 220/255]; break;
+    case 'yellow': defaultAccent = [220/255, 180/255, 30/255];  break;
+    case 'red':    defaultAccent = [180/255, 30/255,  30/255];  break;
   }
+  var ac = parseRgb(accentRgb, defaultAccent);
+  var acR = ac[0], acG = ac[1], acB = ac[2];
+
+  var defaultEdge = [180/255, 150/255, 45/255];
+  var eg = parseRgb(edgeRgb, defaultEdge);
+
+  var defaultText = [1, 215/255, 0];
+  var tx = parseRgb(textRgb, defaultText);
 
   var isLoop = (category === 'resource.limit');
   var W = 520, H = 86;
@@ -108,8 +133,8 @@ function run(argv) {
       panel.addSubview(b);
     }
 
-    // Gold edge lines (top, bottom, right)
-    var gold = $.NSColor.colorWithSRGBRedGreenBlueAlpha(180/255, 150/255, 45/255, 0.7);
+    // Edge lines (top, bottom, right) — gold by default; legendary themes recolor
+    var gold = $.NSColor.colorWithSRGBRedGreenBlueAlpha(eg[0], eg[1], eg[2], 0.7);
     addBar(0, H - 2, W, 2, gold);
     addBar(0, 0, W, 2, gold);
     addBar(W - 2, 0, 2, H, gold);
@@ -167,7 +192,7 @@ function run(argv) {
     label.setEditable(false);
     label.setSelectable(false);
     label.setTextColor(
-      $.NSColor.colorWithSRGBRedGreenBlueAlpha(1, 215/255, 0, 1)
+      $.NSColor.colorWithSRGBRedGreenBlueAlpha(tx[0], tx[1], tx[2], 1)
     );
     label.setAlignment($.NSTextAlignmentCenter);
     label.setFont(font);

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- **Legendary item overlay theming**: When one of the five named legendaries is equipped, the macOS overlay banner (and the WSL Forms popup background) recolors to match the item's lore — Frostmourne paints icy cyan with pale-blue edges, Ashbringer turns holy gold, Thunderfury goes electric purple with lightning-yellow edges, The Unstoppable Force burns fiery red, and Wirt's Leg picks bone-grey. The matching emoji glyph is also prepended to the tab title `MARKER` (so it appears in the terminal tab title, the toast title, and the overlay text). Wearing several named legendaries at once stacks all their glyphs (e.g. `✨❄`) while the highest-priority item drives the colors (Ashbringer > Frostmourne > Unstoppable Force > Thunderfury > Wirt's Leg). `mac-overlay.js` gained three optional positional args (`accent_rgb`, `edge_rgb`, `text_rgb`) and is fully backward-compatible. BATS coverage in `tests/peon.bats`.
+
 ## v3.5.4 (2026-04-20)
 
 ### Fixed

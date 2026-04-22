@@ -2790,3 +2790,88 @@ else:
   sound=$(afplay_sound)
   [[ "$sound" == *"/packs/peon/sounds/"* ]]
 }
+
+# ============================================================
+# Legendary item overlay theming
+# Equipped named legendaries (Frostmourne, Ashbringer, Thunderfury,
+# Unstoppable Force, Wirt's Leg) recolor the macOS overlay accent / edge / text
+# and prepend a glyph to the marker. Highest-priority item drives colors;
+# glyphs from all named legendaries stack.
+# ============================================================
+
+@test "legendary overlay: no equipped legendaries leaves overlay defaults" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=[]; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ ! -f "$TEST_DIR/.legendary_accent_rgb" ]
+  [ ! -f "$TEST_DIR/.legendary_glyphs" ]
+  [ ! -f "$TEST_DIR/.legendary_theme_name" ]
+}
+
+@test "legendary overlay: non-named legendary (cheese) does not theme overlay" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=['cheese']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ ! -f "$TEST_DIR/.legendary_accent_rgb" ]
+  [ ! -f "$TEST_DIR/.legendary_theme_name" ]
+}
+
+@test "legendary overlay: Frostmourne equipped tints accent icy cyan" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=['frostmourne']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ -f "$TEST_DIR/.legendary_accent_rgb" ]
+  [ "$(cat "$TEST_DIR/.legendary_accent_rgb")" = "90 200 255" ]
+  [ "$(cat "$TEST_DIR/.legendary_edge_rgb")" = "180 220 255" ]
+  [ "$(cat "$TEST_DIR/.legendary_text_rgb")" = "220 240 255" ]
+  [ "$(cat "$TEST_DIR/.legendary_theme_name")" = "frostmourne" ]
+  marker=$(cat "$TEST_DIR/.marker")
+  [[ "$marker" == *$'\xe2\x9d\x84'* ]]
+}
+
+@test "legendary overlay: Ashbringer equipped tints accent holy gold" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=['ashbringer']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ "$(cat "$TEST_DIR/.legendary_accent_rgb")" = "255 220 80" ]
+  [ "$(cat "$TEST_DIR/.legendary_theme_name")" = "ashbringer" ]
+}
+
+@test "legendary overlay: Wirt's Leg equipped applies bone-grey theme" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=['wirts_leg']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ "$(cat "$TEST_DIR/.legendary_accent_rgb")" = "200 200 180" ]
+  [ "$(cat "$TEST_DIR/.legendary_theme_name")" = "wirts_leg" ]
+}
+
+@test "legendary overlay: Ashbringer wins priority over Frostmourne when both equipped" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=['frostmourne','ashbringer']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  [ "$(cat "$TEST_DIR/.legendary_theme_name")" = "ashbringer" ]
+  [ "$(cat "$TEST_DIR/.legendary_accent_rgb")" = "255 220 80" ]
+  glyphs=$(cat "$TEST_DIR/.legendary_glyphs")
+  [[ "$glyphs" == *$'\xe2\x9c\xa8'* ]]
+  [[ "$glyphs" == *$'\xe2\x9d\x84'* ]]
+}
+
+@test "legendary overlay: glyph appears in MARKER for tab title" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=['thunderfury']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  marker=$(cat "$TEST_DIR/.marker")
+  [[ "$marker" == *$'\xe2\x9a\xa1'* ]]
+  [[ "$marker" == *$'\xe2\x97\x8f'* ]]
+}
+
+@test "legendary overlay: SessionStart (no notify) doesn't prepend glyphs to marker" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['equipped']=['ashbringer']; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  if [ -f "$TEST_DIR/.marker" ]; then
+    marker=$(cat "$TEST_DIR/.marker")
+    [[ "$marker" != *$'\xe2\x9c\xa8'* ]]
+  fi
+  [ "$(cat "$TEST_DIR/.legendary_theme_name")" = "ashbringer" ]
+}
