@@ -378,16 +378,28 @@ body {
 .help-text { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
 /* Inventory page */
-.inv-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.inv-layout { display: flex; flex-direction: column; gap: 20px; }
+.inv-section {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 6px; padding: 16px 18px;
+}
+.inv-section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 12px; gap: 12px;
+}
+.inv-section-head .sec-title { margin: 0; }
+.inv-section-meta { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
 .inv-slots {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 110px));
+  gap: 10px; justify-content: center;
 }
 .inv-slot {
   aspect-ratio: 1; background: #12121f;
   border: 2px solid var(--border); border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; cursor: pointer; transition: all 0.2s;
-  min-height: 80px;
+  min-height: 90px;
 }
 .inv-slot:hover { border-color: var(--gold); }
 .inv-slot.empty { opacity: 0.3; cursor: default; }
@@ -416,7 +428,8 @@ body {
 .slot-tip .tip-act { color: var(--gold); margin-top: 3px; font-size: 11px; }
 
 .inv-bag-items {
-  display: flex; flex-wrap: wrap; gap: 6px;
+  display: grid; gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 .bag-item {
   background: #12121f; border: 1px solid var(--border);
@@ -641,7 +654,6 @@ body {
 @media (max-width: 768px) {
   .portrait-panel { flex-wrap: wrap; }
   .stats-layout { grid-template-columns: 1fr; }
-  .inv-layout { grid-template-columns: 1fr; }
   .how-body { grid-template-columns: 1fr; }
   .char-layout { grid-template-columns: 1fr; }
   .lvl-grid { grid-template-columns: repeat(5, 1fr); }
@@ -670,7 +682,8 @@ body {
   .char-portrait-frame { width: 120px; height: 120px; }
   .char-portrait-frame .w3i { width: 90px; height: 90px; }
   .tab { font-size: 10px; padding: 8px 6px; }
-  .inv-slots { grid-template-columns: repeat(3, 1fr); }
+  .inv-slots { grid-template-columns: repeat(3, 1fr); justify-content: stretch; }
+  .inv-bag-items { grid-template-columns: 1fr; }
   .ach-grid { grid-template-columns: 1fr; }
 }
 /* Raids page */
@@ -1138,12 +1151,18 @@ body {
       <div class="page-desc">Equip items to boost your gold, lumber, and combat stats.</div>
     </div>
     <div class="inv-layout">
-      <div>
-        <div class="sec-title" style="margin-bottom:12px">Equipment (6 slots)</div>
+      <div class="inv-section">
+        <div class="inv-section-head">
+          <div class="sec-title">Equipment</div>
+          <div class="inv-section-meta" id="equip-count">0 / 6 slots</div>
+        </div>
         <div class="inv-slots" id="equip-slots"></div>
       </div>
-      <div>
-        <div class="sec-title" style="margin-bottom:12px">Backpack</div>
+      <div class="inv-section">
+        <div class="inv-section-head">
+          <div class="sec-title">Backpack</div>
+          <div class="inv-section-meta" id="bag-count">0 items</div>
+        </div>
         <div class="inv-bag-items" id="bag-items"></div>
       </div>
     </div>
@@ -2002,6 +2021,12 @@ function updateInventory(s) {
   var dur = s.item_durability || {};
   var eqDiv = $('equip-slots');
   eqDiv.innerHTML = '';
+  var eqUsed = 0;
+  for (var ei = 0; ei < 6; ei++) { if (equipped[ei]) eqUsed++; }
+  var eqCount = $('equip-count');
+  if (eqCount) eqCount.textContent = eqUsed + ' / 6 slots';
+  var bagCount = $('bag-count');
+  if (bagCount) bagCount.textContent = inventory.length + (inventory.length === 1 ? ' item' : ' items');
   for (var i = 0; i < 6; i++) {
     var slot = document.createElement('div');
     var iid = equipped[i];
