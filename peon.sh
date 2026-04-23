@@ -1924,9 +1924,9 @@ ITEMS_R = {
     'belt_of_str': 'common', 'gloves_of_haste': 'common', 'robe_of_magi': 'common',
     'pendant_of_mana': 'common', 'hood_of_cunning': 'common', 'medallion': 'common',
     'tome_of_power': 'common', 'skull_shield': 'common', 'kelen_dagger': 'common', 'void_stone': 'common',
-    'war_axe': 'common', 'iron_shield': 'common', 'kobold_candle': 'common',
+    'war_axe': 'common', 'iron_shield': 'common', 'kobold_candle': 'common', 'tome_of_agility': 'common',
     'boots_of_speed': 'uncommon', 'periapt_of_vitality': 'uncommon', 'pendant_of_energy': 'uncommon',
-    'serrated_blade': 'uncommon', 'venom_orb': 'uncommon', 'troll_totem': 'uncommon',
+    'serrated_blade': 'uncommon', 'venom_orb': 'uncommon', 'troll_totem': 'uncommon', 'acorn_of_stag': 'uncommon',
     'helm_of_valor': 'rare', 'cloak_of_shadows': 'rare', 'orb_of_fire': 'rare',
     'gem_of_seeing': 'rare', 'staff_of_negation': 'rare', 'sobi_mask': 'rare',
     'talisman_of_evasion': 'rare', 'ring_of_regen': 'rare', 'scourge_bone': 'rare',
@@ -2004,19 +2004,19 @@ state = _load_state(state_file)
 inventory = state.get('inventory', [])
 equipped = state.get('equipped', [])
 ITEMS = {
-    'claws_of_attack':     ('Claws of Attack +3',     'common',    '+3 bonus gold per task'),
+    'claws_of_attack':     ('Claws of Attack',     'common',    '+3 bonus gold per task'),
     'gauntlets_of_str':    ('Gauntlets of Strength',  'common',    '+2 bonus lumber per prompt'),
-    'ring_of_protection':  ('Ring of Protection +2',  'common',    '+2 bonus gold per task'),
+    'ring_of_protection':  ('Ring of Protection',  'common',    '+2 bonus gold per task'),
     'slippers_of_agility': ('Slippers of Agility',   'common',    'Combos count +1 extra'),
     'circlet_of_nobility': ('Circlet of Nobility',    'common',    '+2 bonus gold per task'),
     'mantle_of_intel':     ('Mantle of Intelligence', 'common',    '+1 bonus lumber per prompt'),
-    'belt_of_str':         ('Belt of Giant Strength +6', 'common', '+1 bonus gold per task'),
+    'belt_of_str':         ('Belt of Giant Strength', 'common', '+1 bonus gold per task'),
     'gloves_of_haste':     ('Gloves of Haste',       'common',    'Combos count +1 extra'),
-    'robe_of_magi':        ('Robe of the Magi +6',   'common',    '+2 bonus lumber per prompt'),
+    'robe_of_magi':        ('Robe of the Magi',   'common',    '+2 bonus lumber per prompt'),
     'pendant_of_mana':     ('Pendant of Mana',       'common',    '+1 bonus lumber per prompt'),
     'hood_of_cunning':     ('Hood of Cunning',       'common',    '+2 bonus gold per task'),
     'medallion':           ('Medallion of Courage',   'common',    '+2 bonus gold per task'),
-    'tome_of_power':       ('Tome of Power +2',      'common',    '+1 bonus gold per task'),
+    'tome_of_power':       ('Tome of Power',      'common',    '+1 bonus gold per task'),
     'skull_shield':        ('Skull Shield',           'common',    'Gold mine depletion +10 tasks later'),
     'kelen_dagger':        ('Kelen\\'s Dagger of Escape', 'common', 'Combos count +1 extra'),
     'void_stone':          ('Void Stone',             'common',    '+1 bonus lumber per prompt'),
@@ -2027,29 +2027,29 @@ ITEMS = {
     'periapt_of_vitality': ('Periapt of Vitality',    'uncommon',  'Gold mine depletion +25 tasks later'),
     'pendant_of_energy':   ('Pendant of Energy',      'uncommon',  '+5 bonus gold per task'),
     'tome_of_xp':          ('Tome of Experience',     'uncommon',  'Gain 500 gold (consumable)'),
-    'helm_of_valor':       ('Helm of Valor',          'rare',      '+4 raid damage'),
+    'helm_of_valor':       ('Helm of Valor',          'rare',      '+20 raid damage'),
     'cloak_of_shadows':    ('Cloak of Shadows',       'rare',      'Fatigue paused while equipped'),
-    'orb_of_fire':         ('Orb of Fire',            'rare',      '+3 raid damage'),
-    'gem_of_seeing':       ('Gem of True Seeing',     'rare',      '10% chance of 3x gold on task complete'),
+    'orb_of_fire':         ('Orb of Fire',            'rare',      '+15 raid damage'),
+    'gem_of_seeing':       ('Gem of True Seeing',     'rare',      '+10% crit chance vs bosses'),
     'staff_of_negation':   ('Staff of Negation',      'rare',      '+10 bonus gold per task'),
     'sobi_mask':           ('Sobi Mask',              'rare',      '3x lumber from prompts'),
     'inv_potion':          ('Potion of Invisibility',  'rare',     'Gain 1500 gold (consumable)'),
     'talisman_of_evasion': ('Talisman of Evasion',    'rare',      'First fatigue per session is free'),
     'ring_of_regen':       ('Ring of Regeneration',    'rare',      '+8 bonus gold per task'),
     'scourge_bone':        ('Scourge Bone Chimes',    'rare',      '+8 bonus gold per task'),
-    'shadow_orb':          ('Shadow Orb +10',         'rare',      '5% chance of 3x gold on task complete'),
+    'shadow_orb':          ('Shadow Orb',         'rare',      '+8% crit chance vs bosses'),
     'lion_horn':           ('Lion Horn of Stormwind',  'rare',      'Gold mine depletion +15 tasks later'),
-    'crown_of_kings':      ('Crown of Kings +5',      'epic',      '2x all gold income'),
-    'mask_of_death':       ('Mask of Death',          'epic',      '20% crit chance (3x gold)'),
+    'crown_of_kings':      ('Crown of Kings',      'epic',      '2x all gold income'),
+    'mask_of_death':       ('Mask of Death',          'epic',      '+20% crit chance vs bosses'),
     'amulet_of_spell':     ('Amulet of Spell Shield', 'epic',      'Heal army 3 HP per task'),
     'khadgars_pipe':       ('Khadgar\\'s Pipe',       'epic',      '5x lumber from prompts'),
     'ankh':                ('Ankh of Reincarnation',  'epic',      'Gain 5000 gold (consumable)'),
-    'frostmourne':         ('Frostmourne',            'legendary', '+20 raid damage. The blade hungers. \u2744\ufe0f Unlocks secret Cursor theme.'),
+    'frostmourne':         ('Frostmourne',            'legendary', '2x raid damage. The blade hungers. \u2744\ufe0f Unlocks secret Cursor theme.'),
     'wirts_leg':           ('Wirt\\'s Leg',           'legendary', 'Does absolutely nothing... except recolor your IDE. Unlocks Cursor theme.'),
     'thunderfury':         ('Thunderfury, Blessed Blade of the Windseeker', 'legendary', 'Poison: 0.2% of boss HP per hour. \u26a1 Did someone say Cursor theme?'),
     'unstoppable_force':   ('The Unstoppable Force',  'legendary', 'Combos never break from errors. \U0001f525 Unlocks Cursor theme.'),
     'azzinoth_blades':     ('Warglaives of Azzinoth', 'legendary', '+2 combo per task. You are not prepared... for the Cursor theme.'),
-    'ashbringer':          ('Ashbringer',             'legendary', '25% crit chance (3x gold). Holy light! \u2728 Unlocks Cursor theme.'),
+    'ashbringer':          ('Ashbringer',             'legendary', '+30% crit chance vs bosses. Holy light! \u2728 Unlocks Cursor theme.'),
     'cheese':              ('Cheese',                 'legendary', 'Restore 10000g + 5000l. Mmm. \U0001f9c0 Unlocks Cursor theme. (consumable)'),
     'scroll_of_heal':      ('Scroll of Healing',      'uncommon',  'Heal army 15 HP (consumable)'),
     'healing_ward':        ('Healing Ward',            'rare',      'Fully heal all army units (consumable)'),
@@ -2062,20 +2062,22 @@ ITEMS = {
     'death_coil':          ('Death Coil',             'epic',      'Deal 5000 damage to active boss (consumable)'),
     'finger_of_death':     ('Finger of Death',        'epic',      'Deal 10000 damage to active boss (consumable)'),
     'doom':                ('Doom',                   'epic',      'Deal 40000 damage to active boss (consumable)'),
-    'war_axe':             ('War Axe',                'common',    '+1 raid damage per task'),
-    'iron_shield':         ('Iron Shield',            'common',    '25% less gold lost from counter-attacks'),
-    'serrated_blade':      ('Serrated Blade',         'uncommon',  '+2 raid damage per task'),
+    'war_axe':             ('War Axe',                'common',    '+3 raid damage per task'),
+    'tome_of_agility':     ('Tome of Agility',     'common',    '+3% crit chance vs bosses'),
+    'iron_shield':         ('Iron Shield',            'common',    '25% less army damage from boss counter-attacks'),
+    'serrated_blade':      ('Serrated Blade',         'uncommon',  '+8 raid damage per task'),
+    'acorn_of_stag':       ('Acorn of the Stag',      'uncommon',  '+5% crit chance vs bosses'),
     'venom_orb':           ('Venom Orb',              'uncommon',  'Poison: 0.05% of boss HP per hour'),
     'bloodstone':          ('Bloodstone',             'rare',      '+1 damage per 10 combo in raids'),
-    'runed_gauntlets':     ('Runed Gauntlets',        'rare',      '+15% crit chance vs bosses'),
+    'runed_gauntlets':     ('Runed Gauntlets',        'rare',      '+12% crit chance vs bosses'),
     'executioners_blade':  ('Executioner\\'s Blade',  'rare',      '3x damage when boss below 20% HP'),
-    'doom_hammer':         ('Doom Hammer',            'epic',      '+10 raid damage per task'),
+    'doom_hammer':         ('Doom Hammer',            'epic',      '+40 raid damage per task'),
     'black_arrow':         ('Black Arrow',            'epic',      'Poison: 0.1% of boss HP per hour (+1 dmg/task)'),
-    'sulfuras':            ('Sulfuras, Hand of Ragnaros', 'legendary', '+10 raid damage. Overkill carries to next boss.'),
+    'sulfuras':            ('Sulfuras, Hand of Ragnaros', 'legendary', '+75 raid damage. Overkill carries to next boss.'),
     'kobold_candle':       ('Kobold\\'s Candle',      'common',    '+3g per task during boss fights'),
     'troll_totem':         ('Troll Regeneration Totem', 'uncommon', 'Repair 1 durability per 5 tasks'),
-    'ogre_scepter':        ('Ogre Magi Scepter',      'rare',      '+3 raid damage per task'),
-    'infernal_core':       ('Infernal Core',          'rare',      'Counter-attacks deal 50% less gold damage'),
+    'ogre_scepter':        ('Ogre Magi Scepter',      'rare',      '+18 raid damage per task'),
+    'infernal_core':       ('Infernal Core',          'rare',      '50% less army damage from boss counter-attacks'),
     'mannoroths_blood':    ('Mannoroth\\'s Blood',    'epic',      '5x damage when boss below 20% HP'),
     'crown_of_eredar':     ('Crown of the Eredar',    'legendary', '+1 bonus drop from bosses'),
     'helm_of_domination':  ('Helm of Domination',     'legendary', '+2 bonus drops from bosses'),
@@ -2296,11 +2298,11 @@ ITEMS_R = {
     'belt_of_str': 'common', 'gloves_of_haste': 'common', 'robe_of_magi': 'common',
     'pendant_of_mana': 'common', 'boots_of_speed': 'common', 'tome_of_power': 'common',
     'skull_shield': 'common', 'kelen_dagger': 'common', 'void_stone': 'common',
-    'war_axe': 'common', 'iron_shield': 'common', 'kobold_candle': 'common',
+    'war_axe': 'common', 'iron_shield': 'common', 'kobold_candle': 'common', 'tome_of_agility': 'common',
     'goblin_sapper': 'uncommon',
     'scroll_of_tp': 'uncommon', 'potion_of_healing': 'uncommon', 'potion_of_mana': 'uncommon',
     'tome_of_xp': 'uncommon', 'pendant_of_energy': 'uncommon', 'staff_of_negation': 'uncommon',
-    'serrated_blade': 'uncommon', 'venom_orb': 'uncommon', 'troll_totem': 'uncommon',
+    'serrated_blade': 'uncommon', 'venom_orb': 'uncommon', 'troll_totem': 'uncommon', 'acorn_of_stag': 'uncommon',
     'helm_of_valor': 'rare', 'cloak_of_shadows': 'rare', 'orb_of_fire': 'rare',
     'gem_of_seeing': 'rare', 'hood_of_cunning': 'rare', 'sobi_mask': 'rare',
     'talisman_of_evasion': 'rare', 'ring_of_regen': 'rare', 'scourge_bone': 'rare',
@@ -4004,6 +4006,12 @@ if game_on:
     _fatigue_exhaust = _fatigue_thresh + 30
 
     _mine_low, _mine_out = (80, 120) if 'world_tree' in buildings else (50, 80)
+    _DEPL_EXT = dict(skull_shield=10, periapt_of_vitality=25, lion_horn=15)
+    _eq_pre = state.get('equipped', [])
+    _dur_pre = state.get('item_durability', {})
+    _mine_ext = sum(v for k, v in _DEPL_EXT.items() if k in _eq_pre and _dur_pre.get(k, 1) > 0)
+    _mine_low += _mine_ext
+    _mine_out += _mine_ext
 
     if econ_on:
         if category == 'task.complete' or event == 'Stop':
@@ -4385,19 +4393,19 @@ if game_on:
 
     # --- Item system (drops, inventory, equipped effects) ---
     _ITEMS = {
-        'claws_of_attack':     dict(name='Claws of Attack +3',     r='common',    e='gold_bonus',      v=3,    desc='+3 bonus gold per task'),
+        'claws_of_attack':     dict(name='Claws of Attack',     r='common',    e='gold_bonus',      v=3,    desc='+3 bonus gold per task'),
         'gauntlets_of_str':    dict(name='Gauntlets of Strength',  r='common',    e='lumber_bonus',    v=2,    desc='+2 bonus lumber per prompt'),
-        'ring_of_protection':  dict(name='Ring of Protection +2',  r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
+        'ring_of_protection':  dict(name='Ring of Protection',  r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
         'slippers_of_agility': dict(name='Slippers of Agility',   r='common',    e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
         'circlet_of_nobility': dict(name='Circlet of Nobility',    r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
         'mantle_of_intel':     dict(name='Mantle of Intelligence', r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
-        'belt_of_str':         dict(name='Belt of Giant Strength +6', r='common', e='gold_bonus',      v=1,    desc='+1 bonus gold per task'),
+        'belt_of_str':         dict(name='Belt of Giant Strength', r='common', e='gold_bonus',      v=1,    desc='+1 bonus gold per task'),
         'gloves_of_haste':     dict(name='Gloves of Haste',       r='common',    e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
-        'robe_of_magi':        dict(name='Robe of the Magi +6',   r='common',    e='lumber_bonus',    v=2,    desc='+2 bonus lumber per prompt'),
+        'robe_of_magi':        dict(name='Robe of the Magi',   r='common',    e='lumber_bonus',    v=2,    desc='+2 bonus lumber per prompt'),
         'pendant_of_mana':     dict(name='Pendant of Mana',       r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
         'hood_of_cunning':     dict(name='Hood of Cunning',       r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
         'medallion':           dict(name='Medallion of Courage',   r='common',    e='gold_bonus',      v=2,    desc='+2 bonus gold per task'),
-        'tome_of_power':       dict(name='Tome of Power +2',      r='common',    e='gold_bonus',      v=1,    desc='+1 bonus gold per task'),
+        'tome_of_power':       dict(name='Tome of Power',      r='common',    e='gold_bonus',      v=1,    desc='+1 bonus gold per task'),
         'skull_shield':        dict(name='Skull Shield',           r='common',    e='depletion_ext',   v=10,   desc='Gold mine depletion +10 tasks later'),
         'kelen_dagger':        dict(name='Kelen\\'s Dagger of Escape', r='common', e='combo_bonus',     v=1,    desc='Combos count +1 extra'),
         'void_stone':          dict(name='Void Stone',             r='common',    e='lumber_bonus',    v=1,    desc='+1 bonus lumber per prompt'),
@@ -4408,27 +4416,27 @@ if game_on:
         'periapt_of_vitality': dict(name='Periapt of Vitality',    r='uncommon',  e='depletion_ext',   v=25,   desc='Gold mine depletion +25 tasks later'),
         'pendant_of_energy':   dict(name='Pendant of Energy',      r='uncommon',  e='gold_bonus',      v=5,    desc='+5 bonus gold per task'),
         'tome_of_xp':          dict(name='Tome of Experience',     r='uncommon',  e='consumable',      v='gold500',   desc='Gain 500 gold (consumable)'),
-        'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='boss_dmg',  v=4,    desc='+4 raid damage'),
+        'helm_of_valor':       dict(name='Helm of Valor',          r='rare',      e='boss_dmg',        v=20,   desc='+20 raid damage'),
         'cloak_of_shadows':    dict(name='Cloak of Shadows',       r='rare',      e='fatigue_immune',  v=1,    desc='Fatigue paused while equipped'),
-        'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='boss_dmg',    v=3,    desc='+3 raid damage'),
-        'gem_of_seeing':       dict(name='Gem of True Seeing',     r='rare',      e='crit_chance',     v=10,   desc='10% chance of 3x gold on task complete'),
+        'orb_of_fire':         dict(name='Orb of Fire',            r='rare',      e='boss_dmg',        v=15,   desc='+15 raid damage'),
+        'gem_of_seeing':       dict(name='Gem of True Seeing',     r='rare',      e='boss_crit',       v=10,   desc='+10% crit chance vs bosses'),
         'staff_of_negation':   dict(name='Staff of Negation',      r='rare',      e='gold_bonus',     v=10,   desc='+10 bonus gold per task'),
         'sobi_mask':           dict(name='Sobi Mask',              r='rare',      e='lumber_mult',     v=3,    desc='3x lumber from prompts'),
         'talisman_of_evasion': dict(name='Talisman of Evasion',    r='rare',      e='fatigue_resist',  v=1,    desc='First fatigue per session is free'),
         'ring_of_regen':       dict(name='Ring of Regeneration',    r='rare',      e='gold_bonus',      v=8,    desc='+8 bonus gold per task'),
         'scourge_bone':        dict(name='Scourge Bone Chimes',    r='rare',      e='gold_bonus',      v=8,    desc='+8 bonus gold per task'),
-        'shadow_orb':          dict(name='Shadow Orb +10',         r='rare',      e='crit_chance',     v=5,    desc='5% chance of 3x gold on task complete'),
+        'shadow_orb':          dict(name='Shadow Orb',         r='rare',      e='boss_crit',       v=8,    desc='+8% crit chance vs bosses'),
         'lion_horn':           dict(name='Lion Horn of Stormwind',  r='rare',      e='depletion_ext',   v=15,   desc='Gold mine depletion +15 tasks later'),
-        'crown_of_kings':      dict(name='Crown of Kings +5',      r='epic',      e='gold_mult',       v=2,    desc='2x all gold income'),
-        'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='crit_chance',     v=20,   desc='20% chance of 3x gold on task complete'),
+        'crown_of_kings':      dict(name='Crown of Kings',      r='epic',      e='gold_mult',       v=2,    desc='2x all gold income'),
+        'mask_of_death':       dict(name='Mask of Death',          r='epic',      e='boss_crit',       v=20,   desc='+20% crit chance vs bosses'),
         'amulet_of_spell':     dict(name='Amulet of Spell Shield', r='epic',      e='army_heal',     v=3,    desc='Heal army 3 HP per task'),
         'khadgars_pipe':       dict(name='Khadgar\'s Pipe',        r='epic',      e='lumber_mult',     v=5,    desc='5x lumber from prompts'),
-        'frostmourne':         dict(name='Frostmourne',            r='legendary', e='boss_dmg',         v=20,   desc='+20 raid damage. The blade hungers. \u2744\ufe0f Unlocks secret Cursor theme.'),
+        'frostmourne':         dict(name='Frostmourne',            r='legendary', e='boss_dmg_mult',    v=2,    desc='2x raid damage. The blade hungers. \u2744\ufe0f Unlocks secret Cursor theme.'),
         'wirts_leg':           dict(name='Wirt\'s Leg',            r='legendary', e='none',             v=0,    desc='Does absolutely nothing... except recolor your IDE. Unlocks Cursor theme.'),
         'thunderfury':         dict(name='Thunderfury, Blessed Blade of the Windseeker', r='legendary', e='boss_dot', v=0.2, desc='Poison: 0.2% of boss HP per hour. \u26a1 Did someone say Cursor theme?'),
         'unstoppable_force':   dict(name='The Unstoppable Force',  r='legendary', e='combo_persist',    v=1,    desc='Combos never break from errors. \U0001f525 Unlocks Cursor theme.'),
         'azzinoth_blades':     dict(name='Warglaives of Azzinoth', r='legendary', e='combo_bonus',     v=2,    desc='+2 combo per task. You are not prepared... for the Cursor theme.'),
-        'ashbringer':          dict(name='Ashbringer',             r='legendary', e='crit_chance',      v=25,   desc='25% chance of 3x gold. Holy light! \u2728 Unlocks Cursor theme.'),
+        'ashbringer':          dict(name='Ashbringer',             r='legendary', e='boss_crit',        v=30,   desc='+30% crit chance vs bosses. Holy light! \u2728 Unlocks Cursor theme.'),
         'inv_potion':          dict(name='Potion of Invisibility', r='rare',      e='consumable',      v='gold1500', desc='Gain 1500 gold (consumable)'),
         'ankh':                dict(name='Ankh of Reincarnation',  r='epic',      e='consumable',      v='gold5000',   desc='Gain 5000 gold (consumable)'),
         'cheese':              dict(name='Cheese',                 r='legendary', e='consumable',      v='cheese',   desc='Restore 10000 gold + 5000 lumber. Mmm. \U0001f9c0 Unlocks Cursor theme.'),
@@ -4443,20 +4451,22 @@ if game_on:
         'death_coil':          dict(name='Death Coil',             r='epic',      e='consumable',      v='boss_5000',   desc='Deal 5000 damage to active boss (consumable)'),
         'finger_of_death':     dict(name='Finger of Death',        r='epic',      e='consumable',      v='boss_10000',  desc='Deal 10000 damage to active boss (consumable)'),
         'doom':                dict(name='Doom',                   r='epic',      e='consumable',      v='boss_40000',  desc='Deal 40000 damage to active boss (consumable)'),
-        'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=1,    desc='+1 raid damage per task'),
-        'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less gold lost from counter-attacks'),
-        'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=2,    desc='+2 raid damage per task'),
+        'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=3,    desc='+3 raid damage per task'),
+        'tome_of_agility':     dict(name='Tome of Agility',     r='common',    e='boss_crit',       v=3,    desc='+3% crit chance vs bosses'),
+        'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less army damage from boss counter-attacks'),
+        'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=8,    desc='+8 raid damage per task'),
+        'acorn_of_stag':       dict(name='Acorn of the Stag',      r='uncommon',  e='boss_crit',       v=5,    desc='+5% crit chance vs bosses'),
         'venom_orb':           dict(name='Venom Orb',              r='uncommon',  e='boss_dot',        v=0.05, desc='Poison: 0.05% of boss HP per hour'),
         'bloodstone':          dict(name='Bloodstone',             r='rare',      e='boss_combo_dmg',  v=1,    desc='+1 damage per 10 combo in raids'),
-        'runed_gauntlets':     dict(name='Runed Gauntlets',        r='rare',      e='boss_crit',       v=15,   desc='+15% crit chance vs bosses'),
+        'runed_gauntlets':     dict(name='Runed Gauntlets',        r='rare',      e='boss_crit',       v=12,   desc='+12% crit chance vs bosses'),
         'executioners_blade':  dict(name='Executioner\'s Blade',    r='rare',      e='boss_execute',    v=3,    desc='3x damage when boss below 20% HP'),
-        'doom_hammer':         dict(name='Doom Hammer',            r='epic',      e='boss_dmg',        v=10,    desc='+10 raid damage per task'),
+        'doom_hammer':         dict(name='Doom Hammer',            r='epic',      e='boss_dmg',        v=40,   desc='+40 raid damage per task'),
         'black_arrow':         dict(name='Black Arrow',            r='epic',      e='boss_dot',        v=0.1,  desc='Poison: 0.1% of boss HP per hour (+1 flat dmg per task)'),
-        'sulfuras':            dict(name='Sulfuras, Hand of Ragnaros', r='legendary', e='boss_dmg',    v=10,   desc='+10 raid damage. Overkill carries to next boss.'),
+        'sulfuras':            dict(name='Sulfuras, Hand of Ragnaros', r='legendary', e='boss_dmg',    v=75,   desc='+75 raid damage. Overkill carries to next boss.'),
         'kobold_candle':       dict(name='Kobold\'s Candle',        r='common',    e='boss_gold',       v=3,    desc='+3g per task during boss fights'),
         'troll_totem':         dict(name='Troll Regeneration Totem', r='uncommon', e='boss_regen',     v=1,    desc='Repair 1 durability per 5 tasks'),
-        'ogre_scepter':        dict(name='Ogre Magi Scepter',      r='rare',      e='boss_dmg',        v=3,    desc='+3 raid damage per task'),
-        'infernal_core':       dict(name='Infernal Core',          r='rare',      e='boss_armor',      v=50,   desc='Counter-attacks deal 50% less gold damage'),
+        'ogre_scepter':        dict(name='Ogre Magi Scepter',      r='rare',      e='boss_dmg',        v=18,   desc='+18 raid damage per task'),
+        'infernal_core':       dict(name='Infernal Core',          r='rare',      e='boss_armor',      v=50,   desc='50% less army damage from boss counter-attacks'),
         'mannoroths_blood':    dict(name='Mannoroth\'s Blood',      r='epic',      e='boss_execute',    v=5,    desc='5x damage when boss below 20% HP'),
         'crown_of_eredar':     dict(name='Crown of the Eredar',    r='legendary', e='boss_double_loot', v=1,   desc='+1 bonus drop from bosses'),
         'helm_of_domination':  dict(name='Helm of Domination',    r='legendary', e='boss_double_loot', v=2,   desc='+2 bonus drops from bosses'),
@@ -4503,6 +4513,26 @@ if game_on:
                 return it['v']
         return 0
 
+    def _sum_effect(eff):
+        total = 0
+        for eid in equipped:
+            if _durability.get(eid, 1) <= 0:
+                continue
+            it = _ITEMS.get(eid)
+            if it and it['e'] == eff:
+                total += it['v']
+        return total
+
+    def _max_effect(eff):
+        best = 0
+        for eid in equipped:
+            if _durability.get(eid, 1) <= 0:
+                continue
+            it = _ITEMS.get(eid)
+            if it and it['e'] == eff and it['v'] > best:
+                best = it['v']
+        return best
+
     _TROPHY_IDS = {'kobold_candle', 'troll_totem', 'ogre_scepter', 'infernal_core', 'mannoroths_blood', 'crown_of_eredar', 'helm_of_domination'}
     def _roll_drop(force_rarity=None):
         if force_rarity:
@@ -4531,27 +4561,22 @@ if game_on:
 
     # Apply equipped item effects
     if econ_on and equipped:
-        gb = _has_effect('gold_bonus')
+        gb = _sum_effect('gold_bonus')
         if gb and gold_delta > 0:
             gold_delta += gb
-        gm = _has_effect('gold_mult')
+        gm = _max_effect('gold_mult')
         if gm and gold_delta > 0:
             gold_delta = int(gold_delta * gm)
-        lb = _has_effect('lumber_bonus')
+        lb = _sum_effect('lumber_bonus')
         if lb and lumber_delta > 0:
             lumber_delta += lb
-        lm = _has_effect('lumber_mult')
+        lm = _max_effect('lumber_mult')
         if lm and lumber_delta > 0:
             lumber_delta = int(lumber_delta * lm)
         fr = _has_effect('fatigue_resist')
         if fr and fatigue > 0 and fatigue <= fr:
             fatigue = max(0, fatigue - 1)
             state['fatigue'] = fatigue
-        if _has_effect('crit_chance') and gold_delta > 0 and category == 'task.complete':
-            if random.random() < _has_effect('crit_chance') / 100.0:
-                gold_delta *= 3
-                game_subtitle = (game_subtitle + ' CRITICAL STRIKE! 3x gold!' if game_subtitle else 'CRITICAL STRIKE! 3x gold!')
-
     # Apply combo item effects
     if equipped:
         if _has_effect('fatigue_immune') and not in_bunker:
@@ -4559,7 +4584,7 @@ if game_on:
         if _has_effect('combo_persist') and combo_text and 'broken' in combo_text:
             combo_text = ''
             combo = state.get('combo_count', 0)
-        cb = _has_effect('combo_bonus')
+        cb = _sum_effect('combo_bonus')
         if cb and combo > 0 and category == 'task.complete' and event == 'Stop':
             combo += cb
             state['combo_count'] = combo
@@ -4567,16 +4592,6 @@ if game_on:
     # --- Lumber Mill: 2x lumber ---
     if 'lumber_mill' in buildings and lumber_delta > 0:
         lumber_delta *= 2
-
-    def _sum_effect(eff):
-        total = 0
-        for eid in equipped:
-            if _durability.get(eid, 1) <= 0:
-                continue
-            it = _ITEMS.get(eid)
-            if it and it['e'] == eff:
-                total += it['v']
-        return total
 
     # --- Boss raid combat ---
     import datetime as _dt
@@ -4658,7 +4673,7 @@ if game_on:
                         _pre = _bdmg
                         _bdmg *= _bexec
                         _bk['execute'] = _bdmg - _pre
-                crit_pct = _has_effect('crit_chance') + _sum_effect('boss_crit')
+                crit_pct = _sum_effect('boss_crit')
                 if crit_pct and random.random() < crit_pct / 100.0:
                     _pre = _bdmg
                     _bdmg *= 3
@@ -4704,6 +4719,10 @@ if game_on:
                 if isinstance(_army[_uk], int): _army[_uk] = [_UHP.get(_uk, 30)] * _army[_uk]
             if _batk_max > 0 and _army and _boss['hp'] > 0:
                 _bdmg_roll = random.randint(_batk_min, _batk_max)
+                _armor_pct = min(90, _sum_effect('boss_armor'))
+                if _armor_pct > 0:
+                    _bdmg_roll = max(0, _bdmg_roll - (_bdmg_roll * _armor_pct // 100))
+                    _bentry['armor'] = _armor_pct
                 if _bdmg_roll > 0:
                     for _ in range(_bdmg_roll):
                         _living = [(u, i) for u in _army for i in range(len(_army[u])) if _army[u][i] > 0]
@@ -4768,12 +4787,14 @@ if game_on:
                         inventory.append(d)
                         drop_names.append(_ITEMS[d]['name'])
                         stats['total_items_looted'] = stats.get('total_items_looted', 0) + 1
-                if _has_effect('boss_double_loot') and loot_tiers:
-                    d2 = _roll_drop(force_rarity=loot_tiers[0])
-                    if d2:
-                        inventory.append(d2)
-                        drop_names.append(_ITEMS[d2]['name'])
-                        stats['total_items_looted'] = stats.get('total_items_looted', 0) + 1
+                _bonus_drops = _sum_effect('boss_double_loot')
+                if _bonus_drops and loot_tiers:
+                    for _ in range(_bonus_drops):
+                        d2 = _roll_drop(force_rarity=loot_tiers[0])
+                        if d2:
+                            inventory.append(d2)
+                            drop_names.append(_ITEMS[d2]['name'])
+                            stats['total_items_looted'] = stats.get('total_items_looted', 0) + 1
                 trophy = _TROPHY_MAP.get(bid)
                 if trophy and random.random() < 0.3:
                     inventory.append(trophy)
@@ -4804,10 +4825,6 @@ if game_on:
                 _venom = ' Slain by venom.' if _poisoned_kill else ''
                 boss_text = f'{_boss[\"name\"]} DEFEATED!{_venom} +{_reward_g}g +{_reward_l}l | Drops: {drops_str}'
             else:
-                pct = _boss['hp'] / _boss['max_hp']
-                bar_len = 12
-                filled = int(pct * bar_len)
-                bar = chr(9608) * filled + chr(9617) * (bar_len - filled)
                 _venom_amt = _bk.get('poison', 0)
                 if _bdmg > 0 and _venom_amt > 0 and _venom_amt < _bdmg:
                     dmg_str = f' -{_bdmg} HP ({_venom_amt} venom)'
@@ -4817,7 +4834,7 @@ if game_on:
                     dmg_str = f' -{_bdmg} HP'
                 else:
                     dmg_str = ''
-                boss_text = f'{_boss[\"name\"]} [{bar}] {_boss[\"hp\"]}/{_boss[\"max_hp\"]}{dmg_str}{_bcounter} ({_days_left}d left)'
+                boss_text = f'{_boss[\"name\"]} {_boss[\"hp\"]}/{_boss[\"max_hp\"]}{dmg_str}{_bcounter} ({_days_left}d left)'
             _tregen = _sum_effect('boss_regen')
             if _tregen:
                 _regen_tick = state.get('_boss_regen_tick', 0) + 1

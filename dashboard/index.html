@@ -389,26 +389,29 @@ body {
   margin-bottom: 12px; gap: 12px;
 }
 .inv-section-head .sec-title { margin: 0; }
-.inv-section-meta { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
+.inv-section-meta { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; display: flex; align-items: center; gap: 12px; }
+.bag-sort-lbl { display: inline-flex; align-items: center; gap: 6px; }
+.bag-sort { padding: 2px 6px; font-size: 12px; }
 .inv-slots {
-  display: grid; grid-template-columns: repeat(6, minmax(0, 110px));
-  gap: 10px; justify-content: center;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 150px));
+  gap: 12px; justify-content: center;
 }
 .inv-slot {
   aspect-ratio: 1; background: #12121f;
   border: 2px solid var(--border); border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; cursor: pointer; transition: all 0.2s;
-  min-height: 90px;
+  min-height: 140px; padding: 10px 6px 8px;
 }
 .inv-slot:hover { border-color: var(--gold); }
 .inv-slot.empty { opacity: 0.3; cursor: default; }
 .inv-slot.empty:hover { border-color: var(--border); }
-.inv-slot .slot-icon { font-size: 32px; }
+.inv-slot .slot-icon { font-size: 64px; line-height: 1; }
 .inv-slot .slot-lbl {
-  font-size: 10px; font-weight: 700; margin-top: 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 100%; padding: 0 2px; text-align: center;
+  font-size: 11px; font-weight: 700; margin-top: 8px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; line-height: 1.15; min-height: 2.3em;
+  max-width: 100%; padding: 0 2px; text-align: center; word-break: break-word;
 }
 .inv-slot .slot-rarity {
   position: absolute; top: 2px; right: 3px;
@@ -464,7 +467,7 @@ body {
 .inv-hint p { font-size: 13px; color: var(--muted); margin: 8px 0 0; line-height: 1.5; }
 
 .slot-rarity { background: #888; }
-.dur-bar { width: 80%; height: 3px; background: rgba(0,0,0,0.4); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+.dur-bar { width: 80%; height: 7px; background: rgba(0,0,0,0.4); border-radius: 3px; margin-top: 6px; overflow: hidden; }
 .dur-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
 .inv-slot.broken { opacity: 0.5; }
 .inv-slot.broken .slot-icon { filter: grayscale(1); }
@@ -1161,7 +1164,16 @@ body {
       <div class="inv-section">
         <div class="inv-section-head">
           <div class="sec-title">Backpack</div>
-          <div class="inv-section-meta" id="bag-count">0 items</div>
+          <div class="inv-section-meta">
+            <span id="bag-count">0 items</span>
+            <label class="bag-sort-lbl">Sort
+              <select class="pack-sel bag-sort" id="bag-sort">
+                <option value="dropped">Drop order</option>
+                <option value="title">Title (A-Z)</option>
+                <option value="rarity">Rarity</option>
+              </select>
+            </label>
+          </div>
         </div>
         <div class="inv-bag-items" id="bag-items"></div>
       </div>
@@ -1429,38 +1441,38 @@ function tierClass(lvl) {
 }
 
 var ITEMS = {
-  claws_of_attack:     { icon: w3i('orc/steelmeleeweapons.png'), name: 'Claws of Attack +3', r: 'common', desc: '+3 gold per task' },
-  gauntlets_of_str:    { icon: w3i('orc/brutestrength.png'), name: 'Gauntlets of Strength', r: 'common', desc: '+2 lumber per prompt' },
-  ring_of_protection:  { icon: w3i('orc/reinforceddefenses.png'), name: 'Ring of Protection +2', r: 'common', desc: '+2 bonus gold per task' },
-  slippers_of_agility: { icon: w3i('orc/scrollofspeed.png'), name: 'Slippers of Agility', r: 'common', desc: 'Combos count +1' },
+  claws_of_attack:     { icon: wwi('BTNClawsOfAttack.png'), name: 'Claws of Attack', r: 'common', desc: '+3 gold per task' },
+  gauntlets_of_str:    { icon: wwi('BTNGauntletsOfOgrePower.png'), name: 'Gauntlets of Strength', r: 'common', desc: '+2 lumber per prompt' },
+  ring_of_protection:  { icon: wwi('BTNRingPurple.png'), name: 'Ring of Protection', r: 'common', desc: '+2 bonus gold per task' },
+  slippers_of_agility: { icon: wwi('BTNSlippersOfAgility.png'), name: 'Slippers of Agility', r: 'common', desc: 'Combos count +1' },
   circlet_of_nobility: { icon: w3i('neutral/circletofnobility.gif'), name: 'Circlet of Nobility', r: 'common', desc: '+2 gold per task' },
-  mantle_of_intel:     { icon: w3i('orc/shamanadepttraining.png'), name: 'Mantle of Intelligence', r: 'common', desc: '+1 lumber per prompt' },
+  mantle_of_intel:     { icon: wwi('BTNMantleOfIntelligence.png'), name: 'Mantle of Intelligence', r: 'common', desc: '+1 lumber per prompt' },
   healing_ward:        { icon: w3i('orc/witchdoctoradepttraining.png'), name: 'Healing Ward', r: 'common', desc: '+1 bonus gold per task' },
   steel_armor:         { icon: w3i('orc/steelarmor.png'), name: 'Steel Armor', r: 'common', desc: '+1 free error/day' },
-  belt_of_str:         { icon: w3i('orc/brutestrength.png'), name: 'Belt of Giant Strength +6', r: 'common', desc: '+1 gold per task' },
-  gloves_of_haste:     { icon: w3i('orc/scrollofspeed.png'), name: 'Gloves of Haste', r: 'common', desc: 'Combos count +1' },
+  belt_of_str:         { icon: w3i('orc/brutestrength.png'), name: 'Belt of Giant Strength', r: 'common', desc: '+1 gold per task' },
+  gloves_of_haste:     { icon: wwi('BTNGlove.png'), name: 'Gloves of Haste', r: 'common', desc: 'Combos count +1' },
   hood_of_cunning:     { icon: w3i('orc/shamanadepttraining.png'), name: 'Hood of Cunning', r: 'common', desc: '+2 gold per task' },
-  medallion:           { icon: w3i('orc/reinforceddefenses.png'), name: 'Medallion of Courage', r: 'common', desc: '+2 bonus gold per task' },
+  medallion:           { icon: wwi('BTNScrollOfProtection.png'), name: 'Medallion of Courage', r: 'common', desc: '+2 bonus gold per task' },
   pendant_of_mana:     { icon: w3i('orc/lesserclaritypotion.png'), name: 'Pendant of Mana', r: 'common', desc: '+1 lumber per prompt' },
-  robe_of_magi:        { icon: w3i('orc/shamanmastertraining.png'), name: 'Robe of the Magi +6', r: 'common', desc: '+2 lumber per prompt' },
+  robe_of_magi:        { icon: wwi('BTNRobeOfTheMagi.png'), name: 'Robe of the Magi', r: 'common', desc: '+2 lumber per prompt' },
   skull_shield:        { icon: w3i('orc/spikedbarricades.png'), name: 'Skull Shield', r: 'common', desc: 'Gold mine +10 tasks' },
-  tome_of_power:       { icon: w3i('orc/witchdoctormastertraining.png'), name: 'Tome of Power +2', r: 'common', desc: '+1 gold per task' },
+  tome_of_power:       { icon: w3i('orc/witchdoctormastertraining.png'), name: 'Tome of Power', r: 'common', desc: '+1 gold per task' },
   void_stone:          { icon: w3i('orc/spiritwalkermastertraining.png'), name: 'Void Stone', r: 'common', desc: '+1 lumber per prompt' },
   scroll_of_tp:        { icon: w3i('orc/scrolloftownportal.png'), name: 'Scroll of Town Portal', r: 'uncommon', desc: 'Restore combo (use)', cons: true },
   potion_of_healing:   { icon: w3i('orc/potionofhealing.png'), name: 'Potion of Healing', r: 'uncommon', desc: '+200 gold (use)', cons: true },
   potion_of_mana:      { icon: w3i('orc/potionofmana.png'), name: 'Potion of Mana', r: 'uncommon', desc: '+50 lumber (use)', cons: true },
   boots_of_speed:      { icon: w3i('neutral/bootsofspeed.gif'), name: 'Boots of Speed', r: 'uncommon', desc: '2x lumber from prompts' },
   periapt_of_vitality: { icon: w3i('neutral/periaptofvitality.gif'), name: 'Periapt of Vitality', r: 'uncommon', desc: 'Gold mine depletion +25' },
-  pendant_of_energy:   { icon: w3i('orc/lesserclaritypotion.png'), name: 'Pendant of Energy', r: 'uncommon', desc: '+5 gold per task' },
+  pendant_of_energy:   { icon: wwi('BTNPendantOfEnergy.png'), name: 'Pendant of Energy', r: 'uncommon', desc: '+5 gold per task' },
   tome_of_xp:          { icon: w3i('neutral/tomeofretraining.gif'), name: 'Tome of Experience', r: 'uncommon', desc: '+500 gold (use)', cons: true },
   war_drums:           { icon: w3i('orc/wardrumsdamageincrease.png'), name: 'War Drums', r: 'uncommon', desc: 'Combo milestones give 2x gold' },
   troll_regen:         { icon: w3i('orc/trollregeneration.png'), name: 'Scroll of Regeneration', r: 'uncommon', desc: '+3 bonus gold per task' },
   sentry_ward:         { icon: w3i('orc/improvedspikedbarricades.png'), name: 'Sentry Ward', r: 'uncommon', desc: 'Warns at 60% context usage' },
   liquid_fire:         { icon: w3i('orc/liquidfire.gif'), name: 'Liquid Fire', r: 'uncommon', desc: '+150 gold (use)', cons: true },
-  helm_of_valor:       { icon: w3i('orc/arcanitearmor.png'), name: 'Helm of Valor', r: 'rare', desc: '+4 raid damage' },
-  cloak_of_shadows:    { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Cloak of Shadows', r: 'rare', desc: 'Fatigue paused while equipped' },
-  orb_of_fire:         { icon: w3i('orc/orboflightning.png'), name: 'Orb of Fire', r: 'rare', desc: '+3 raid damage' },
-  gem_of_seeing:       { icon: w3i('neutral/dustofappearance.gif'), name: 'Gem of True Seeing', r: 'rare', desc: '10% crit (3x gold)' },
+  helm_of_valor:       { icon: w3i('orc/arcanitearmor.png'), name: 'Helm of Valor', r: 'rare', desc: '+20 raid damage' },
+  cloak_of_shadows:    { icon: wwi('BTNCloak.png'), name: 'Cloak of Shadows', r: 'rare', desc: 'Fatigue paused while equipped' },
+  orb_of_fire:         { icon: wwi('BTNOrbOfFire.png'), name: 'Orb of Fire', r: 'rare', desc: '+15 raid damage' },
+  gem_of_seeing:       { icon: w3i('neutral/dustofappearance.gif'), name: 'Gem of True Seeing', r: 'rare', desc: '+10% boss crit' },
   staff_of_negation:   { icon: w3i('neutral/staffofteleportation.gif'), name: 'Staff of Negation', r: 'rare', desc: '+10 bonus gold per task' },
   sobi_mask:           { icon: w3i('orc/shamanmastertraining.png'), name: 'Sobi Mask', r: 'rare', desc: '3x lumber' },
   inv_potion:          { icon: w3i('neutral/potionofinvisibility.gif'), name: 'Potion of Invisibility', r: 'rare', desc: '+1500 gold (use)', cons: true },
@@ -1468,24 +1480,24 @@ var ITEMS = {
   envenomed_spears:    { icon: w3i('orc/envenomedspears.gif'), name: 'Envenomed Spears', r: 'rare', desc: '+4 poison damage' },
   ensnare_trap:        { icon: w3i('orc/ensnare.gif'), name: 'Ensnare', r: 'rare', desc: 'Heal army 50 HP (use)', cons: true },
   lion_horn:           { icon: w3i('orc/wardrumsdamageincrease.png'), name: 'Lion Horn of Stormwind', r: 'rare', desc: 'Gold mine +15 tasks' },
-  ring_of_regen:       { icon: w3i('orc/trollregeneration.png'), name: 'Ring of Regeneration', r: 'rare', desc: '+8 gold per task' },
+  ring_of_regen:       { icon: wwi('BTNRingGreen.png'), name: 'Ring of Regeneration', r: 'rare', desc: '+8 gold per task' },
   scourge_bone:        { icon: w3i('orc/pillage.gif'), name: 'Scourge Bone Chimes', r: 'rare', desc: '+8 bonus gold per task' },
-  shadow_orb:          { icon: w3i('orc/orboflightning.png'), name: 'Shadow Orb +10', r: 'rare', desc: '5% crit chance' },
-  talisman_of_evasion: { icon: w3i('orc/scrollofspeed.png'), name: 'Talisman of Evasion', r: 'rare', desc: 'First fatigue free' },
-  crown_of_kings:      { icon: w3i('neutral/circletofnobility.gif'), name: 'Crown of Kings +5', r: 'epic', desc: '2x all gold' },
-  mask_of_death:       { icon: w3i('orc/berserkerupgrade.png'), name: 'Mask of Death', r: 'epic', desc: '20% crit (3x gold)' },
+  shadow_orb:          { icon: wwi('BTNOrbOfDarkness.png'), name: 'Shadow Orb', r: 'rare', desc: '+8% boss crit' },
+  talisman_of_evasion: { icon: wwi('BTNEvasion.png'), name: 'Talisman of Evasion', r: 'rare', desc: 'First fatigue free' },
+  crown_of_kings:      { icon: wwi('BTNScepterOfMastery.png'), name: 'Crown of Kings', r: 'epic', desc: '2x all gold' },
+  mask_of_death:       { icon: w3i('orc/berserkerupgrade.png'), name: 'Mask of Death', r: 'epic', desc: '+20% boss crit' },
   amulet_of_spell:     { icon: w3i('neutral/scrollofprotection.gif'), name: 'Amulet of Spell Shield', r: 'epic', desc: 'Heal army 3 HP per task' },
   khadgars_pipe:       { icon: w3i('orc/spiritwalkeradepttraining.png'), name: "Khadgar's Pipe", r: 'epic', desc: '5x lumber from prompts' },
-  ankh:                { icon: w3i('neutral/scrollofhealing.gif'), name: 'Ankh of Reincarnation', r: 'epic', desc: '+5000 gold (use)', cons: true },
+  ankh:                { icon: wwi('BTNAnkh.png'), name: 'Ankh of Reincarnation', r: 'epic', desc: '+5000 gold (use)', cons: true },
   pillage_banner:      { icon: w3i('orc/pillage.gif'), name: 'Banner of Pillage', r: 'epic', desc: '+3 dmg per 10 combo' },
   spirit_link:         { icon: w3i('orc/spiritwalkermastertraining.png'), name: 'Spirit Link', r: 'epic', desc: '+7 raid damage' },
   invuln_potion:       { icon: w3i('neutral/potionoflesserinvulnerability.gif'), name: 'Potion of Invulnerability', r: 'epic', desc: '+3000g +1000l (use)', cons: true },
-  frostmourne:         { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Frostmourne', r: 'legendary', desc: '+20 raid damage. ❄️ Unlocks Cursor theme.' },
+  frostmourne:         { icon: wwi('BTNFrostMourne.png'), name: 'Frostmourne', r: 'legendary', desc: '2x raid damage. ❄️ Unlocks Cursor theme.' },
   wirts_leg:           { icon: w3i('orc/spikedbarricades.png'), name: "Wirt's Leg", r: 'legendary', desc: 'Does nothing... except recolor your IDE.' },
   thunderfury:         { icon: w3i('orc/orboflightning.png'), name: 'Thunderfury', r: 'legendary', desc: 'Poison: 0.2% boss HP/hr. ⚡ Unlocks Cursor theme.' },
-  unstoppable_force:   { icon: w3i('orc/pulverizedamageincrease.png'), name: 'The Unstoppable Force', r: 'legendary', desc: 'Combos never break. 🔥 Unlocks Cursor theme.' },
+  unstoppable_force:   { icon: wwi('BTNHammer.png'), name: 'The Unstoppable Force', r: 'legendary', desc: 'Combos never break. 🔥 Unlocks Cursor theme.' },
   azzinoth_blades:     { icon: w3i('orc/arcanitemeleeweapons.png'), name: 'Warglaives of Azzinoth', r: 'legendary', desc: '+2 combo per task. Unlocks Cursor theme.' },
-  ashbringer:          { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Ashbringer', r: 'legendary', desc: '25% crit (3x gold). ✨ Unlocks Cursor theme.' },
+  ashbringer:          { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Ashbringer', r: 'legendary', desc: '+30% boss crit. ✨ Unlocks Cursor theme.' },
   cheese:              { icon: w3i('orc/healingsalve.png'), name: 'Cheese', r: 'legendary', desc: '+10000g +5000l. 🧀 Unlocks Cursor theme. (use)', cons: true },
   thorium_blade:       { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Thorium Blade', r: 'legendary', desc: '+20 gold per task' },
   goblin_rocket:       { icon: w3i('neutral/goblinlaboratory.png'), name: 'Goblin Rocket Launcher', r: 'legendary', desc: 'Ignore gold mine depletion' },
@@ -1500,22 +1512,24 @@ var ITEMS = {
   death_coil:          { icon: wwi('c/c0/BTNDeathCoil.png'), name: 'Death Coil', r: 'uncommon', desc: '-5000 HP to boss (use)', cons: true },
   finger_of_death:     { icon: wwi('d/d5/BTNDeathAndDecay.png'), name: 'Finger of Death', r: 'rare', desc: '-10000 HP to boss (use)', cons: true },
   doom:                { icon: wwi('1/17/BTNDoom.png'), name: 'Doom', r: 'epic', desc: '-40000 HP to boss (use)', cons: true },
-  war_axe:             { icon: w3i('orc/steelmeleeweapons.png'), name: 'War Axe', r: 'common', desc: '+1 raid damage' },
-  iron_shield:         { icon: w3i('orc/steelarmor.png'), name: 'Iron Shield', r: 'common', desc: '-25% counter-attack' },
+  war_axe:             { icon: w3i('orc/steelmeleeweapons.png'), name: 'War Axe', r: 'common', desc: '+3 raid damage' },
+  tome_of_agility:     { icon: wwi('BTNTomeBrown.png'), name: 'Tome of Agility', r: 'common', desc: '+3% boss crit' },
+  iron_shield:         { icon: w3i('orc/steelarmor.png'), name: 'Iron Shield', r: 'common', desc: '-25% army dmg from counter' },
   kobold_candle:       { icon: w3i('orc/liquidfire.gif'), name: "Kobold's Candle", r: 'common', desc: '+3g in boss fights' },
-  serrated_blade:      { icon: w3i('orc/steelrangedweapons.png'), name: 'Serrated Blade', r: 'uncommon', desc: '+2 raid damage' },
+  serrated_blade:      { icon: w3i('orc/steelrangedweapons.png'), name: 'Serrated Blade', r: 'uncommon', desc: '+8 raid damage' },
+  acorn_of_stag:       { icon: wwi('BTNAcorn.png'), name: 'Acorn of the Stag', r: 'uncommon', desc: '+5% boss crit' },
   venom_orb:           { icon: w3i('orc/envenomedspears.gif'), name: 'Venom Orb', r: 'uncommon', desc: 'Poison: 0.05% boss HP/hr (passive)' },
   troll_totem:         { icon: w3i('orc/trollregeneration.png'), name: 'Troll Regen Totem', r: 'uncommon', desc: 'Repair 1 dur/5 tasks' },
-  bloodstone:          { icon: w3i('orc/shamanmastertraining.png'), name: 'Bloodstone', r: 'rare', desc: '+1 dmg per 10 combo' },
-  runed_gauntlets:     { icon: w3i('orc/reinforceddefenses.png'), name: 'Runed Gauntlets', r: 'rare', desc: '+15% boss crit' },
+  bloodstone:          { icon: wwi('BTNStone.png'), name: 'Bloodstone', r: 'rare', desc: '+1 dmg per 10 combo' },
+  runed_gauntlets:     { icon: w3i('orc/reinforceddefenses.png'), name: 'Runed Gauntlets', r: 'rare', desc: '+12% boss crit' },
   executioners_blade:  { icon: w3i('orc/arcanitemeleeweapons.png'), name: "Executioner's Blade", r: 'rare', desc: '3x dmg below 20% HP' },
-  ogre_scepter:        { icon: w3i('orc/spiritwalkeradepttraining.png'), name: 'Ogre Magi Scepter', r: 'rare', desc: '+3 raid damage' },
-  infernal_core:       { icon: w3i('orc/improvedspikedbarricades.png'), name: 'Infernal Core', r: 'rare', desc: '-50% counter-attack' },
-  doom_hammer:         { icon: w3i('orc/pulverizedamageincrease.png'), name: 'Doom Hammer', r: 'epic', desc: '+10 raid damage' },
+  ogre_scepter:        { icon: w3i('orc/spiritwalkeradepttraining.png'), name: 'Ogre Magi Scepter', r: 'rare', desc: '+18 raid damage' },
+  infernal_core:       { icon: w3i('orc/improvedspikedbarricades.png'), name: 'Infernal Core', r: 'rare', desc: '-50% army dmg from counter' },
+  doom_hammer:         { icon: w3i('orc/pulverizedamageincrease.png'), name: 'Doom Hammer', r: 'epic', desc: '+40 raid damage' },
   black_arrow:         { icon: w3i('orc/thoriumrangedweapons.png'), name: 'Black Arrow', r: 'epic', desc: 'Poison: 0.1% boss HP/hr (+1 dmg/task)' },
   mannoroths_blood:    { icon: w3i('orc/berserkerupgrade.png'), name: "Mannoroth's Blood", r: 'epic', desc: '5x dmg below 20% HP' },
-  sulfuras:            { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Sulfuras', r: 'legendary', desc: '+10 dmg, overkill carries' },
-  crown_of_eredar:     { icon: w3i('orc/arcaniterangedweapons.png'), name: 'Crown of the Eredar', r: 'legendary', desc: 'Boss double loot' },
+  sulfuras:            { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Sulfuras', r: 'legendary', desc: '+75 dmg, overkill carries' },
+  crown_of_eredar:     { icon: wwi('BTNDemonGate.png'), name: 'Crown of the Eredar', r: 'legendary', desc: 'Boss double loot' },
   helm_of_domination:  { icon: wwi('BTNHeroDeathKnight.png'), name: 'Helm of Domination', r: 'legendary', desc: '+2 bonus boss drops' },
 };
 
@@ -1548,6 +1562,18 @@ document.querySelectorAll('.tab').forEach(function(t) {
 var savedTab = null;
 try { savedTab = localStorage.getItem('peon-dash-tab'); } catch(e) {}
 if (savedTab) switchPage(savedTab);
+
+var BAG_SORT = 'dropped';
+try { BAG_SORT = localStorage.getItem('peon-bag-sort') || 'dropped'; } catch(e) {}
+var bagSortSel = document.getElementById('bag-sort');
+if (bagSortSel) {
+  bagSortSel.value = BAG_SORT;
+  bagSortSel.addEventListener('change', function() {
+    BAG_SORT = this.value;
+    try { localStorage.setItem('peon-bag-sort', BAG_SORT); } catch(e) {}
+    if (typeof curState !== 'undefined' && curState) updateInventory(curState);
+  });
+}
 
 /* --- Helpers --- */
 
@@ -2038,7 +2064,7 @@ function updateInventory(s) {
       var pct = Math.max(0, Math.min(100, (d / mx) * 100));
       var barColor = pct > 50 ? '#4a4' : pct > 20 ? '#ca2' : '#c44';
       slot.className = 'inv-slot r-' + it.r + (broken ? ' broken' : '');
-      var lbl = it.name.split(' ')[0] + (broken ? ' \u{1F6E0}\uFE0F' : '');
+      var lbl = it.name + (broken ? ' \u{1F6E0}\uFE0F' : '');
       slot.innerHTML = '<span class="slot-rarity"></span><span class="slot-icon">' + it.icon + '</span><span class="slot-lbl">' + lbl + '</span>';
       slot.innerHTML += '<div class="dur-bar"><div class="dur-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>';
       var tipExtra = broken ? '<div class="tip-broken">BROKEN \u2014 2x repair cost</div>' : '<div class="tip-dur">' + d + '/' + mx + ' durability</div>';
@@ -2064,7 +2090,25 @@ function updateInventory(s) {
     return;
   }
   var SELL_PRICE = {common: 10, uncommon: 20, rare: 40, epic: 80, legendary: 200};
-  inventory.forEach(function(iid) {
+  var RARITY_RANK = {legendary: 0, epic: 1, rare: 2, uncommon: 3, common: 4};
+  var sorted = inventory.slice();
+  if (BAG_SORT === 'title') {
+    sorted.sort(function(a, b) {
+      var na = (ITEMS[a] && ITEMS[a].name) || a;
+      var nb = (ITEMS[b] && ITEMS[b].name) || b;
+      return na.localeCompare(nb);
+    });
+  } else if (BAG_SORT === 'rarity') {
+    sorted.sort(function(a, b) {
+      var ra = RARITY_RANK[(ITEMS[a] && ITEMS[a].r) || 'common'];
+      var rb = RARITY_RANK[(ITEMS[b] && ITEMS[b].r) || 'common'];
+      if (ra !== rb) return ra - rb;
+      var na = (ITEMS[a] && ITEMS[a].name) || a;
+      var nb = (ITEMS[b] && ITEMS[b].name) || b;
+      return na.localeCompare(nb);
+    });
+  }
+  sorted.forEach(function(iid) {
     var it = ITEMS[iid];
     if (!it) return;
     var el = document.createElement('div');

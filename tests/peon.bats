@@ -2602,6 +2602,20 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$gold" = "13" ]
 }
 
+@test "game: multiple gold_bonus items stack" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['claws_of_attack','pendant_of_energy','staff_of_negation']; s['economy']={'gold':0,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
+  [ "$gold" = "28" ]
+}
+
+@test "game: lumber_mult uses max across equipped items" {
+  /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['boots_of_speed','sobi_mask','khadgars_pipe']; s['economy']={'gold':0,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"UserPromptSubmit","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  lumber=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('lumber',0))")
+  [ "$lumber" = "5" ]
+}
+
 @test "game: game can be disabled via config" {
   /usr/bin/python3 -c "
 import json

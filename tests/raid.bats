@@ -117,6 +117,113 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$hp_after" -lt "$hp_before" ]
 }
 
+@test "frostmourne doubles raid damage via boss_dmg_mult" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 100000
+s['active_boss']['max_hp'] = 100000
+s['army'] = {}
+s['equipped'] = ['war_axe']
+s['inventory'] = []
+s['fatigue'] = 0
+s['combo_count'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  local hp_before hp_after dmg_no_mult
+  hp_before=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  hp_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  dmg_no_mult=$((hp_before - hp_after))
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['hp'] = 100000
+s['equipped'] = ['war_axe', 'frostmourne']
+s['combo_count'] = 0
+s['last_stop_time'] = 0
+s['fatigue'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  hp_before=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  hp_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  local dmg_with_mult=$((hp_before - hp_after))
+  [ "$dmg_with_mult" = "$((dmg_no_mult * 2))" ]
+}
+
+@test "boss_armor reduces incoming counter-attack damage" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 100
+s['active_boss']['atk_max'] = 100
+s['active_boss']['hp'] = 100000
+s['army'] = {'tauren': [80] * 5}
+s['equipped'] = ['iron_shield', 'infernal_core']
+s['item_durability'] = {'iron_shield': 50, 'infernal_core': 100}
+s['inventory'] = []
+s['fatigue'] = 0
+s['combo_count'] = 0
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local armor logged_dmg
+  armor=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('armor',0))")
+  logged_dmg=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('boss_dmg',-1))")
+  [ "$armor" = "75" ]
+  [ "$logged_dmg" = "25" ]
+}
+
+@test "depletion_ext extends gold mine threshold" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+del s['active_boss']
+s['equipped'] = ['skull_shield', 'periapt_of_vitality']
+s['item_durability'] = {'skull_shield': 50, 'periapt_of_vitality': 75}
+s['economy']['daily_tasks'] = 60
+s['economy']['gold'] = 0
+s['fatigue'] = 0
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local gold
+  gold=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
+  [ "$gold" -ge 10 ]
+}
+
+@test "boss_double_loot stacks across items" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 1
+s['active_boss']['loot_tier'] = ['common']
+s['army'] = {}
+s['equipped'] = ['crown_of_eredar', 'helm_of_domination']
+s['item_durability'] = {'crown_of_eredar': 200, 'helm_of_domination': 200}
+s['inventory'] = []
+s['fatigue'] = 0
+s['combo_count'] = 0
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local n_items
+  n_items=$(python3 -c "import json; print(len(json.load(open('$TEST_DIR/.state.json'))['inventory']))")
+  [ "$n_items" -ge 4 ]
+}
+
 @test "boss defeat gives gold reward" {
   # Set boss to 1 HP so next task kills it
   python3 -c "
