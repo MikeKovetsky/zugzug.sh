@@ -4562,7 +4562,9 @@ if game_on:
     # Apply equipped item effects
     if econ_on and equipped:
         gb = _sum_effect('gold_bonus')
-        if gb and gold_delta > 0:
+        _task_evt = (category == 'task.complete') or (event == 'Stop')
+        _bonus_ok = gold_delta > 0 or (_task_evt and fatigue < _fatigue_exhaust)
+        if gb and _bonus_ok:
             gold_delta += gb
         gm = _max_effect('gold_mult')
         if gm and gold_delta > 0:

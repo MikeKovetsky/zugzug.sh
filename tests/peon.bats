@@ -2609,6 +2609,20 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$gold" = "28" ]
 }
 
+@test "game: gold_bonus applies when gold mine is depleted" {
+  /usr/bin/python3 -c "import json, datetime; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['staff_of_negation']; today=datetime.date.today().isoformat(); s['economy']={'gold':0,'lumber':0,'daily_date':today,'daily_tasks':200,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
+  [ "$gold" = "10" ]
+}
+
+@test "game: gold_bonus does NOT apply when exhausted" {
+  /usr/bin/python3 -c "import json, datetime; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['staff_of_negation']; s['fatigue']=200; today=datetime.date.today().isoformat(); s['economy']={'gold':0,'lumber':0,'daily_date':today,'daily_tasks':0,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  gold=$(/usr/bin/python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('economy',{}).get('gold',0))")
+  [ "$gold" = "0" ]
+}
+
 @test "game: lumber_mult uses max across equipped items" {
   /usr/bin/python3 -c "import json; s=json.load(open('$TEST_DIR/.state.json')); s['inventory']=[]; s['equipped']=['boots_of_speed','sobi_mask','khadgars_pipe']; s['economy']={'gold':0,'lumber':0,'daily_date':'2026-02-18','daily_tasks':0,'daily_prompts':0}; s['last_stop_time']=0; json.dump(s,open('$TEST_DIR/.state.json','w'))"
   run_peon '{"hook_event_name":"UserPromptSubmit","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
