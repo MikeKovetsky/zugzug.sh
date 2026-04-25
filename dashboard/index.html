@@ -1792,7 +1792,7 @@ function updateSidebar(s) {
     }
     h += '<div class="bld-opt-desc">' + def.desc + '</div></div>';
     opt.innerHTML = h;
-    if (!isBuilt && afford) {
+    if ((!isBuilt || stackable) && afford) {
       opt.addEventListener('click', function(e) {
         e.stopPropagation();
         selectedBld = selectedBld === key ? null : key;
