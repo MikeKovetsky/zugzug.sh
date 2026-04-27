@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Changed
+- **Battle log only logs meaningful raid events**: The boss raid block was previously firing on every event with a category (including `task.acknowledge`, `input.required`, `task.error`), which produced noisy `0 dmg` battle log entries every time the user submitted a prompt, the agent asked for permission, or a Bash command failed. The boss now only engages on `task.complete`, `resource.limit`, `user.spam`, and `session.start`. Poison still ticks correctly on the next eligible event (the elapsed time across skipped events accumulates into the next tick).
+- **Battle log tags non-attack engagements**: When the boss engages on `resource.limit` (PreCompact) the entry now shows `Compacting context`, and on `user.spam` it shows `Stop poking peon!`, so the `0 dmg` lines have a clear reason rather than looking like a random whiff.
 - **Doom is now epic everywhere**: v3.5.2 fixed a CLI/dashboard mismatch by promoting Doom's display rarity from `epic` to `legendary` to match the runtime drop tier in `_ITEMS`. We're going the other direction instead — Doom is conceptually a top-end *consumable*, not a true legendary loot piece, so the runtime drop tier (`_ITEMS['doom']['r']`) and the rarity lookup table (`ITEMS_R`) now align with the long-standing display rarity of `epic`. Effective change: Doom now drops from epic-tier loot rolls (more common) rather than legendary-tier rolls. Display in `peon inventory`, `dashboard/index.html`, and `dashboard/raid.html` all match.
 
 ### Added

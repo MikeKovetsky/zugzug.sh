@@ -4617,8 +4617,10 @@ if game_on:
             state['active_boss'] = None
             _boss = None
             state_dirty = True
-        elif category:
-            
+        elif category and category not in ('task.acknowledge', 'input.required', 'task.error'):
+            # Boss only engages on task.complete, resource.limit, user.spam, session.start.
+            # Skipped categories above don't trigger battle log entries (poison still ticks
+            # silently across the gap because poison_last_tick is not advanced here).
             _bdmg = 0
             _bcounter = ''
             _bk = {}
@@ -4693,12 +4695,14 @@ if game_on:
                 _boss_gold = _sum_effect('boss_gold')
                 if _boss_gold and econ_on:
                     gold_delta += _boss_gold
-            elif category in ('task.error', 'resource.limit'):
-                if category == 'resource.limit':
-                    for _eid in equipped:
-                        if _eid in _durability and _durability[_eid] > 0:
-                            _durability[_eid] = max(0, _durability[_eid] - 1)
-                    state['item_durability'] = _durability
+            elif category == 'resource.limit':
+                _bcounter += ' Compacting context'
+                for _eid in equipped:
+                    if _eid in _durability and _durability[_eid] > 0:
+                        _durability[_eid] = max(0, _durability[_eid] - 1)
+                state['item_durability'] = _durability
+            elif category == 'user.spam':
+                _bcounter += ' Stop poking peon!'
             if _pdmg_pending > 0:
                 _bdmg += _pdmg_pending
                 _bk['poison'] = _pdmg_pending

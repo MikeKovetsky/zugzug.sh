@@ -449,10 +449,10 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
 }
 
-@test "poison ticks on a non-task event (PermissionRequest)" {
+@test "poison ticks on a non-task event (PreCompact)" {
   _poison_setup "['thunderfury']"
   # Thunderfury 0.2%/hr × 40000 = 80 dmg/hr. ~80 over 1 hour.
-  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  run_peon '{"hook_event_name":"PreCompact","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   [ "$PEON_EXIT" -eq 0 ]
   local hp poison
   hp=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
@@ -465,7 +465,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 @test "poison rate is additive across stacked items" {
   _poison_setup "['venom_orb','black_arrow','thunderfury']"
   # 0.05+0.1+0.2 = 0.35%/hr × 40000 = 140 dmg/hr.
-  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  run_peon '{"hook_event_name":"PreCompact","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local poison
   poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
   [ "$poison" -ge 135 ]
@@ -506,7 +506,7 @@ s = json.load(open('$TEST_DIR/.state.json'))
 s['active_boss']['poison_last_tick'] = int(time.time()) - (100 * 3600)
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
-  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  run_peon '{"hook_event_name":"PreCompact","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local poison
   poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
   [ "$poison" -ge 7900 ]
@@ -522,7 +522,7 @@ s['active_boss']['hp'] = 50  # 80 dmg/hr × 1h overkills
 s['active_boss']['poison_last_tick'] = int(time.time()) - 3600
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
-  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  run_peon '{"hook_event_name":"PreCompact","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local poisoned
   poisoned=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('boss_history',[{}])[-1].get('poisoned'))")
   [ "$poisoned" = "True" ]
@@ -530,10 +530,76 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 
 @test "no poison equipped means no tick" {
   _poison_setup "[]"
-  run_peon '{"hook_event_name":"PermissionRequest","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  run_peon '{"hook_event_name":"PreCompact","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local hp poison
   hp=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
   poison=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('bk',{}).get('poison',0))")
   [ "$poison" -eq 0 ]
   [ "$hp" -eq 40000 ]
+}
+
+@test "PermissionRequest does not engage the boss" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 100
+s['active_boss']['atk_max'] = 100
+s['active_boss']['hp'] = 100
+s['active_boss']['log'] = []
+s['army'] = {'tauren': [80] * 5}
+s['equipped'] = []
+s['fatigue'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"PermissionRequest","tool_name":"Bash","tool_input":{"command":"ls"},"cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local hp army_total log_len
+  hp=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  army_total=$(python3 -c "import json; a=json.load(open('$TEST_DIR/.state.json'))['army']; print(sum(h for hps in a.values() for h in hps))")
+  log_len=$(python3 -c "import json; print(len(json.load(open('$TEST_DIR/.state.json'))['active_boss'].get('log', [])))")
+  [ "$hp" -eq 100 ]
+  [ "$army_total" -eq 400 ]
+  [ "$log_len" -eq 0 ]
+}
+
+@test "resource.limit (PreCompact) tags battle log with reason" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 100
+s['active_boss']['log'] = []
+s['army'] = {}
+s['equipped'] = []
+s['fatigue'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"PreCompact","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local counter
+  counter=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('counter',''))")
+  [[ "$counter" == *"Compacting"* ]]
+}
+
+@test "user.spam tags battle log with reason" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 100
+s['active_boss']['log'] = []
+s['army'] = {}
+s['equipped'] = []
+s['fatigue'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  for i in 1 2 3; do
+    run_peon '{"hook_event_name":"UserPromptSubmit","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  done
+  local counter
+  counter=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('counter',''))")
+  [[ "$counter" == *"poking"* ]]
 }
