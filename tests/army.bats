@@ -77,7 +77,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   bash "$PEON_SH" hire raider
   local lumber_after
   lumber_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['lumber'])")
-  [ "$lumber_after" -eq $((lumber_before - 100)) ]
+  [ "$lumber_after" -eq $((lumber_before - 500)) ]
 }
 
 @test "hire multiple units at once" {
@@ -121,9 +121,9 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 
 @test "hire respects food cap" {
   # food cap = 12 + 8 (fortress) + 10 (citadel) = 30
-  # grunts cost 2 food each, 15 would be 30 food exactly
-  bash "$PEON_SH" hire grunt 15
-  # 16th should fail (32 > 30)
+  # grunts cost 1 food each, 30 fills it exactly
+  bash "$PEON_SH" hire grunt 30
+  # 31st should fail (31 > 30)
   run bash "$PEON_SH" hire grunt
   [ "$status" -eq 1 ]
   [[ "$output" == *"food"* ]]
@@ -183,7 +183,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 }
 
 @test "army damage shows in boss log" {
-  bash "$PEON_SH" hire tauren
+  bash "$PEON_SH" hire raider
   bash "$PEON_SH" raid kobold
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   local has_army

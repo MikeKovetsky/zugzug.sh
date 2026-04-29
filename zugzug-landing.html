@@ -636,8 +636,8 @@ footer a:hover { text-decoration: underline; }
 <section id="levels">
   <div class="frame fade-in">
     <div class="section-title">Character Progression</div>
-    <div class="section-heading">9 Levels. Every Faction. One Secret.</div>
-    <div class="section-desc">Start as a lowly Peon. Grind your way through Orc, Human, Troll, Undead, and Neutral heroes. Each level changes your voice lines, overlay portrait, and dashboard character. Rumors say there's a secret Level 10. Nobody has reached it yet.</div>
+    <div class="section-heading">14 Levels. Every Faction. One Secret.</div>
+    <div class="section-desc">Start as a lowly Peon. Grind your way through Orc, Human, Troll, Undead, Pandaren, and Tauren heroes — every iconic Warcraft III hero archetype, all the way to the Lich King's right hand. Each level changes your voice lines, overlay portrait, and dashboard character. Rumors say there's a secret Level 15. Nobody has reached it yet.</div>
     <div class="level-grid" id="levelGrid"></div>
   </div>
 </section>
@@ -816,7 +816,12 @@ var LEVELS = [
   { lvl:7, title:'Witch Doctor', faction:'Troll', tasks:'2,500', icon:W3+'orc/witchdoctor.png' },
   { lvl:8, title:'Arthas', faction:'Undead', tasks:'5,000', icon:WP+'d/db/BTNHeroDeathKnight.png' },
   { lvl:9, title:'Brewmaster', faction:'Neutral', tasks:'10,000', icon:W3+'neutral/pandarenbrewmaster.gif' },
-  { lvl:10, title:'???', faction:'???', tasks:'1,000,000', icon:'', secret:true },
+  { lvl:10, title:'Archmage', faction:'Human', tasks:'25,000', icon:WP+'e/e9/BTNHeroArchMage.png' },
+  { lvl:11, title:'Cairne Bloodhoof', faction:'Tauren', tasks:'75,000', icon:WP+'8/8d/BTNHeroTaurenChieftain.png' },
+  { lvl:12, title:'Blademaster', faction:'Orc', tasks:'150,000', icon:WP+'5/52/BTNHeroBlademaster.png' },
+  { lvl:13, title:'Thrall', faction:'Orc', tasks:'250,000', icon:WP+'6/6d/BTNThrall.png' },
+  { lvl:14, title:"Kel'Thuzad", faction:'Undead', tasks:'500,000', icon:WP+'6/62/BTNKelThuzad.png' },
+  { lvl:15, title:'???', faction:'???', tasks:'1,000,000', icon:'', secret:true },
 ];
 var grid = document.getElementById('levelGrid');
 LEVELS.forEach(function(L) {

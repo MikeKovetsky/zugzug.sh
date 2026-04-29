@@ -17,6 +17,7 @@
   --muted: #8a8472;
   --green: #4a8;
   --red: #c44;
+  --orange: #c08030;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -752,6 +753,30 @@ body {
 .raid-blog-hp { color: var(--text); min-width: 85px; }
 .raid-blog-counter { color: var(--red); }
 .raid-blog-combo { color: var(--gold); font-size: 12px; }
+.raid-blog-item { color: var(--orange); font-weight: 700; }
+.raid-blog-item .w3i { width: 16px; height: 16px; vertical-align: text-bottom; }
+
+.raid-use-items {
+  background: linear-gradient(180deg, #12121f 0%, #0a0a14 100%);
+  border: 1px solid var(--border); border-radius: 4px; padding: 14px; margin-bottom: 20px;
+}
+.raid-use-hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.raid-use-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.raid-use-btn {
+  background: #1a1230; border: 1px solid #4a2060; border-radius: 4px; padding: 7px 12px;
+  cursor: pointer; font-size: 13px; color: var(--text); font-family: inherit; transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.raid-use-btn:hover:not(:disabled) { border-color: var(--orange); background: #2a1a40; }
+.raid-use-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.raid-use-btn .w3i { width: 24px; height: 24px; }
+.raid-use-btn .ru-dmg { color: var(--orange); font-weight: 700; }
+.raid-use-btn.r-uncommon { border-color: rgba(74,170,0,0.5); }
+.raid-use-btn.r-uncommon:hover:not(:disabled) { border-color: #4ada40; }
+.raid-use-btn.r-rare { border-color: rgba(64,128,255,0.5); }
+.raid-use-btn.r-rare:hover:not(:disabled) { border-color: #4080ff; }
+.raid-use-btn.r-epic { border-color: rgba(160,64,224,0.5); }
+.raid-use-btn.r-epic:hover:not(:disabled) { border-color: #a040e0; }
 
 .raid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .raid-card {
@@ -1229,6 +1254,10 @@ body {
       <div class="sec-title">Active Raid</div>
       <div class="raid-active" id="raid-active"></div>
     </div>
+    <div id="raid-use-section" style="display:none">
+      <div class="sec-title">Use Items</div>
+      <div class="raid-use-items" id="raid-use-items"></div>
+    </div>
     <div id="raid-log-section" style="display:none">
       <div class="sec-title">Battle Log</div>
       <div class="raid-blog" id="raid-blog"></div>
@@ -1342,10 +1371,11 @@ var BLDS = {
   arcane_sanctum:  { icon: w3i('orc/voodoolounge.png'), name: 'Arcane Sanctum', g: 7500, l: 3000, desc: 'Unlocks peon prophecies on session start.' },
   fortress:        { icon: w3i('orc/fortress.png'), name: 'Fortress', g: 10000, l: 4000, desc: 'Max rank. Unlocks leaderboard title.' },
   dark_portal:     { icon: w3i('neutral/pitlord.gif'), name: 'Dark Portal', g: 12000, l: 5000, desc: 'Open the Dark Portal. Raid bosses await beyond.' },
-  citadel:         { icon: w3i('orc/taurentotem.png'), name: 'Citadel', g: 15000, l: 6000, desc: 'Prestige rank. 2x item drop rate.' },
+  citadel:         { icon: wwi('BTNCastle.png'), name: 'Citadel', g: 15000, l: 6000, desc: 'Prestige rank. 2x item drop rate.' },
   farm:            { icon: wwi('BTNFarm.png'), name: 'Farm', g: 8000, l: 3000, desc: '+5 food cap. Build up to 3.', max: 3 },
   goblin_lab:      { icon: w3i('neutral/goblinlaboratory.png'), name: 'Goblin Laboratory', g: 18000, l: 7000, desc: 'Goblin tinkerers. Army upkeep halved.' },
-  world_tree:      { icon: wwi('BTNTreeOfLife.png'), name: 'World Tree', g: 25000, l: 10000, desc: 'Nordrassil takes root. Gold mine yields last longer.' },
+  tauren_totem:    { icon: w3i('orc/taurentotem.png'), name: 'Tauren Totem', g: 20000, l: 8000, desc: 'Unlock Tauren Warrior unit (200 HP, +15 dmg).' },
+  world_tree:      { icon: wwi('BTNTreeOfLife.png'), name: 'World Tree', g: 25000, l: 10000, desc: 'Nordrassil takes root. +1 equipment slot (7 total).' },
 };
 
 var ACHS = [
@@ -1412,16 +1442,21 @@ var EVT_ICONS = {
 
 var WP = 'https://static.wikia.nocookie.net/wowpedia/images/';
 var LEVELS = [
-  { lvl:1,  thresh:0,       title:'Peon',          faction:'Orc',       icon: W3+'orc/peon.png',            flavor:'Ready to work!' },
-  { lvl:2,  thresh:25,      title:'Peasant',        faction:'Human',     icon: WP+'b/bc/BTNPeasant.png',     flavor:'More work? I just got promoted from the other side!' },
-  { lvl:3,  thresh:100,     title:'Grunt',           faction:'Orc',       icon: W3+'orc/grunt.png',           flavor:'My blade is yours! Zug zug.' },
-  { lvl:4,  thresh:250,     title:'Knight',          faction:'Human',     icon: WP+'9/97/BTNKnight.png',      flavor:'For Lordaeron! ...and clean code.' },
-  { lvl:5,  thresh:500,     title:'Far Seer',        faction:'Orc',       icon: W3+'orc/farseer.png',         flavor:'The spirits reveal the code ahead.' },
-  { lvl:6,  thresh:1000,    title:'Jaina',           faction:'Human',     icon: WP+'0/04/BTNJaina.png',       flavor:'I hate resorting to violence. But 1000 tasks...' },
-  { lvl:7,  thresh:2500,    title:'Witch Doctor',    faction:'Troll',     icon: W3+'orc/witchdoctor.png', flavor:'Look at me. Hee hee! I am da witch doctor.' },
-  { lvl:8,  thresh:5000,    title:'Arthas',          faction:'Undead',    icon: WP+'d/db/BTNHeroDeathKnight.png', flavor:'Glad you could make it. Now serve the code.' },
-  { lvl:9,  thresh:10000,   title:'Brewmaster',      faction:'Neutral',   icon: W3+'neutral/pandarenbrewmaster.gif', flavor:'Another round? Peon buy drinks!' },
-  { lvl:10, thresh:1000000, title:'Murloc',          faction:'???',       icon: WP+'9/97/BTNMurloc.png',      flavor:'MRGLGLGLGL! You have transcended all factions. The swamp welcomes you.' },
+  { lvl:1,  thresh:0,       title:'Peon',                 faction:'Orc',       icon: W3+'orc/peon.png',                    flavor:'Ready to work!' },
+  { lvl:2,  thresh:25,      title:'Peasant',              faction:'Human',     icon: WP+'b/bc/BTNPeasant.png',             flavor:'More work? I just got promoted from the other side!' },
+  { lvl:3,  thresh:100,     title:'Grunt',                faction:'Orc',       icon: W3+'orc/grunt.png',                   flavor:'My blade is yours! Zug zug.' },
+  { lvl:4,  thresh:250,     title:'Knight',               faction:'Human',     icon: WP+'9/97/BTNKnight.png',              flavor:'For Lordaeron! ...and clean code.' },
+  { lvl:5,  thresh:500,     title:'Far Seer',             faction:'Orc',       icon: W3+'orc/farseer.png',                 flavor:'The spirits reveal the code ahead.' },
+  { lvl:6,  thresh:1000,    title:'Jaina',                faction:'Human',     icon: WP+'0/04/BTNJaina.png',               flavor:'I hate resorting to violence. But 1000 tasks...' },
+  { lvl:7,  thresh:2500,    title:'Witch Doctor',         faction:'Troll',     icon: W3+'orc/witchdoctor.png',             flavor:'Look at me. Hee hee! I am da witch doctor.' },
+  { lvl:8,  thresh:5000,    title:'Arthas',               faction:'Undead',    icon: WP+'d/db/BTNHeroDeathKnight.png',     flavor:'Glad you could make it. Now serve the code.' },
+  { lvl:9,  thresh:10000,   title:'Brewmaster',           faction:'Neutral',   icon: W3+'neutral/pandarenbrewmaster.gif',  flavor:'Another round? Peon buy drinks!' },
+  { lvl:10, thresh:25000,   title:'Archmage',             faction:'Human',     icon: WP+'e/e9/BTNHeroArchMage.png',        flavor:'Quas Wex Exort. The forge invokes the answer.' },
+  { lvl:11, thresh:75000,   title:'Cairne Bloodhoof',     faction:'Tauren',    icon: WP+'8/8d/BTNHeroTaurenChieftain.png', flavor:'An\u2019she guides your commits, young runner.' },
+  { lvl:12, thresh:150000,  title:'Blademaster',          faction:'Orc',       icon: WP+'5/52/BTNHeroBlademaster.png',     flavor:'I am one. We are many. The mirror images shall test.' },
+  { lvl:13, thresh:250000,  title:'Thrall',               faction:'Orc',       icon: WP+'6/6d/BTNThrall.png',              flavor:"Lok'tar ogar! Victory or death \u2014 no segfaults." },
+  { lvl:14, thresh:500000,  title:"Kel'Thuzad",           faction:'Undead',    icon: WP+'6/62/BTNKelThuzad.png',           flavor:'The Scourge of bugs is upon them. Rise, my minions.' },
+  { lvl:15, thresh:1000000, title:'Murloc',               faction:'???',       icon: WP+'9/97/BTNMurloc.png',              flavor:'MRGLGLGLGL! You have transcended all factions. The swamp welcomes you.', secret:true },
 ];
 
 function getLevelInfo(tasks) {
@@ -1429,12 +1464,12 @@ function getLevelInfo(tasks) {
   for (var i = 0; i < LEVELS.length; i++) {
     if (tasks >= LEVELS[i].thresh) info = LEVELS[i];
   }
-  var next = info.lvl < 10 ? LEVELS[info.lvl] : null;
+  var next = info.lvl < LEVELS.length ? LEVELS[info.lvl] : null;
   return { cur: info, next: next };
 }
 
 function tierClass(lvl) {
-  if (lvl >= 10) return 'tier-murloc';
+  if (lvl >= 15) return 'tier-murloc';
   if (lvl >= 7) return 'tier-legend';
   if (lvl >= 4) return 'tier-hero';
   return 'tier-worker';
@@ -1489,7 +1524,7 @@ var ITEMS = {
   amulet_of_spell:     { icon: w3i('neutral/scrollofprotection.gif'), name: 'Amulet of Spell Shield', r: 'epic', desc: 'Heal army 3 HP per task' },
   khadgars_pipe:       { icon: w3i('orc/spiritwalkeradepttraining.png'), name: "Khadgar's Pipe", r: 'epic', desc: '5x lumber from prompts' },
   ankh:                { icon: wwi('BTNAnkh.png'), name: 'Ankh of Reincarnation', r: 'epic', desc: '+5000 gold (use)', cons: true },
-  pillage_banner:      { icon: w3i('orc/pillage.gif'), name: 'Banner of Pillage', r: 'epic', desc: '+3 dmg per 10 combo' },
+  pillage_banner:      { icon: w3i('orc/pillage.gif'), name: 'Banner of Pillage', r: 'epic', desc: '+3 dmg per 10 combo per level' },
   spirit_link:         { icon: w3i('orc/spiritwalkermastertraining.png'), name: 'Spirit Link', r: 'epic', desc: '+7 raid damage' },
   invuln_potion:       { icon: w3i('neutral/potionoflesserinvulnerability.gif'), name: 'Potion of Invulnerability', r: 'epic', desc: '+3000g +1000l (use)', cons: true },
   frostmourne:         { icon: wwi('BTNFrostMourne.png'), name: 'Frostmourne', r: 'legendary', desc: '2x raid damage. ❄️ Unlocks Cursor theme.' },
@@ -1520,7 +1555,7 @@ var ITEMS = {
   acorn_of_stag:       { icon: wwi('BTNAcorn.png'), name: 'Acorn of the Stag', r: 'uncommon', desc: '+5% boss crit' },
   venom_orb:           { icon: w3i('orc/envenomedspears.gif'), name: 'Venom Orb', r: 'uncommon', desc: 'Poison: 0.05% boss HP/hr (passive)' },
   troll_totem:         { icon: w3i('orc/trollregeneration.png'), name: 'Troll Regen Totem', r: 'uncommon', desc: 'Repair 1 dur/5 tasks' },
-  bloodstone:          { icon: wwi('BTNStone.png'), name: 'Bloodstone', r: 'rare', desc: '+1 dmg per 10 combo' },
+  bloodstone:          { icon: wwi('BTNStone.png'), name: 'Bloodstone', r: 'rare', desc: '+1 dmg per 10 combo per level' },
   runed_gauntlets:     { icon: w3i('orc/reinforceddefenses.png'), name: 'Runed Gauntlets', r: 'rare', desc: '+12% boss crit' },
   executioners_blade:  { icon: w3i('orc/arcanitemeleeweapons.png'), name: "Executioner's Blade", r: 'rare', desc: '3x dmg below 20% HP' },
   ogre_scepter:        { icon: w3i('orc/spiritwalkeradepttraining.png'), name: 'Ogre Magi Scepter', r: 'rare', desc: '+18 raid damage' },
@@ -1648,8 +1683,7 @@ function updateRes(s) {
   gb.classList.toggle('hidden', s.goblin_discount_date !== today());
   var mine = $('mine-status');
   var dt = ec.daily_tasks || 0;
-  var hasWT = (s.buildings || {}).world_tree != null;
-  var mLow = hasWT ? 80 : 50, mOut = hasWT ? 120 : 80;
+  var mLow = 50, mOut = 80;
   mine.className = 'mine-badge';
   if (dt >= mOut) {
     mine.textContent = '\u26CF Mine collapsed';
@@ -2045,15 +2079,16 @@ function updateInventory(s) {
   var equipped = s.equipped || [];
   var inventory = s.inventory || [];
   var dur = s.item_durability || {};
+  var eqMax = (s.buildings || {}).world_tree ? 7 : 6;
   var eqDiv = $('equip-slots');
   eqDiv.innerHTML = '';
   var eqUsed = 0;
-  for (var ei = 0; ei < 6; ei++) { if (equipped[ei]) eqUsed++; }
+  for (var ei = 0; ei < eqMax; ei++) { if (equipped[ei]) eqUsed++; }
   var eqCount = $('equip-count');
-  if (eqCount) eqCount.textContent = eqUsed + ' / 6 slots';
+  if (eqCount) eqCount.textContent = eqUsed + ' / ' + eqMax + ' slots';
   var bagCount = $('bag-count');
   if (bagCount) bagCount.textContent = inventory.length + (inventory.length === 1 ? ' item' : ' items');
-  for (var i = 0; i < 6; i++) {
+  for (var i = 0; i < eqMax; i++) {
     var slot = document.createElement('div');
     var iid = equipped[i];
     var it = iid ? ITEMS[iid] : null;
@@ -2187,10 +2222,10 @@ function updateCharacter(s) {
     if (L.lvl < cur.lvl) state_cls = 'completed';
     else if (L.lvl === cur.lvl) state_cls = 'current';
     else state_cls = 'locked';
-    var murloc_cls = L.lvl === 10 ? ' murloc-tile' : '';
+    var murloc_cls = L.secret ? ' murloc-tile' : '';
     tile.className = 'lvl-tile ' + state_cls + murloc_cls;
     var reqText = L.thresh === 0 ? 'Start' : L.thresh.toLocaleString() + ' tasks';
-    if (L.lvl === 10 && state_cls === 'locked') {
+    if (L.secret && state_cls === 'locked') {
       tile.innerHTML = '<div class="lvl-tile-icon">\u2753</div>' +
         '<div class="lvl-tile-num">Lvl ' + L.lvl + '</div>' +
         '<div class="lvl-tile-name">???</div>' +
@@ -2220,6 +2255,18 @@ var RAID_BOSSES = {
   mannoroth:   {name:'Pit Lord Mannoroth',   hp:40000,   days:4,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:['epic','rare','rare','uncommon','common','common'],  gold:10000,  lumber:3000,  atk_min:4, atk_max:10, icon: w3i('neutral/pitlord.gif'), art: BOSS_ART+'mannoroth.png'},
   archimonde:  {name:'Archimonde',           hp:100000,  days:7,  kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:['epic','epic','rare','rare','rare','uncommon','common'],      gold:15000,  lumber:5000,  atk_min:4, atk_max:15, icon: w3i('orc/chieftain.gif'), art: BOSS_ART+'archimonde.png'},
   lich_king:   {name:'The Lich King',        hp:1000000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:['legendary','epic','epic'], gold:50000,  lumber:15000, atk_min:5, atk_max:20, icon: wwi('BTNHeroDeathKnight.png'), art: BOSS_ART+'lich_king.png'}
+};
+
+var BOSS_ITEMS = {
+  firebolt:        {name:'Firebolt',             dmg:50,    r:'common',   icon:wwi('BTNFireBolt.png')},
+  goblin_sapper:   {name:'Goblin Sapper Charge', dmg:100,   r:'uncommon', icon:wwi('BTNGoblinSapper.png')},
+  storm_bolt:      {name:'Storm Bolt',           dmg:250,   r:'uncommon', icon:wwi('BTNStormBolt.png')},
+  demolisher_shot: {name:'Demolisher Shot',      dmg:500,   r:'rare',     icon:wwi('BTNDemolisher.png')},
+  thunder_clap:    {name:'Thunder Clap',         dmg:750,   r:'rare',     icon:wwi('BTNThunderClap.png')},
+  chain_lightning: {name:'Chain Lightning',      dmg:2000,  r:'epic',     icon:wwi('BTNChainLightning.png')},
+  death_coil:      {name:'Death Coil',           dmg:5000,  r:'epic',     icon:wwi('BTNDeathCoil.png')},
+  finger_of_death: {name:'Finger of Death',      dmg:10000, r:'epic',     icon:wwi('BTNCarrionSwarm.png')},
+  doom:            {name:'Doom',                 dmg:40000, r:'epic',     icon:wwi('BTNDoom.png')}
 };
 
 function fmtLoot(arr) {
@@ -2259,9 +2306,11 @@ function updateRaids(s) {
     $('raid-select-section').style.display = 'none';
     $('raid-log-section').style.display = '';
     raidRenderActive(boss);
+    raidRenderItems(s);
     raidRenderLog(boss);
   } else if (!raidResultShown) {
     $('raid-active-section').style.display = 'none';
+    $('raid-use-section').style.display = 'none';
     $('raid-log-section').style.display = 'none';
     $('raid-select-section').style.display = '';
     raidRenderGrid(bld, bk, bkTotal, lvl, ec, hasPortal);
@@ -2302,8 +2351,8 @@ function raidRenderActive(boss) {
   var log = boss.log || [];
   var hits = log.filter(function(e) { return e.dmg > 0 && !e.counter; });
   if (hits.length > 0) {
-    var KNOWN_BK = {base:1,combo:1,items:1,army:1,bloodstone:1,smith:1,execute:1,crit:1,tired:1,item_use:1,exhausted:1};
-    var totals = {base:0,combo:0,items:0,army:0,bloodstone:0,smith:0,execute:0,crit:0,tired:0,item_use:0,other:0};
+    var KNOWN_BK = {base:1,combo:1,items:1,army:1,bloodstone:1,smith:1,execute:1,crit:1,tired:1,item_use:1,exhausted:1,poison:1};
+    var totals = {base:0,combo:0,items:0,army:0,bloodstone:0,smith:0,execute:0,crit:0,tired:0,item_use:0,poison:0,other:0};
     hits.forEach(function(e) {
       var b = e.bk || {};
       for (var k in b) {
@@ -2323,6 +2372,7 @@ function raidRenderActive(boss) {
     if (totals.smith) ps.push('Blacksmith: +' + totals.smith);
     if (totals.execute) ps.push('Execute: +' + totals.execute);
     if (totals.crit) ps.push('Crits: +' + totals.crit);
+    if (totals.poison) ps.push('<span style="color:var(--green)">Poison: +' + totals.poison + '</span>');
     if (totals.item_use) ps.push('<span style="color:var(--orange)">Consumables: +' + totals.item_use + '</span>');
     if (totals.tired) ps.push('<span style="color:var(--red)">Fatigue: ' + totals.tired + '</span>');
     if (totals.other) ps.push('Other: +' + totals.other);
@@ -2341,6 +2391,36 @@ function raidPromptSurrender(name, penalty) {
   $('raid-surrender-overlay').classList.add('active');
 }
 
+function raidRenderItems(s) {
+  var inv = (s.inventory || []).concat(s.equipped || []);
+  var avail = inv.filter(function(iid) { return BOSS_ITEMS[iid]; });
+  var sec = $('raid-use-section');
+  if (avail.length === 0) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  var boss = s.active_boss;
+  var bossName = boss && boss.name ? boss.name : 'the boss';
+  var counts = {};
+  avail.forEach(function(iid) { counts[iid] = (counts[iid] || 0) + 1; });
+  var html = '<div class="raid-use-hint">Consumables that deal instant damage to ' + bossName + ':</div><div class="raid-use-grid" id="raid-use-grid"></div>';
+  $('raid-use-items').innerHTML = html;
+  var grid = $('raid-use-grid');
+  Object.keys(counts).sort(function(a, b) { return BOSS_ITEMS[a].dmg - BOSS_ITEMS[b].dmg; }).forEach(function(iid) {
+    var bi = BOSS_ITEMS[iid];
+    var btn = document.createElement('button');
+    btn.className = 'raid-use-btn r-' + bi.r;
+    var qty = counts[iid] > 1 ? ' x' + counts[iid] : '';
+    btn.innerHTML = bi.icon + ' ' + bi.name + qty + ' <span class="ru-dmg">-' + bi.dmg.toLocaleString() + ' HP</span>';
+    btn.addEventListener('click', function() {
+      btn.disabled = true;
+      apiPost('/api/use', {item: iid}).then(function(res) {
+        if (res.ok) { addToast('', '\u2694\uFE0F', bi.name + ' \u2014 -' + bi.dmg + ' HP'); poll(); }
+        else { addToast('err', '\u274C', res.error || 'Failed'); btn.disabled = false; }
+      }).catch(function() { addToast('err', '\u274C', 'Request failed'); btn.disabled = false; });
+    });
+    grid.appendChild(btn);
+  });
+}
+
 function raidRenderLog(boss) {
   var log = boss.log || [];
   var el = $('raid-blog');
@@ -2355,7 +2435,17 @@ function raidRenderLog(boss) {
     if (e.boss_dmg) ctr += ' <span class="raid-blog-counter">\u2694 ' + e.boss_dmg + ' dmg to army</span>';
     if (e.boss_atk) ctr += ' <span class="raid-blog-counter">\u2620 -' + e.boss_atk + ' units</span>';
     var bk = '';
-    if (e.bk && e.dmg > 0) {
+    var isItemUse = e.bk && e.bk.item_use && !e.bk.base;
+    var itemInfo = null;
+    if (isItemUse && e.item && BOSS_ITEMS[e.item]) {
+      itemInfo = BOSS_ITEMS[e.item];
+    } else if (isItemUse) {
+      var itemDmg = e.bk.item_use;
+      Object.keys(BOSS_ITEMS).forEach(function(k) { if (BOSS_ITEMS[k].dmg === itemDmg && !itemInfo) itemInfo = BOSS_ITEMS[k]; });
+    }
+    if (isItemUse && itemInfo) {
+      bk = ' <span class="raid-blog-item">' + itemInfo.icon + ' ' + itemInfo.name + '</span>';
+    } else if (e.bk && e.dmg > 0) {
       var bp = [];
       if (e.bk.base) bp.push(e.bk.base);
       if (e.bk.combo) bp.push('+' + e.bk.combo + ' combo');
@@ -2365,6 +2455,8 @@ function raidRenderLog(boss) {
       if (e.bk.smith) bp.push('+' + e.bk.smith + ' smith');
       if (e.bk.crit) bp.push('+' + e.bk.crit + ' crit');
       if (e.bk.execute) bp.push('+' + e.bk.execute + ' exec');
+      if (e.bk.poison) bp.push('<span style="color:var(--green)">+' + e.bk.poison + ' poison</span>');
+      if (e.bk.item_use) bp.push('<span style="color:var(--orange)">' + e.bk.item_use + ' item</span>');
       if (e.bk.tired) bp.push('<span style="color:var(--red)">' + e.bk.tired + ' tired</span>');
       if (e.bk.exhausted) bp = ['<span style="color:var(--red)">exhausted</span>'];
       bk = ' <span style="color:var(--muted);font-size:0.85em">(' + bp.join(' ') + ')</span>';
@@ -2606,6 +2698,7 @@ function raidShowResult(entry) {
   }
 
   $('raid-active-section').style.display = 'none';
+  $('raid-use-section').style.display = 'none';
   $('raid-log-section').style.display = 'none';
   $('raid-select-section').style.display = 'none';
   $('raid-history-section').style.display = 'none';
@@ -2620,10 +2713,11 @@ $('btn-raid-new').addEventListener('click', function() {
 /* --- Army --- */
 
 var ARMY_UNITS = {
-  grunt:  {name:'Grunt',          gold:100,  lumber:0,   food:2, dmg:1,  armor:0,  heal:0, hp:30, desc:'30 HP. +1 raid damage.',                      icon: w3i('orc/grunt.gif')},
-  raider: {name:'Raider',         gold:400,  lumber:100, food:3, dmg:4,  armor:0,  heal:0, hp:50, desc:'50 HP. +4 raid damage.',                      icon: w3i('orc/wolfrider.gif')},
-  tauren: {name:'Tauren Warrior', gold:1000, lumber:400, food:5, dmg:10, armor:0,  heal:0, hp:80, desc:'80 HP. +10 raid damage (elite).',             icon: w3i('orc/tauren.gif')},
-  shaman: {name:'Shaman',         gold:300,  lumber:100, food:2, dmg:0,  armor:25, heal:3, hp:20, desc:'20 HP. Heals 1-3 HP/turn. 25% armor.',         icon: w3i('orc/shaman.gif')}
+  grunt:      {name:'Grunt',            gold:100,  lumber:0,    food:1, dmg:2,  armor:0,  heal:0, hp:30,  desc:'30 HP. +2 raid damage.',                      icon: w3i('orc/grunt.gif')},
+  headhunter: {name:'Troll Headhunter', gold:500,  lumber:200,  food:3, dmg:5,  armor:0,  heal:0, hp:40,  desc:'Ranged. 40 HP. +5 raid damage.',              icon: w3i('orc/headhunter.gif')},
+  raider:     {name:'Raider',           gold:1200, lumber:500,  food:4, dmg:10, armor:0,  heal:0, hp:100, desc:'100 HP. +10 raid damage.',                    icon: w3i('orc/wolfrider.gif')},
+  tauren:     {name:'Tauren Warrior',   gold:3000, lumber:1500, food:5, dmg:15, armor:0,  heal:0, hp:200, desc:'True Tauren. 200 HP. +15 raid damage.',        icon: w3i('orc/tauren.gif'), req:['tauren_totem']},
+  shaman:     {name:'Shaman',           gold:300,  lumber:100,  food:2, dmg:0,  armor:25, heal:3, hp:20,  desc:'20 HP. Heals 1-3 HP/turn. 25% armor.',         icon: w3i('orc/shaman.gif')}
 };
 
 function armyCnt(army, uid) {
@@ -2725,9 +2819,10 @@ function renderArmyGrid(ec, bld, army, fc, fu) {
   var gold = ec.gold || 0, lumber = ec.lumber || 0;
   Object.keys(ARMY_UNITS).forEach(function(uid) {
     var u = ARMY_UNITS[uid];
+    var missingReq = (u.req || []).filter(function(r) { return !bld[r]; });
     var afford = gold >= u.gold && lumber >= u.lumber;
     var hasFood = fu + u.food <= fc;
-    var off = !afford || !hasFood;
+    var off = missingReq.length > 0 || !afford || !hasFood;
     var card = document.createElement('div');
     card.className = 'army-card' + (off ? ' army-card-off' : '');
     var cost = '<span class="gc">' + u.gold + 'g</span>';
@@ -2735,7 +2830,8 @@ function renderArmyGrid(ec, bld, army, fc, fu) {
     cost += ' &middot; ' + u.food + ' food';
     var h = '<div class="army-card-top">' + u.icon + '<div><div class="army-card-name">' + u.name + '</div><div class="army-card-cost">' + cost + '</div></div></div>';
     h += '<div class="army-card-desc">' + u.desc + '</div>';
-    if (!afford) h += '<div class="army-card-warn">Not enough resources</div>';
+    if (missingReq.length > 0) h += '<div class="army-card-warn">Requires: ' + missingReq.join(', ') + '</div>';
+    else if (!afford) h += '<div class="army-card-warn">Not enough resources</div>';
     else if (!hasFood) h += '<div class="army-card-warn">Not enough food</div>';
     card.innerHTML = h;
     if (!off) {

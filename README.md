@@ -186,10 +186,15 @@ Every task you complete earns XP. As you level up, your character evolves throug
 | 6 | Jaina | Human | 1,000 | `wc3_jaina` |
 | 7 | Witch Doctor | Troll | 2,500 | `dota2_witch_doctor` |
 | 8 | Arthas | Undead | 5,000 | `wc3_corrupted_arthas` |
-| 9 | Brewmaster | Neutral | 10,000 | — |
-| 10 | ??? | ??? | 1,000,000 | ??? |
+| 9 | Brewmaster | Pandaren | 10,000 | `wc3_brewmaster` |
+| 10 | Archmage | Human | 25,000 | `dota2_invoker` |
+| 11 | Cairne Bloodhoof | Tauren | 75,000 | `wow-tauren` |
+| 12 | Blademaster | Orc | 150,000 | `dota2_phantom_lancer` |
+| 13 | Thrall | Orc | 250,000 | `zugzug` |
+| 14 | Kel'Thuzad | Undead | 500,000 | `wc3_lich` |
+| 15 | ??? | ??? | 1,000,000 | ??? |
 
-Your level drives everything: the voice lines you hear, the portrait in your overlay notifications, and the character shown in the dashboard. There are rumors of a secret Level 10. Nobody has reached it yet.
+Your level drives everything: the voice lines you hear, the portrait in your overlay notifications, and the character shown in the dashboard. The late-game heroes (10–14) lean on Dota 2 voice packs whose source heroes are the obvious match for their Warcraft III counterparts — Archmage borrows Invoker's "Quas Wex Exort" multi-spell incantations, Blademaster gets Phantom Lancer's mirror-image lines (`I am one. We are many.`), the same way the level 7 Witch Doctor uses the Dota 2 Witch Doctor pack. There are rumors of a secret Level 15. Nobody has reached it yet.
 
 <div align="center">
 <img src="docs/screenshots/screenshot-character.png" width="800" alt="Character progression page">

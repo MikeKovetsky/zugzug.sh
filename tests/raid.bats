@@ -289,6 +289,8 @@ s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 100, 'max
 s['equipped'] = ['amulet_of_spell']
 s['item_durability'] = {'amulet_of_spell': 150}
 s['army'] = {'grunt': [30, 30], 'tauren': [40]}
+s['tauren_brave_migrated'] = True
+s['brave_refunded'] = True
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
@@ -332,6 +334,8 @@ s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 100, 'max
 s['equipped'] = ['amulet_of_spell']
 s['item_durability'] = {'amulet_of_spell': 150}
 s['army'] = {'grunt': [10, 10, 10, 10, 10], 'tauren': [40, 40, 40]}
+s['tauren_brave_migrated'] = True
+s['brave_refunded'] = True
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
@@ -345,7 +349,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 }
 
 @test "amulet_of_spell heal targets most-wounded by percentage" {
-  # With a tauren at 79/80 (1.25% deficit) and a grunt at 28/30 (6.7% deficit),
+  # With a tauren at 197/200 (1.5% deficit) and a grunt at 28/30 (6.7% deficit),
   # the 3-HP heal pool should go to the grunt first.
   python3 -c "
 import json, datetime
@@ -354,7 +358,9 @@ dl = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
 s['active_boss'] = {'id': 'kobold', 'name': 'Kobold Taskmaster', 'hp': 100, 'max_hp': 100, 'deadline': dl, 'loot_tier': 'common', 'entry_fee': 0, 'gold_reward': 50, 'lumber_reward': 25, 'atk_min': 0, 'atk_max': 0}
 s['equipped'] = ['amulet_of_spell']
 s['item_durability'] = {'amulet_of_spell': 150}
-s['army'] = {'tauren': [79], 'grunt': [28]}
+s['army'] = {'tauren': [197], 'grunt': [28]}
+s['tauren_brave_migrated'] = True
+s['brave_refunded'] = True
 json.dump(s, open('$TEST_DIR/.state.json', 'w'))
 "
   run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
@@ -364,7 +370,7 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   tauren=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['army']['tauren'][0])")
   # Grunt should be fully healed first (deficit 2 HP, 6.7%), then tauren gets the remaining 1 HP.
   [ "$grunt" -eq 30 ]
-  [ "$tauren" -eq 80 ]
+  [ "$tauren" -eq 198 ]
 }
 
 @test "scroll_of_heal consumable heals 15 HP TOTAL across army" {
@@ -602,4 +608,80 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   local counter
   counter=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1].get('counter',''))")
   [[ "$counter" == *"poking"* ]]
+}
+
+@test "combo raid damage scales with player level" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json, time
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 100000
+s['active_boss']['max_hp'] = 100000
+s['army'] = {}
+s['equipped'] = []
+s['inventory'] = []
+s['fatigue'] = 0
+s['combo_count'] = 100
+s['combo_ts'] = time.time()
+s['stats']['tasks_completed'] = 500
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local combo_dmg
+  combo_dmg=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1]['bk'].get('combo', 0))")
+  [ "$combo_dmg" = "50" ]
+}
+
+@test "combo raid damage at level 1 keeps original 1-per-10 rate" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json, time
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 100000
+s['active_boss']['max_hp'] = 100000
+s['army'] = {}
+s['equipped'] = []
+s['inventory'] = []
+s['fatigue'] = 0
+s['combo_count'] = 100
+s['combo_ts'] = time.time()
+s['stats']['tasks_completed'] = 0
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local combo_dmg
+  combo_dmg=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1]['bk'].get('combo', 0))")
+  [ "$combo_dmg" = "10" ]
+}
+
+@test "bloodstone raid damage scales with player level" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json, time
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 100000
+s['active_boss']['max_hp'] = 100000
+s['army'] = {}
+s['equipped'] = ['bloodstone']
+s['item_durability'] = {'bloodstone': 100}
+s['inventory'] = []
+s['fatigue'] = 0
+s['combo_count'] = 100
+s['combo_ts'] = time.time()
+s['stats']['tasks_completed'] = 10000
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local bloodstone_dmg
+  bloodstone_dmg=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1]['bk'].get('bloodstone', 0))")
+  [ "$bloodstone_dmg" = "90" ]
 }

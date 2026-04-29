@@ -57,13 +57,35 @@ STATE="$PEON_DIR/.state.json"
 # - _save_state: backs up, writes to temp, then atomic os.replace
 _PY_STATE_IO="
 import tempfile as _tf, shutil as _sh
+def _migrate(_d):
+    # v3.6.0: 'tauren' (old, 80 HP) became 'brave' (Tauren Brave) intermediate;
+    # new 'tauren' (200 HP, +15 dmg) is gated behind Tauren Totem.
+    if not _d.get('tauren_brave_migrated'):
+        _a = _d.get('army', {})
+        if 'tauren' in _a and 'brave' not in _a:
+            _a['brave'] = _a.pop('tauren')
+            _d['army'] = _a
+        _d['tauren_brave_migrated'] = True
+    # v3.6.0: Tauren Brave replaced by Troll Headhunter; refund existing braves
+    # at original cost (1000g/400l each) so player investment isn't lost.
+    if not _d.get('brave_refunded'):
+        _a = _d.get('army', {})
+        if 'brave' in _a:
+            _n = len(_a['brave']) if isinstance(_a['brave'], list) else _a['brave']
+            _e = _d.setdefault('economy', {})
+            _e['gold'] = _e.get('gold', 0) + 1000 * _n
+            _e['lumber'] = _e.get('lumber', 0) + 400 * _n
+            _a.pop('brave')
+            _d['army'] = _a
+        _d['brave_refunded'] = True
+    return _d
 def _load_state(p):
     for _f in (p, p + '.bak'):
         try:
             _d = json.load(open(_f))
-            if isinstance(_d, dict): return _d
+            if isinstance(_d, dict): return _migrate(_d)
         except Exception: pass
-    return {}
+    return _migrate({})
 def _save_state(p, d, indent=None):
     _dn = os.path.dirname(p) or '.'
     os.makedirs(_dn, exist_ok=True)
@@ -1609,12 +1631,12 @@ print(f'Daily tasks: {daily_tasks}/80')
 print(f'Lifetime gold earned: {stats.get(\"total_gold_earned\", 0)}')
 print(f'Lifetime lumber earned: {stats.get(\"total_lumber_earned\", 0)}')
 army = state.get('army', {})
-_UNIT_HP = dict(grunt=30, raider=50, tauren=80, shaman=20)
+_UNIT_HP = dict(grunt=30, headhunter=40, raider=100, tauren=200, shaman=20)
 for _uk in list(army.keys()):
     if isinstance(army[_uk], int): army[_uk] = [_UNIT_HP.get(_uk, 30)] * army[_uk]
 if army:
     buildings = state.get('buildings', {})
-    _UNIT_UPKEEP = {'grunt': 10, 'raider': 40, 'tauren': 100, 'shaman': 30}
+    _UNIT_UPKEEP = {'grunt': 10, 'headhunter': 50, 'raider': 120, 'tauren': 300, 'shaman': 30}
     total_units = sum(len(v) for v in army.values())
     upkeep_cost = sum(_UNIT_UPKEEP.get(uid, 0) * len(hps) for uid, hps in army.items())
     if 'goblin_lab' in buildings:
@@ -1625,7 +1647,7 @@ if army:
     if 'citadel' in buildings:
         food_cap += 10
     food_cap += buildings.get('farm', {}).get('count', 0) * 5
-    _UNIT_FOOD = {'grunt': 2, 'raider': 3, 'tauren': 5, 'shaman': 2}
+    _UNIT_FOOD = {'grunt': 1, 'headhunter': 3, 'raider': 4, 'tauren': 5, 'shaman': 2}
     food_used = sum(_UNIT_FOOD.get(uid, 0) * len(hps) for uid, hps in army.items())
     _wounded = sum(1 for uid, hps in army.items() for h in hps if h < _UNIT_HP.get(uid, 30))
     _hp_str = f' ({_wounded} wounded)' if _wounded else ''
@@ -1735,7 +1757,8 @@ BUILDINGS = {
     'citadel':         (15000, 6000, 'Prestige rank. Boosts item drop rate.'),
     'farm':            (8000, 3000, '+5 food cap. Build up to 3.'),
     'goblin_lab':      (18000, 7000, 'Goblin tinkerers. Army upkeep halved.'),
-    'world_tree':      (25000, 10000, 'Nordrassil takes root. Gold mine yields last longer (80/120 task thresholds).'),
+    'tauren_totem':    (20000, 8000, 'Tauren totem raised. Unlock Tauren Warrior unit (200 HP, +15 dmg).'),
+    'world_tree':      (25000, 10000, 'Nordrassil takes root. +1 equipment slot (7 total).'),
 }
 FARM_MAX = 3
 if arg == 'list':
@@ -2003,6 +2026,7 @@ $_PY_STATE_IO
 state = _load_state(state_file)
 inventory = state.get('inventory', [])
 equipped = state.get('equipped', [])
+_eq_max = 6 + (1 if 'world_tree' in state.get('buildings', {}) else 0)
 ITEMS = {
     'claws_of_attack':     ('Claws of Attack',     'common',    '+3 bonus gold per task'),
     'gauntlets_of_str':    ('Gauntlets of Strength',  'common',    '+2 bonus lumber per prompt'),
@@ -2068,7 +2092,7 @@ ITEMS = {
     'serrated_blade':      ('Serrated Blade',         'uncommon',  '+8 raid damage per task'),
     'acorn_of_stag':       ('Acorn of the Stag',      'uncommon',  '+5% crit chance vs bosses'),
     'venom_orb':           ('Venom Orb',              'uncommon',  'Poison: 0.05% of boss HP per hour'),
-    'bloodstone':          ('Bloodstone',             'rare',      '+1 damage per 10 combo in raids'),
+    'bloodstone':          ('Bloodstone',             'rare',      '+1 raid dmg per 10 combo per level'),
     'runed_gauntlets':     ('Runed Gauntlets',        'rare',      '+12% crit chance vs bosses'),
     'executioners_blade':  ('Executioner\\'s Blade',  'rare',      '3x damage when boss below 20% HP'),
     'doom_hammer':         ('Doom Hammer',            'epic',      '+40 raid damage per task'),
@@ -2087,7 +2111,7 @@ reset = '\033[0m'
 if not inventory and not equipped:
     print('Inventory empty. Complete tasks to find items!')
     exit(0)
-print(f'Inventory: {len(inventory)} items | Equipped: {len(equipped)}/6')
+print(f'Inventory: {len(inventory)} items | Equipped: {len(equipped)}/{_eq_max}')
 print()
 if equipped:
     print('Equipped:')
@@ -2120,11 +2144,12 @@ $_PY_STATE_IO
 state = _load_state(state_file)
 inventory = state.get('inventory', [])
 equipped = state.get('equipped', [])
+_eq_max = 6 + (1 if 'world_tree' in state.get('buildings', {}) else 0)
 if item_id not in inventory:
     print('Item not in backpack: ' + item_id)
     sys.exit(1)
-if len(equipped) >= 6:
-    print('Equipment full! Unequip something first (6/6 slots)')
+if len(equipped) >= _eq_max:
+    print(f'Equipment full! Unequip something first ({_eq_max}/{_eq_max} slots)')
     sys.exit(1)
 if item_id in equipped:
     print('Already equipped!')
@@ -2189,7 +2214,7 @@ consumables = {
     'cheese':           ('Mmm. +10000g +5000l!', lambda s: (s.get('economy',{}).update(gold=s.get('economy',{}).get('gold',0)+10000), s.get('economy',{}).update(lumber=s.get('economy',{}).get('lumber',0)+5000))),
 }
 heal_items = {'scroll_of_heal': 15, 'ensnare_trap': 50}
-_UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+_UNIT_HP = {'grunt': 30, 'headhunter': 40, 'raider': 100, 'tauren': 200, 'shaman': 20}
 if item_id in heal_items or item_id == 'healing_ward':
     army = state.get('army', {})
     if not army:
@@ -2486,10 +2511,11 @@ gold = econ.get('gold', 0)
 lumber = econ.get('lumber', 0)
 army = state.get('army', {})
 UNITS = {
-    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, hp=30,  desc='Infantry. 30 HP. +1 raid damage.'),
-    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, hp=50,  desc='Wolf rider. 50 HP. +4 raid damage.'),
-    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, hp=80,  desc='Elite tank. 80 HP. +10 raid damage.'),
-    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=3, hp=20,  desc='Healer. 20 HP. Heals 1-3 HP/turn. 25% counter reduction.'),
+    'grunt':      dict(name='Grunt',            gold=100,  lumber=0,   food=1, boss_dmg=2,  armor=0,  heal=0, hp=30,  desc='Infantry. 30 HP. +2 raid damage.'),
+    'headhunter': dict(name='Troll Headhunter', gold=500,  lumber=200, food=3, boss_dmg=5,  armor=0,  heal=0, hp=40,  desc='Ranged. 40 HP. +5 raid damage.'),
+    'raider':     dict(name='Raider',           gold=1200, lumber=500, food=4, boss_dmg=10, armor=0,  heal=0, hp=100, desc='Wolf rider. 100 HP. +10 raid damage.'),
+    'tauren':     dict(name='Tauren Warrior',   gold=3000, lumber=1500,food=5, boss_dmg=15, armor=0,  heal=0, hp=200, desc='True Tauren. 200 HP. +15 raid damage. (Requires Tauren Totem.)', unlock_bld=['tauren_totem']),
+    'shaman':     dict(name='Shaman',           gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=3, hp=20,  desc='Healer. 20 HP. Heals 1-3 HP/turn. 25% counter reduction.'),
 }
 for _uk in list(army.keys()):
     if isinstance(army[_uk], int): army[_uk] = [UNITS.get(_uk, {}).get('hp', 3)] * army[_uk]
@@ -2553,10 +2579,11 @@ if not unit_id:
     print('See available units: peon army')
     sys.exit(1)
 UNITS = {
-    'grunt':   dict(name='Grunt',          gold=100,  lumber=0,   food=2, boss_dmg=1,  armor=0,  heal=0, hp=30),
-    'raider':  dict(name='Raider',         gold=400,  lumber=100, food=3, boss_dmg=4,  armor=0,  heal=0, hp=50),
-    'tauren':  dict(name='Tauren Warrior', gold=1000, lumber=400, food=5, boss_dmg=10, armor=0,  heal=0, hp=80),
-    'shaman':  dict(name='Shaman',         gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=3, hp=20),
+    'grunt':      dict(name='Grunt',            gold=100,  lumber=0,   food=1, boss_dmg=2,  armor=0,  heal=0, hp=30),
+    'headhunter': dict(name='Troll Headhunter', gold=500,  lumber=200, food=3, boss_dmg=5,  armor=0,  heal=0, hp=40),
+    'raider':     dict(name='Raider',           gold=1200, lumber=500, food=4, boss_dmg=10, armor=0,  heal=0, hp=100),
+    'tauren':     dict(name='Tauren Warrior',   gold=3000, lumber=1500,food=5, boss_dmg=15, armor=0,  heal=0, hp=200, unlock_bld=['tauren_totem']),
+    'shaman':     dict(name='Shaman',           gold=300,  lumber=100, food=2, boss_dmg=0,  armor=25, heal=3, hp=20),
 }
 unit_id = unit_id.lower().replace('-', '_')
 if unit_id not in UNITS:
@@ -2568,6 +2595,10 @@ try:
 except ValueError:
     count = 1
 u = UNITS[unit_id]
+for _rb in u.get('unlock_bld', []):
+    if _rb not in buildings:
+        print(f'{u[\"name\"]} requires building: {_rb} (peon build {_rb})')
+        sys.exit(1)
 total_gold = u['gold'] * count
 total_lumber = u['lumber'] * count
 econ = state.get('economy', {})
@@ -2626,17 +2657,18 @@ if not unit_id:
     print('Usage: peon dismiss <unit> [count]')
     sys.exit(1)
 UNITS = {
-    'grunt':   dict(name='Grunt'),
-    'raider':  dict(name='Raider'),
-    'tauren':  dict(name='Tauren Warrior'),
-    'shaman':  dict(name='Shaman'),
+    'grunt':      dict(name='Grunt'),
+    'headhunter': dict(name='Troll Headhunter'),
+    'raider':     dict(name='Raider'),
+    'tauren':     dict(name='Tauren Warrior'),
+    'shaman':     dict(name='Shaman'),
 }
 unit_id = unit_id.lower().replace('-', '_')
 if unit_id not in UNITS:
     print(f'Unknown unit: {unit_id}')
     sys.exit(1)
 army = state.get('army', {})
-_UNIT_HP = dict(grunt=30, raider=50, tauren=80, shaman=20)
+_UNIT_HP = dict(grunt=30, headhunter=40, raider=100, tauren=200, shaman=20)
 for _uk in list(army.keys()):
     if isinstance(army[_uk], int): army[_uk] = [_UNIT_HP.get(_uk, 30)] * army[_uk]
 current = len(army.get(unit_id, []))
@@ -2673,7 +2705,7 @@ if remaining > 0:
 import http.server, json, os, socketserver, time, datetime, tempfile, shutil
 PORT = $_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000),'farm':(8000,3000),'goblin_lab':(18000,7000),'world_tree':(25000,10000)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000),'farm':(8000,3000),'goblin_lab':(18000,7000),'tauren_totem':(20000,8000),'world_tree':(25000,10000)}
 FARM_MAX = 3
 class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -2729,13 +2761,6 @@ class H(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             try: data = open(os.path.join(PEON_DIR,'dashboard.html')).read()
             except: data = '<h1>Not found</h1>'
-            self.wfile.write(data.encode())
-        elif self.path == '/raid':
-            self.send_response(200)
-            self.send_header('Content-Type','text/html')
-            self.end_headers()
-            try: data = open(os.path.join(PEON_DIR,'raid.html')).read()
-            except: data = '<h1>Raid page not found</h1>'
             self.wfile.write(data.encode())
         elif self.path == '/army':
             self.send_response(200)
@@ -2946,10 +2971,11 @@ class H(http.server.BaseHTTPRequestHandler):
             st = self._load('.state.json')
             inv = st.get('inventory', [])
             eq = st.get('equipped', [])
+            _eq_max = 6 + (1 if 'world_tree' in st.get('buildings', {}) else 0)
             if iid not in inv:
                 return self._json(400, {'error': 'Item not in backpack'})
-            if len(eq) >= 6:
-                return self._json(400, {'error': 'Equipment full (6/6)'})
+            if len(eq) >= _eq_max:
+                return self._json(400, {'error': f'Equipment full ({_eq_max}/{_eq_max})'})
             inv.remove(iid)
             eq.append(iid)
             st['inventory'] = inv; st['equipped'] = eq
@@ -2999,7 +3025,7 @@ class H(http.server.BaseHTTPRequestHandler):
             def _dash_heal(state, pool):
                 army = state.get('army', {})
                 if not army: return
-                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                _UNIT_HP = {'grunt': 30, 'headhunter': 40, 'raider': 100, 'tauren': 200, 'shaman': 20}
                 while pool > 0:
                     worst = (None, -1, 0.0)
                     for uid in army:
@@ -3017,7 +3043,7 @@ class H(http.server.BaseHTTPRequestHandler):
             def _dash_heal_full(state):
                 army = state.get('army', {})
                 if not army: return
-                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                _UNIT_HP = {'grunt': 30, 'headhunter': 40, 'raider': 100, 'tauren': 200, 'shaman': 20}
                 for uid, hps in army.items():
                     mx = _UNIT_HP.get(uid, 30)
                     for i in range(len(hps)): hps[i] = mx
@@ -3070,25 +3096,28 @@ class H(http.server.BaseHTTPRequestHandler):
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))
-            UNITS = {'grunt':(100,0,2,30),'raider':(400,100,3,50),'tauren':(1000,400,5,80),'shaman':(300,100,2,20)}
+            UNITS = {'grunt':(100,0,1,30,[]),'headhunter':(500,200,3,40,[]),'raider':(1200,500,4,100,[]),'tauren':(3000,1500,5,200,['tauren_totem']),'shaman':(300,100,2,20,[])}
             if uid not in UNITS:
                 return self._json(400, {'error': 'Unknown unit'})
             st = self._load('.state.json')
             if 'barracks' not in st.get('buildings', {}):
                 return self._json(400, {'error': 'Build Barracks first'})
-            ug, ul, uf, uhp = UNITS[uid]
+            ug, ul, uf, uhp, ureq = UNITS[uid]
+            for _rb in ureq:
+                if _rb not in st.get('buildings', {}):
+                    return self._json(400, {'error': f'Requires building: {_rb}'})
             ec = st.setdefault('economy', {})
             g, l = ec.get('gold', 0), ec.get('lumber', 0)
             tg, tl = ug * cnt, ul * cnt
             if g < tg or l < tl:
                 return self._json(400, {'error': f'Need {tg}g/{tl}l'})
             army = st.get('army', {})
-            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            _UHP = dict(grunt=30,headhunter=40,raider=100,tauren=200,shaman=20)
             for _uk in list(army.keys()):
                 if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             bld = st.get('buildings', {})
             fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0) + bld.get('farm', {}).get('count', 0) * 5
-            fu = sum(UNITS.get(u, (0,0,0,0))[2] * len(hps) for u, hps in army.items())
+            fu = sum(UNITS.get(u, (0,0,0,0,[]))[2] * len(hps) for u, hps in army.items())
             if fu + uf * cnt > fc:
                 return self._json(400, {'error': 'Not enough food'})
             ec['gold'] = g - tg
@@ -3108,7 +3137,7 @@ class H(http.server.BaseHTTPRequestHandler):
             cnt = max(1, int(body.get('count', 1)))
             st = self._load('.state.json')
             army = st.get('army', {})
-            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            _UHP = dict(grunt=30,headhunter=40,raider=100,tauren=200,shaman=20)
             for _uk in list(army.keys()):
                 if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             cur = len(army.get(uid, []))
@@ -3687,7 +3716,9 @@ else:
 # --- Level overrides pack (level determines sounds + overlay icon) ---
 _LVL_PACKS = {1:'peon', 2:'peasant', 3:'wc3_grunt', 4:'wc3_knight', 5:'wc3_farseer',
               6:'wc3_jaina', 7:'dota2_witch_doctor', 8:'wc3_corrupted_arthas',
-              9:'wc3_brewmaster', 10:'murloc'}
+              9:'wc3_brewmaster', 10:'dota2_invoker', 11:'wow-tauren',
+              12:'dota2_phantom_lancer', 13:'zugzug', 14:'wc3_lich',
+              15:'murloc'}
 _cur_lvl = state.get('stats', {}).get('level', 1)
 _lvl_pack = _LVL_PACKS.get(_cur_lvl, '')
 if _lvl_pack:
@@ -3967,11 +3998,11 @@ if game_on:
             stats['longest_streak_days'] = streak
 
         _army = state.get('army', {})
-        _UNIT_HP_M = dict(grunt=30, raider=50, tauren=80, shaman=20)
+        _UNIT_HP_M = dict(grunt=30, headhunter=40, raider=100, tauren=200, shaman=20)
         for _uk in list(_army.keys()):
             if isinstance(_army[_uk], int): _army[_uk] = [_UNIT_HP_M.get(_uk, 30)] * _army[_uk]
         if _army:
-            _UNIT_UPKEEP = dict(grunt=10, raider=40, tauren=100, shaman=30)
+            _UNIT_UPKEEP = dict(grunt=10, headhunter=50, raider=120, tauren=300, shaman=30)
             _army_upkeep = sum(_UNIT_UPKEEP.get(uid, 0) * len(hps) for uid, hps in _army.items())
             if 'goblin_lab' in buildings:
                 _army_upkeep //= 2
@@ -4005,7 +4036,7 @@ if game_on:
         _fatigue_thresh += 30
     _fatigue_exhaust = _fatigue_thresh + 30
 
-    _mine_low, _mine_out = (80, 120) if 'world_tree' in buildings else (50, 80)
+    _mine_low, _mine_out = 50, 80
     _DEPL_EXT = dict(skull_shield=10, periapt_of_vitality=25, lion_horn=15)
     _eq_pre = state.get('equipped', [])
     _dur_pre = state.get('item_durability', {})
@@ -4265,16 +4296,21 @@ if game_on:
 
     # --- Level system (cross-faction progression) ---
     _LEVELS = [
-        (0,       1,  'Peon',          'peon'),
-        (25,      2,  'Peasant',       'peasant'),
-        (100,     3,  'Grunt',         'wc3_grunt'),
-        (250,     4,  'Knight',        'wc3_knight'),
-        (500,     5,  'Far Seer',      'wc3_farseer'),
-        (1000,    6,  'Jaina',         'wc3_jaina'),
-        (2500,    7,  'Witch Doctor',  'dota2_witch_doctor'),
-        (5000,    8,  'Arthas',        'wc3_corrupted_arthas'),
-        (10000,   9,  'Brewmaster',    'wc3_brewmaster'),
-        (1000000, 10, 'Murloc',        'murloc'),
+        (0,       1,  'Peon',                  'peon'),
+        (25,      2,  'Peasant',               'peasant'),
+        (100,     3,  'Grunt',                 'wc3_grunt'),
+        (250,     4,  'Knight',                'wc3_knight'),
+        (500,     5,  'Far Seer',              'wc3_farseer'),
+        (1000,    6,  'Jaina',                 'wc3_jaina'),
+        (2500,    7,  'Witch Doctor',          'dota2_witch_doctor'),
+        (5000,    8,  'Arthas',                'wc3_corrupted_arthas'),
+        (10000,   9,  'Brewmaster',            'wc3_brewmaster'),
+        (25000,   10, 'Archmage',              'dota2_invoker'),
+        (75000,   11, 'Cairne Bloodhoof',      'wow-tauren'),
+        (150000,  12, 'Blademaster',           'dota2_phantom_lancer'),
+        (250000,  13, 'Thrall',                'zugzug'),
+        (500000,  14, 'Kel\u2019Thuzad',         'wc3_lich'),
+        (1000000, 15, 'Murloc',                'murloc'),
     ]
     _LEVEL_FLAVORS = {
         1:  'Ready to work!',
@@ -4286,7 +4322,12 @@ if game_on:
         7:  'Look at me. Hee hee! I am da witch doctor.',
         8:  'Glad you could make it. Now serve the code.',
         9:  'Another round? Peon buy drinks!',
-        10: 'MRGLGLGLGL! You have transcended all factions. The swamp welcomes you.',
+        10: 'Quas Wex Exort. The forge invokes the answer.',
+        11: 'An\u2019she guides your commits, young runner.',
+        12: 'I am one. We are many. The mirror images shall test.',
+        13: 'Lok\u2019tar ogar! Victory or death \u2014 no segfaults.',
+        14: 'The Scourge of bugs is upon them. Rise, my minions.',
+        15: 'MRGLGLGLGL! You have transcended all factions. The swamp welcomes you.',
     }
     tc = stats.get('tasks_completed', 0)
     cur_lvl = 1
@@ -4457,7 +4498,7 @@ if game_on:
         'serrated_blade':      dict(name='Serrated Blade',         r='uncommon',  e='boss_dmg',        v=8,    desc='+8 raid damage per task'),
         'acorn_of_stag':       dict(name='Acorn of the Stag',      r='uncommon',  e='boss_crit',       v=5,    desc='+5% crit chance vs bosses'),
         'venom_orb':           dict(name='Venom Orb',              r='uncommon',  e='boss_dot',        v=0.05, desc='Poison: 0.05% of boss HP per hour'),
-        'bloodstone':          dict(name='Bloodstone',             r='rare',      e='boss_combo_dmg',  v=1,    desc='+1 damage per 10 combo in raids'),
+        'bloodstone':          dict(name='Bloodstone',             r='rare',      e='boss_combo_dmg',  v=1,    desc='+1 raid dmg per 10 combo per level'),
         'runed_gauntlets':     dict(name='Runed Gauntlets',        r='rare',      e='boss_crit',       v=12,   desc='+12% crit chance vs bosses'),
         'executioners_blade':  dict(name='Executioner\'s Blade',    r='rare',      e='boss_execute',    v=3,    desc='3x damage when boss below 20% HP'),
         'doom_hammer':         dict(name='Doom Hammer',            r='epic',      e='boss_dmg',        v=40,   desc='+40 raid damage per task'),
@@ -4645,8 +4686,9 @@ if game_on:
             if category == 'task.complete' or event == 'Stop':
                 _bdmg += 1
                 _bk['base'] = 1
+                _lvl = stats.get('level', 1)
                 if combo > 0:
-                    _cb = combo // 10
+                    _cb = (combo // 10) * _lvl
                     _bdmg += _cb
                     if _cb: _bk['combo'] = _cb
                 _bi = _sum_effect('boss_dmg')
@@ -4657,14 +4699,14 @@ if game_on:
                     _bk['items'] = _bk.get('items', 0) + 1
                 _bcombo = _sum_effect('boss_combo_dmg')
                 if _bcombo and combo > 0:
-                    _bc2 = _bcombo * (combo // 10)
+                    _bc2 = _bcombo * (combo // 10) * _lvl
                     _bdmg += _bc2
                     if _bc2: _bk['bloodstone'] = _bc2
                 _army = state.get('army', {})
-                _UNIT_HP_R = dict(grunt=30, raider=50, tauren=80, shaman=20)
+                _UNIT_HP_R = dict(grunt=30, headhunter=40, raider=100, tauren=200, shaman=20)
                 for _uk in list(_army.keys()):
                     if isinstance(_army[_uk], int): _army[_uk] = [_UNIT_HP_R.get(_uk, 30)] * _army[_uk]
-                _UNIT_DMG = dict(grunt=1, raider=4, tauren=10, shaman=0)
+                _UNIT_DMG = dict(grunt=2, headhunter=5, raider=10, tauren=15, shaman=0)
                 _army_dmg = sum(_UNIT_DMG.get(uid, 0) * len(hps) for uid, hps in _army.items())
                 if _army_dmg > 0:
                     _bdmg += _army_dmg
@@ -4720,7 +4762,7 @@ if game_on:
             _batk_min = _boss.get('atk_min', 0)
             _batk_max = _boss.get('atk_max', 0)
             _army = state.get('army', {})
-            _UHP = dict(grunt=30, raider=50, tauren=80, shaman=20)
+            _UHP = dict(grunt=30, headhunter=40, raider=100, tauren=200, shaman=20)
             for _uk in list(_army.keys()):
                 if isinstance(_army[_uk], int): _army[_uk] = [_UHP.get(_uk, 30)] * _army[_uk]
             if _batk_max > 0 and _army and _boss['hp'] > 0:
@@ -5277,7 +5319,7 @@ import http.server, json, os, sys, socketserver, time, datetime, tempfile, shuti
 
 PORT = $_dashboard_port
 PEON_DIR = '$PEON_DIR'
-BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000),'farm':(8000,3000),'goblin_lab':(18000,7000),'world_tree':(25000,10000)}
+BCOSTS = {'burrow':(500,250),'watch_tower':(750,375),'war_mill':(1000,500),'altar':(1500,750),'lumber_mill':(1500,500),'tavern':(2000,1000),'stronghold':(2500,1000),'spirit_lodge':(2500,1000),'barracks':(3000,1200),'blacksmith':(4000,1500),'arcane_sanctum':(7500,3000),'fortress':(10000,4000),'dark_portal':(12000,5000),'citadel':(15000,6000),'farm':(8000,3000),'goblin_lab':(18000,7000),'tauren_totem':(20000,8000),'world_tree':(25000,10000)}
 FARM_MAX = 3
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -5336,13 +5378,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 data = open(os.path.join(PEON_DIR, 'dashboard.html')).read()
             except Exception:
                 data = '<h1>Dashboard not found</h1>'
-            self.wfile.write(data.encode())
-        elif self.path == '/raid':
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html')
-            self.end_headers()
-            try: data = open(os.path.join(PEON_DIR, 'raid.html')).read()
-            except: data = '<h1>Raid page not found</h1>'
             self.wfile.write(data.encode())
         elif self.path == '/army':
             self.send_response(200)
@@ -5551,10 +5586,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
             st = self._load('.state.json')
             inv = st.get('inventory', [])
             eq = st.get('equipped', [])
+            _eq_max = 6 + (1 if 'world_tree' in st.get('buildings', {}) else 0)
             if iid not in inv:
                 return self._json(400, {'error': 'Item not in backpack'})
-            if len(eq) >= 6:
-                return self._json(400, {'error': 'Equipment full (6/6)'})
+            if len(eq) >= _eq_max:
+                return self._json(400, {'error': f'Equipment full ({_eq_max}/{_eq_max})'})
             inv.remove(iid)
             eq.append(iid)
             st['inventory'] = inv; st['equipped'] = eq
@@ -5604,7 +5640,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             def _dash_heal(state, pool):
                 army = state.get('army', {})
                 if not army: return
-                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                _UNIT_HP = {'grunt': 30, 'headhunter': 40, 'raider': 100, 'tauren': 200, 'shaman': 20}
                 while pool > 0:
                     worst = (None, -1, 0.0)
                     for uid in army:
@@ -5622,7 +5658,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             def _dash_heal_full(state):
                 army = state.get('army', {})
                 if not army: return
-                _UNIT_HP = {'grunt': 30, 'raider': 50, 'tauren': 80, 'shaman': 20}
+                _UNIT_HP = {'grunt': 30, 'headhunter': 40, 'raider': 100, 'tauren': 200, 'shaman': 20}
                 for uid, hps in army.items():
                     mx = _UNIT_HP.get(uid, 30)
                     for i in range(len(hps)): hps[i] = mx
@@ -5675,25 +5711,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))
-            UNITS = {'grunt':(100,0,2,30),'raider':(400,100,3,50),'tauren':(1000,400,5,80),'shaman':(300,100,2,20)}
+            UNITS = {'grunt':(100,0,1,30,[]),'headhunter':(500,200,3,40,[]),'raider':(1200,500,4,100,[]),'tauren':(3000,1500,5,200,['tauren_totem']),'shaman':(300,100,2,20,[])}
             if uid not in UNITS:
                 return self._json(400, {'error': 'Unknown unit'})
             st = self._load('.state.json')
             if 'barracks' not in st.get('buildings', {}):
                 return self._json(400, {'error': 'Build Barracks first'})
-            ug, ul, uf, uhp = UNITS[uid]
+            ug, ul, uf, uhp, ureq = UNITS[uid]
+            for _rb in ureq:
+                if _rb not in st.get('buildings', {}):
+                    return self._json(400, {'error': f'Requires building: {_rb}'})
             ec = st.setdefault('economy', {})
             g, l = ec.get('gold', 0), ec.get('lumber', 0)
             tg, tl = ug * cnt, ul * cnt
             if g < tg or l < tl:
                 return self._json(400, {'error': f'Need {tg}g/{tl}l'})
             army = st.get('army', {})
-            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            _UHP = dict(grunt=30,headhunter=40,raider=100,tauren=200,shaman=20)
             for _uk in list(army.keys()):
                 if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             bld = st.get('buildings', {})
             fc = 12 + (8 if 'fortress' in bld else 0) + (10 if 'citadel' in bld else 0) + bld.get('farm', {}).get('count', 0) * 5
-            fu = sum(UNITS.get(u, (0,0,0,0))[2] * len(hps) for u, hps in army.items())
+            fu = sum(UNITS.get(u, (0,0,0,0,[]))[2] * len(hps) for u, hps in army.items())
             if fu + uf * cnt > fc:
                 return self._json(400, {'error': 'Not enough food'})
             ec['gold'] = g - tg
@@ -5713,7 +5752,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             cnt = max(1, int(body.get('count', 1)))
             st = self._load('.state.json')
             army = st.get('army', {})
-            _UHP = dict(grunt=30,raider=50,tauren=80,shaman=20)
+            _UHP = dict(grunt=30,headhunter=40,raider=100,tauren=200,shaman=20)
             for _uk in list(army.keys()):
                 if isinstance(army[_uk], int): army[_uk] = [_UHP.get(_uk, 3)] * army[_uk]
             cur = len(army.get(uid, []))

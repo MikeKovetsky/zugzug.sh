@@ -83,7 +83,7 @@ Full list: https://openpeon.com/packs
 
 Full Warcraft III base-building metagame layered on coding sessions:
 
-- Character Progression: 10 levels from Peon (Lvl 1) through heroes of every WC3 faction. Level determines sound pack, overlay portrait, and dashboard character. Level 10 is a secret.
+- Character Progression: 15 levels from Peon (Lvl 1) through heroes of every WC3 faction (Orc, Human, Troll, Undead, Pandaren, Night Elf, Tauren). Level determines sound pack, overlay portrait, and dashboard character. Level 15 is a secret.
 - Economy: Earn gold (task completions) and lumber (prompts). Gold mine depletion, debt with interest.
 - Buildings: 8 structures with real perks (combos, fatigue pause, random events, on-demand taunts).
 - Items: 31 items across 5 rarity tiers. Equip for gold/lumber bonuses, fatigue resistance, combo persistence.

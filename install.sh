@@ -87,7 +87,7 @@ if [ "$INIT_LOCAL_CONFIG" = true ]; then
 fi
 
 # Default packs (curated English set installed by default)
-DEFAULT_PACKS="peon peasant sc_kerrigan sc_battlecruiser glados wc3_jaina dota2_witch_doctor wc3_corrupted_arthas murloc"
+DEFAULT_PACKS="peon peasant sc_kerrigan sc_battlecruiser glados wc3_jaina dota2_witch_doctor dota2_invoker dota2_phantom_lancer wc3_corrupted_arthas wow-tauren zugzug wc3_lich murloc"
 
 
 # --- Platform detection ---
@@ -325,12 +325,10 @@ if [ -n "$SCRIPT_DIR" ]; then
   if [ -f "$SCRIPT_DIR/dashboard/index.html" ]; then
     cp "$SCRIPT_DIR/dashboard/index.html" "$INSTALL_DIR/dashboard.html"
   fi
-  if [ -f "$SCRIPT_DIR/dashboard/raid.html" ]; then
-    cp "$SCRIPT_DIR/dashboard/raid.html" "$INSTALL_DIR/raid.html"
-  fi
   if [ -f "$SCRIPT_DIR/dashboard/army.html" ]; then
     cp "$SCRIPT_DIR/dashboard/army.html" "$INSTALL_DIR/army.html"
   fi
+  rm -f "$INSTALL_DIR/raid.html"
   if [ -d "$SCRIPT_DIR/dashboard/assets" ]; then
     cp -r "$SCRIPT_DIR/dashboard/assets" "$INSTALL_DIR/assets"
   fi
@@ -361,8 +359,8 @@ else
   mkdir -p "$INSTALL_DIR/docs"
   curl -fsSL "$REPO_BASE/docs/peon-icon.png" -o "$INSTALL_DIR/docs/peon-icon.png" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/dashboard/index.html" -o "$INSTALL_DIR/dashboard.html" 2>/dev/null || true
-  curl -fsSL "$REPO_BASE/dashboard/raid.html" -o "$INSTALL_DIR/raid.html" 2>/dev/null || true
   curl -fsSL "$REPO_BASE/dashboard/army.html" -o "$INSTALL_DIR/army.html" 2>/dev/null || true
+  rm -f "$INSTALL_DIR/raid.html"
   mkdir -p "$INSTALL_DIR/assets/bosses"
   for _boss in kobold murloc troll ogre whelps naga tichondrius illidan mannoroth archimonde lich_king; do
     curl -fsSL "$REPO_BASE/dashboard/assets/bosses/${_boss}.png" -o "$INSTALL_DIR/assets/bosses/${_boss}.png" 2>/dev/null || true
@@ -386,7 +384,12 @@ _dl_icon "$_WP/0/04/BTNJaina.png" 6
 _dl_icon "$_W3/orc/witchdoctor.png" 7
 _dl_icon "$_WP/d/db/BTNHeroDeathKnight.png" 8
 _dl_icon "$_W3/neutral/pandarenbrewmaster.gif" 9
-_dl_icon "$_WP/9/97/BTNMurloc.png" 10
+_dl_icon "$_WP/e/e9/BTNHeroArchMage.png" 10
+_dl_icon "$_WP/8/8d/BTNHeroTaurenChieftain.png" 11
+_dl_icon "$_WP/5/52/BTNHeroBlademaster.png" 12
+_dl_icon "$_WP/6/6d/BTNThrall.png" 13
+_dl_icon "$_WP/6/62/BTNKelThuzad.png" 14
+_dl_icon "$_WP/9/97/BTNMurloc.png" 15
 
 # --- Backfill new config keys on update ---
 # Merge any new keys from the default config template into the user's
