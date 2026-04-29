@@ -52,7 +52,7 @@ _peon_completions() {
         return 0 ;;
       raid)
         if [ "$cword" -eq 2 ]; then
-          COMPREPLY=( $(compgen -W "status kobold mud_golem troll ogre naga infernal brewmaster mannoroth blademaster archimonde" -- "$cur") )
+          COMPREPLY=( $(compgen -W "status kobold murloc troll ogre whelps naga tichondrius illidan mannoroth archimonde kiljaeden lich_king" -- "$cur") )
         fi
         return 0 ;;
       hire)

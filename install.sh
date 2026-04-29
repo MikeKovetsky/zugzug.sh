@@ -362,7 +362,7 @@ else
   curl -fsSL "$REPO_BASE/dashboard/army.html" -o "$INSTALL_DIR/army.html" 2>/dev/null || true
   rm -f "$INSTALL_DIR/raid.html"
   mkdir -p "$INSTALL_DIR/assets/bosses"
-  for _boss in kobold murloc troll ogre whelps naga tichondrius illidan mannoroth archimonde lich_king; do
+  for _boss in kobold murloc troll ogre whelps naga tichondrius illidan mannoroth archimonde kiljaeden lich_king; do
     curl -fsSL "$REPO_BASE/dashboard/assets/bosses/${_boss}.png" -o "$INSTALL_DIR/assets/bosses/${_boss}.png" 2>/dev/null || true
   done
   if [ "$UPDATING" = false ]; then

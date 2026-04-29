@@ -1565,6 +1565,7 @@ var ITEMS = {
   mannoroths_blood:    { icon: w3i('orc/berserkerupgrade.png'), name: "Mannoroth's Blood", r: 'epic', desc: '5x dmg below 20% HP' },
   sulfuras:            { icon: w3i('orc/thoriummeleeweapons.png'), name: 'Sulfuras', r: 'legendary', desc: '+75 dmg, overkill carries' },
   crown_of_eredar:     { icon: wwi('BTNDemonGate.png'), name: 'Crown of the Eredar', r: 'legendary', desc: 'Boss double loot' },
+  soul_cage:           { icon: wwi('BTNHeroLich.png'), name: 'Soul Cage', r: 'legendary', desc: 'Heal army 8 HP per task' },
   helm_of_domination:  { icon: wwi('BTNHeroDeathKnight.png'), name: 'Helm of Domination', r: 'legendary', desc: '+2 bonus boss drops' },
 };
 
@@ -2254,7 +2255,8 @@ var RAID_BOSSES = {
   illidan:     {name:'Illidan Stormrage',    hp:30000,   days:3,  kills:10, lvl:7, bld:[], fee:1500,  loot:['epic','rare','rare','uncommon'],                   gold:4000,   lumber:1200,  atk_min:3, atk_max:7, icon: wwi('BTNHeroDemonHunter.png'), art: BOSS_ART+'illidan.png'},
   mannoroth:   {name:'Pit Lord Mannoroth',   hp:40000,   days:4,  kills:15, lvl:8, bld:['citadel'], fee:3000,  loot:['epic','rare','rare','uncommon','common','common'],  gold:10000,  lumber:3000,  atk_min:4, atk_max:10, icon: w3i('neutral/pitlord.gif'), art: BOSS_ART+'mannoroth.png'},
   archimonde:  {name:'Archimonde',           hp:100000,  days:7,  kills:20, lvl:9, bld:['citadel'], fee:5000,  loot:['epic','epic','rare','rare','rare','uncommon','common'],      gold:15000,  lumber:5000,  atk_min:4, atk_max:15, icon: w3i('orc/chieftain.gif'), art: BOSS_ART+'archimonde.png'},
-  lich_king:   {name:'The Lich King',        hp:1000000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:['legendary','epic','epic'], gold:50000,  lumber:15000, atk_min:5, atk_max:20, icon: wwi('BTNHeroDeathKnight.png'), art: BOSS_ART+'lich_king.png'}
+  kiljaeden:   {name:"Kil'jaeden the Deceiver", hp:1000000, days:10, kills:25, lvl:9, bld:['citadel'], fee:7500,  loot:['legendary','epic','epic','rare','rare'],                gold:25000,  lumber:8000,  atk_min:4, atk_max:15, icon: wwi('BTNKiljaedin.png'), art: BOSS_ART+'kiljaeden.png'},
+  lich_king:   {name:'The Lich King',        hp:5000000, days:14, kills:30, lvl:9, bld:['citadel'], fee:10000, loot:['legendary','epic','epic'], gold:50000,  lumber:15000, atk_min:10, atk_max:25, icon: wwi('BTNHeroDeathKnight.png'), art: BOSS_ART+'lich_king.png'}
 };
 
 var BOSS_ITEMS = {

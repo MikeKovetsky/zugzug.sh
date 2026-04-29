@@ -155,6 +155,48 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$dmg_with_mult" = "$((dmg_no_mult * 2))" ]
 }
 
+@test "crit doubles raid damage (2x, not 3x)" {
+  bash "$PEON_SH" raid kobold
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['active_boss']['hp'] = 100000
+s['active_boss']['max_hp'] = 100000
+s['army'] = {}
+s['equipped'] = ['war_axe']
+s['inventory'] = []
+s['fatigue'] = 0
+s['combo_count'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  local hp_before hp_after dmg_no_crit
+  hp_before=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  hp_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  dmg_no_crit=$((hp_before - hp_after))
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['hp'] = 100000
+s['equipped'] = ['war_axe', 'ashbringer', 'ashbringer', 'ashbringer', 'ashbringer']
+s['item_durability'] = {'ashbringer': 200}
+s['combo_count'] = 0
+s['last_stop_time'] = 0
+s['fatigue'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  hp_before=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  hp_after=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['hp'])")
+  local dmg_with_crit=$((hp_before - hp_after))
+  local crit_logged
+  crit_logged=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1]['bk'].get('crit', 0))")
+  [ "$dmg_with_crit" = "$((dmg_no_crit * 2))" ]
+  [ "$crit_logged" = "$dmg_no_crit" ]
+}
+
 @test "boss_armor reduces incoming counter-attack damage" {
   bash "$PEON_SH" raid kobold
   python3 -c "

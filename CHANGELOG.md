@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## v3.7.0 (2026-04-29)
+
+### Added
+- **New endgame boss: Kil'jaeden the Deceiver** (1,000,000 HP / 10d / 7,500g entry / atk 4-15) slots between Archimonde and the Lich King in the raid progression — fitting both the lore (Kil'jaeden is the eredar lord who ordered Archimonde's invasion of Azeroth and forged Ner'zhul into the Lich King) and the difficulty curve, which previously had a 10x HP jump (100k Archimonde → 1M LK). Drops 5 items including the **first reliable legendary roll** in the game (`['legendary','epic','epic','rare','rare']`) and rewards +25,000g +8,000l on victory. Unlocks at 25 boss kills + lvl 9 + citadel.
+- **New legendary trophy: Soul Cage** (`army_heal` v=8, "Heal army 8 HP per task. Imprisoned the soul of Ner'zhul.") drops at 30% on Kil'jaeden victory. Strong sustain item that fills a real gap — Amulet of Spell Shield (epic) heals only 3 HP/task, leaving long fights against the buffed Lich King unsurvivable without it. Lore-themed: Kil'jaeden literally caged Ner'zhul's soul to create the Lich King.
+
+### Changed
+- **The Lich King promoted to true endgame**: HP 1,000,000 → **5,000,000** (5x), counter-attack 5-20 → **10-25**. The previous LK was killable in ~13 active hours by a mid-tier player using just Thunderfury poison; at 5M HP the deadline math now actually requires 14 days of sustained engagement, real army sustain (hence Soul Cage), and most/all four meta legendaries equipped (Frostmourne + Sulfuras + Thunderfury + Ashbringer). The Lich King Any% achievement (`fastest_lich_king_pct ≤ 0.5`, i.e. 7 days) becomes a meaningful speedrun target rather than an inevitability.
+- **Crit multiplier nerfed from x3 to x2**: With seven items granting `boss_crit` (`tome_of_agility` +3% through `ashbringer` +30%) all stacking additively with no cap, a realistic 6-slot build hit 84% crit and a triple multiplier pushed average DPS to ~2.5x baseline — better per slot than stacking flat damage even from epics. Worse, crit applies *after* `boss_dmg_mult` (Frostmourne x2) and `boss_execute` (Executioner's Blade x3), so an execute-phase crit on a Mannoroth-tier boss was an x18 single-task burst. Dropping the multiplier to x2 keeps crit attractive (50% crit = 1.5x avg DPS, in line with Frostmourne) but ends the "crit is mandatory" math without touching item values, removing items, or capping stacks. BATS coverage in `tests/raid.bats`.
+
+### Fixed
+- **Stale boss completions**: `completions.bash` and `completions.fish` were referencing five bosses that no longer exist in the BOSSES dict (`mud_golem`, `infernal`, `brewmaster`, `blademaster`) and had wrong HP/days for the bosses that do (e.g. listing Archimonde as 14 days when it's been 7 for several releases). Both completion files now match the canonical BOSSES dict in `peon.sh`, including the new Kil'jaeden boss.
+
 ## v3.6.0 (2026-04-28)
 
 ### Added
