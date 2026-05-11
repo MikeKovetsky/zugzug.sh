@@ -780,8 +780,8 @@ body {
 .raid-use-btn.r-legendary { border-color: rgba(255,136,0,0.6); }
 .raid-use-btn.r-legendary:hover:not(:disabled) { border-color: var(--orange); box-shadow: 0 0 8px rgba(255,136,0,0.4); }
 .brew-shards { display: inline-flex; align-items: center; gap: 4px; color: #d8a; font-size: 12px; margin-left: 10px; }
-.brew-cost { color: var(--muted); font-size: 11px; }
-.brew-time { color: #8a8; font-size: 11px; }
+.brew-cost { color: var(--muted); font-size: 11px; padding-left: 6px; border-left: 1px solid var(--border); margin-left: 4px; }
+.brew-time { color: #8a8; font-size: 11px; padding-left: 6px; border-left: 1px solid var(--border); margin-left: 4px; }
 .brew-queue { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 .brew-queue-item { color: var(--gold); }
 
@@ -2519,8 +2519,10 @@ function updateCraft(s) {
     var afford = gold >= r.g && lumber >= r.l && shards >= r.s;
     if (!afford) btn.disabled = true;
     var costStr = r.g + 'g/' + r.l + 'l' + (r.s ? '/' + r.s + '\u{1F480}' : '');
-    var timeStr = r.t === 0 ? 'instant' : (r.t + ' task' + (r.t !== 1 ? 's' : ''));
-    btn.innerHTML = bi.icon + ' <strong>' + bi.name + '</strong> <span class="ru-dmg">-' + bi.dmg.toLocaleString() + '</span> <span class="brew-cost">' + costStr + '</span> <span class="brew-time">&middot; ' + timeStr + '</span>';
+    var timeStr = r.t === 0
+      ? '\u26A1 instant'
+      : '\u23F3 ready in ' + r.t + ' task' + (r.t !== 1 ? 's' : '');
+    btn.innerHTML = bi.icon + ' <strong>' + bi.name + '</strong> <span class="ru-dmg">-' + bi.dmg.toLocaleString() + '</span> <span class="brew-cost">' + costStr + '</span> <span class="brew-time">' + timeStr + '</span>';
     btn.addEventListener('click', function() {
       btn.disabled = true;
       apiPost('/api/brew', {item: iid}).then(function(res) {
