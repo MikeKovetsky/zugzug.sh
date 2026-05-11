@@ -1082,6 +1082,7 @@ body {
     <button class="tab" data-page="achievements">Achievements</button>
     <button class="tab" data-page="stats">Stats</button>
     <button class="tab" data-page="raids">&#x2694;&#xFE0F; Raids</button>
+    <button class="tab" data-page="craft">&#x1F9EA; Craft</button>
     <button class="tab" data-page="army">&#x1F6E1;&#xFE0F; Army</button>
   </div>
 
@@ -1265,10 +1266,6 @@ body {
       <div class="sec-title">Use Items</div>
       <div class="raid-use-items" id="raid-use-items"></div>
     </div>
-    <div id="raid-brew-section" style="display:none">
-      <div class="sec-title">Brew at Arcane Sanctum <span id="brew-shards-hdr" class="brew-shards"></span></div>
-      <div class="raid-use-items" id="raid-brew-items"></div>
-    </div>
     <div id="raid-log-section" style="display:none">
       <div class="sec-title">Battle Log</div>
       <div class="raid-blog" id="raid-blog"></div>
@@ -1283,6 +1280,17 @@ body {
         <thead><tr><th>Boss</th><th>Result</th><th>Reward / Penalty</th><th>Drops</th><th>Date</th></tr></thead>
         <tbody id="raid-history-body"></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Page: Craft -->
+  <div class="page" id="page-craft">
+    <div id="craft-locked" class="raid-no-portal" style="display:none">
+      <p>&#x1F512; Build the <strong>Arcane Sanctum</strong> to brew damage consumables. (7,500g / 3,000l)</p>
+    </div>
+    <div id="craft-content" style="display:none">
+      <div class="sec-title">Brew Damage Consumables <span id="brew-shards-hdr" class="brew-shards"></span></div>
+      <div class="raid-use-items" id="raid-brew-items"></div>
     </div>
   </div>
 
@@ -2331,12 +2339,10 @@ function updateRaids(s) {
     $('raid-log-section').style.display = '';
     raidRenderActive(boss);
     raidRenderItems(s);
-    raidRenderBrew(s);
     raidRenderLog(boss);
   } else if (!raidResultShown) {
     $('raid-active-section').style.display = 'none';
     $('raid-use-section').style.display = 'none';
-    $('raid-brew-section').style.display = 'none';
     $('raid-log-section').style.display = 'none';
     $('raid-select-section').style.display = '';
     raidRenderGrid(bld, bk, bkTotal, lvl, ec, hasPortal);
@@ -2447,11 +2453,15 @@ function raidRenderItems(s) {
   });
 }
 
-function raidRenderBrew(s) {
+function updateCraft(s) {
   var bld = s.buildings || {};
-  var sec = $('raid-brew-section');
-  if (!bld.arcane_sanctum) { sec.style.display = 'none'; return; }
-  sec.style.display = '';
+  if (!bld.arcane_sanctum) {
+    $('craft-locked').style.display = '';
+    $('craft-content').style.display = 'none';
+    return;
+  }
+  $('craft-locked').style.display = 'none';
+  $('craft-content').style.display = '';
   var ec = s.economy || {};
   var gold = ec.gold || 0, lumber = ec.lumber || 0;
   var shards = s.kj_shards || 0;
@@ -2768,7 +2778,6 @@ function raidShowResult(entry) {
 
   $('raid-active-section').style.display = 'none';
   $('raid-use-section').style.display = 'none';
-  $('raid-brew-section').style.display = 'none';
   $('raid-log-section').style.display = 'none';
   $('raid-select-section').style.display = 'none';
   $('raid-history-section').style.display = 'none';
@@ -3050,6 +3059,7 @@ function update(state) {
   updateAchs(state);
   updateInventory(state);
   updateRaids(state);
+  updateCraft(state);
   updateArmy(state);
   updateLog(state);
   prev = JSON.parse(JSON.stringify(state));
