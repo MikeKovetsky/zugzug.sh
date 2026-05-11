@@ -879,6 +879,92 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   [ "$hp" -eq 25000 ]
 }
 
+@test "brew increments brew_count + brews_per_item stats" {
+  bash "$PEON_SH" brew chain_lightning
+  bash "$PEON_SH" brew chain_lightning
+  bash "$PEON_SH" brew death_coil
+  local count cl_count dc_count
+  count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['stats']['brew_count'])")
+  cl_count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['stats']['brews_per_item']['chain_lightning'])")
+  dc_count=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['stats']['brews_per_item']['death_coil'])")
+  [ "$count" -eq 3 ]
+  [ "$cl_count" -eq 2 ]
+  [ "$dc_count" -eq 1 ]
+}
+
+@test "brew with shards increments shards_spent stat" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['kj_shards'] = 5
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  bash "$PEON_SH" brew soul_reaver
+  local spent
+  spent=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['stats']['shards_spent'])")
+  [ "$spent" -eq 1 ]
+}
+
+@test "first_brew achievement unlocks after first brew on next event" {
+  bash "$PEON_SH" brew chain_lightning
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['fatigue'] = 0
+s['last_stop_time'] = 0
+s['active_boss'] = None
+s['stats']['achievements_unlocked'] = {a: 1 for a in ['first_blood','zug_zug_veteran','the_grind','iron_peon','weekend_warrior','rage_quit','oops','permit_patty','compact_survivor','architect','combo_fiend','mogul','stop_clicking','peon_union_rep','first_kill','raid_leader','you_no_take','combo_god','hoarder','boss_slayer','warchief','general','casualties_of_war','speedrun','speed_lich_king','lich_kings_end','loot_goblin','iron_will','unbreakable','duct_tape','trade_prince','so_close','world_tour']}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local unlocked
+  unlocked=$(python3 -c "import json; print('first_brew' in json.load(open('$TEST_DIR/.state.json'))['stats']['achievements_unlocked'])")
+  [ "$unlocked" = "True" ]
+}
+
+@test "soul_trader achievement unlocks after spending 4 KJ shards" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['kj_shards'] = 10
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  bash "$PEON_SH" brew soul_reaver
+  bash "$PEON_SH" brew twin_eclipse
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['fatigue'] = 0
+s['last_stop_time'] = 0
+s['active_boss'] = None
+s['stats']['achievements_unlocked'] = {a: 1 for a in ['first_blood','zug_zug_veteran','the_grind','iron_peon','weekend_warrior','rage_quit','oops','permit_patty','compact_survivor','architect','combo_fiend','mogul','stop_clicking','peon_union_rep','first_kill','raid_leader','you_no_take','combo_god','hoarder','boss_slayer','warchief','general','casualties_of_war','speedrun','speed_lich_king','lich_kings_end','loot_goblin','iron_will','unbreakable','duct_tape','trade_prince','so_close','world_tour','first_brew']}
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local unlocked spent
+  spent=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['stats']['shards_spent'])")
+  unlocked=$(python3 -c "import json; print('soul_trader' in json.load(open('$TEST_DIR/.state.json'))['stats']['achievements_unlocked'])")
+  [ "$spent" -eq 4 ]
+  [ "$unlocked" = "True" ]
+}
+
+@test "completed brew adds 'b' field to activity log entry" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss'] = None
+s['brew_queue'] = [{'item':'doom','remaining':1,'started_at':1}]
+s['inventory'] = []
+s['fatigue'] = 0
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local b
+  b=$(python3 -c "import json; print([e.get('b','') for e in json.load(open('$TEST_DIR/.state.json'))['activity_log'] if e.get('b')][-1])")
+  [[ "$b" == *"Doom"* ]]
+}
+
 @test "twin_eclipse legendary consumable deals 500000 damage" {
   bash "$PEON_SH" raid kiljaeden
   python3 -c "

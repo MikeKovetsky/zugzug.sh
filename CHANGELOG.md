@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+- **Live cauldron visualization on the Craft tab**: Replaced the plain "Brewing: …" text with an animated SVG cauldron that bubbles in the active brew's signature color (Death Coil is magenta, Doom is fiery red, Soul Reaver is acid green, Twin Eclipse is gold, etc.) and a soft radial glow underneath. The info panel beside it shows what's brewing, how many tasks remain, and any queued follow-ups; when nothing is brewing, the cauldron goes dark with a "Cauldron is cold" hint. Makes the wait *feel* like progress instead of an invisible counter.
+- **Brew completion toasts**: Queued brews now write a `b: 'Brewed: …'` field into the activity log when they finish, which the dashboard surfaces as a 🧪 toast with the item name(s). Same pipeline as item drops and achievements.
+- **3 brew achievements** wired into all 3 catalogs (CLI `peon achievements`, hook `_achiev_defs`, dashboard `ACHS`):
+  - **First Brew** (target 1) — brew anything once.
+  - **Master Brewer** (target 6) — brew at least 1 of every recipe.
+  - **Soul Trader** (target 4) — spend 4 KJ shards (= one Soul Reaver + one Twin Eclipse, the full legendary tier).
+- **Brew tracking stats** under `state['stats']`: `brew_count` (total ever brewed), `brews_per_item` (per-recipe counter), and `shards_spent` (cumulative). Counted at submit time across all 3 brew code paths (CLI + 2 dashboard server copies) so instant and queued brews are tracked consistently.
+
 ## v3.8.0 (2026-05-11)
 
 ### Added

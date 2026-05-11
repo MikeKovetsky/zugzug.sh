@@ -1708,6 +1708,9 @@ defs = [
     ('tgif_zombie', 'TGIF Zombie', 'Friday evening with 40+ fatigue'),
     ('sunday_scaries', 'Sunday Scaries', 'Start a session Sunday after 8 PM'),
     ('world_tour', 'World Tour', 'Work in 10 different repos'),
+    ('first_brew', 'First Brew', 'Brew your first consumable at the Arcane Sanctum'),
+    ('master_brewer', 'Master Brewer', 'Brew at least 1 of every recipe (all 6)'),
+    ('soul_trader', 'Soul Trader', 'Spend 4 KJ shards (full legendary brew tier)'),
 ]
 print(f'Achievements: {len(unlocked)}/{len(defs)}')
 print()
@@ -2561,6 +2564,12 @@ econ['lumber'] = lumber - b['l']
 state['economy'] = econ
 if b['s']:
     state['kj_shards'] = shards - b['s']
+_stats = state.setdefault('stats', {})
+_stats['brew_count'] = _stats.get('brew_count', 0) + 1
+_bpi = _stats.setdefault('brews_per_item', {})
+_bpi[bid] = _bpi.get(bid, 0) + 1
+if b['s']:
+    _stats['shards_spent'] = _stats.get('shards_spent', 0) + b['s']
 if b['t'] == 0:
     inventory = state.get('inventory', [])
     inventory.append(bid)
@@ -3196,6 +3205,12 @@ class H(http.server.BaseHTTPRequestHandler):
             ec['lumber'] = l - b['l']
             if b['s']:
                 st['kj_shards'] = shards - b['s']
+            _stats = st.setdefault('stats', {})
+            _stats['brew_count'] = _stats.get('brew_count', 0) + 1
+            _bpi = _stats.setdefault('brews_per_item', {})
+            _bpi[iid] = _bpi.get(iid, 0) + 1
+            if b['s']:
+                _stats['shards_spent'] = _stats.get('shards_spent', 0) + b['s']
             if b['t'] == 0:
                 inv = st.get('inventory', [])
                 inv.append(iid)
@@ -4182,6 +4197,7 @@ if game_on:
             econ['daily_tasks'] = daily_tasks
             stats['tasks_completed'] = stats.get('tasks_completed', 0) + 1
             _bq = state.get('brew_queue', [])
+            _brew_completed_text = ''
             if _bq:
                 _BREW_NAMES = dict(chain_lightning='Chain Lightning', death_coil='Death Coil', finger_of_death='Finger of Death', doom='Doom', soul_reaver='Soul Reaver', twin_eclipse='Twin Eclipse')
                 _inv = state.get('inventory', [])
@@ -4197,7 +4213,8 @@ if game_on:
                 state['brew_queue'] = _bq2
                 state['inventory'] = _inv
                 if _done_names:
-                    game_subtitle = (game_subtitle or '') + ' Brewed: ' + ', '.join(_done_names)
+                    _brew_completed_text = ', '.join(_done_names)
+                    game_subtitle = (game_subtitle or '') + ' Brewed: ' + _brew_completed_text
         elif category == 'task.acknowledge':
             gold_delta += int(2 * upkeep_mult)
         elif category == 'resource.limit':
@@ -4368,6 +4385,9 @@ if game_on:
         ('tgif_zombie',      lambda: _weekday == 4 and _hour >= 17 and fatigue >= 40, 'TGIF Zombie', 'It Friday... peon can barely stand...'),
         ('sunday_scaries',   lambda: _weekday == 6 and _hour >= 20 and category == 'session.start', 'Sunday Scaries', 'Tomorrow is Monday... peon not ready...'),
         ('world_tour',       lambda: len(state.get('projects_seen', [])) >= 10, 'World Tour', 'Peon been everywhere. 10 repos. Peon need vacation.'),
+        ('first_brew',       lambda: stats.get('brew_count', 0) >= 1, 'First Brew', 'Cauldron go bubble bubble! Peon... almost wizard now.'),
+        ('master_brewer',    lambda: len([k for k, v in stats.get('brews_per_item', {}).items() if v >= 1 and k in ['chain_lightning','death_coil','finger_of_death','doom','soul_reaver','twin_eclipse']]) >= 6, 'Master Brewer', 'Brewed every recipe. Peon doctorate in chemistry. (Honorary.)'),
+        ('soul_trader',      lambda: stats.get('shards_spent', 0) >= 4, 'Soul Trader', 'Traded souls for power. Kil\\'jaeden would approve.'),
     ]
     if achiev_on:
         for aid, check_fn, aname, aflavor in _achiev_defs:
@@ -4425,6 +4445,9 @@ if game_on:
         'tgif_zombie':      [1 if 'tgif_zombie' in unlocked else 0, 1],
         'sunday_scaries':   [1 if 'sunday_scaries' in unlocked else 0, 1],
         'world_tour':       [len(state.get('projects_seen', [])), 10],
+        'first_brew':       [min(stats.get('brew_count', 0), 1), 1],
+        'master_brewer':    [len([k for k, v in stats.get('brews_per_item', {}).items() if v >= 1 and k in ['chain_lightning','death_coil','finger_of_death','doom','soul_reaver','twin_eclipse']]), 6],
+        'soul_trader':      [stats.get('shards_spent', 0), 4],
     }
     stats['achievements_progress'] = _ach_progress
 
@@ -5114,6 +5137,11 @@ if game_on:
             entry['i'] = item_drop
         if level_up_text:
             entry['lv'] = level_up_text
+        try:
+            if _brew_completed_text:
+                entry['b'] = _brew_completed_text
+        except NameError:
+            pass
         log.append(entry)
         if len(log) > 50:
             log = log[-50:]
@@ -5873,6 +5901,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             ec['lumber'] = l - b['l']
             if b['s']:
                 st['kj_shards'] = shards - b['s']
+            _stats = st.setdefault('stats', {})
+            _stats['brew_count'] = _stats.get('brew_count', 0) + 1
+            _bpi = _stats.setdefault('brews_per_item', {})
+            _bpi[iid] = _bpi.get(iid, 0) + 1
+            if b['s']:
+                _stats['shards_spent'] = _stats.get('shards_spent', 0) + b['s']
             if b['t'] == 0:
                 inv = st.get('inventory', [])
                 inv.append(iid)

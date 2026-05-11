@@ -800,6 +800,47 @@ body {
 .shard-help strong { color: #d8a; font-weight: 600; }
 .shard-help-cost { display: inline-block; padding: 1px 6px; background: rgba(216,170,170,0.12); border-radius: 3px; color: #d8a; font-family: ui-monospace, monospace; font-size: 11px; }
 
+.cauldron-wrap {
+  display: flex; align-items: center; gap: 16px;
+  background: linear-gradient(180deg, #0d1418 0%, #060a0d 100%);
+  border: 1px solid #1f2a30; border-radius: 6px;
+  padding: 14px 16px; margin-bottom: 16px;
+}
+.cauldron { width: 64px; height: 64px; flex-shrink: 0; position: relative; }
+.cauldron-svg { width: 100%; height: 100%; display: block; }
+.cauldron-body { fill: #2a1810; stroke: #4a2810; stroke-width: 1.5; }
+.cauldron-rim { fill: #5a3018; stroke: #2a1810; stroke-width: 1; }
+.cauldron-leg { fill: #2a1810; }
+.cauldron-liquid { fill: var(--brew-color, #5a4a30); transition: fill 0.6s ease; }
+.cauldron-bubble {
+  fill: var(--brew-color-light, #8a7a50);
+  opacity: 0;
+  animation: bubbleUp 2.4s ease-in-out infinite;
+}
+.cauldron-idle .cauldron-liquid { fill: #1a1810; }
+.cauldron-idle .cauldron-bubble { animation: none; opacity: 0; }
+.cauldron-glow {
+  position: absolute; inset: -8px;
+  background: radial-gradient(circle at 50% 70%, var(--brew-color-glow, transparent) 0%, transparent 60%);
+  pointer-events: none; opacity: 0; transition: opacity 0.6s ease;
+}
+.cauldron-active .cauldron-glow { opacity: 0.7; }
+@keyframes bubbleUp {
+  0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+  30%  { opacity: 0.9; transform: translateY(-3px) scale(1); }
+  60%  { opacity: 0.7; transform: translateY(-9px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-14px) scale(0.4); }
+}
+.cauldron-bubble.b1 { animation-delay: 0s; }
+.cauldron-bubble.b2 { animation-delay: 0.6s; }
+.cauldron-bubble.b3 { animation-delay: 1.3s; }
+.cauldron-bubble.b4 { animation-delay: 1.9s; }
+.cauldron-info { flex: 1; min-width: 0; }
+.cauldron-status { font-size: 13px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+.cauldron-status-idle { color: var(--muted); font-weight: 400; }
+.cauldron-eta { font-size: 11px; color: var(--muted); }
+.cauldron-list { font-size: 12px; color: var(--gold); margin-top: 6px; }
+
 .raid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .raid-card {
   background: #12121f; border: 1px solid var(--border); border-radius: 4px;
@@ -1452,6 +1493,9 @@ var ACHS = [
   { id: 'tgif_zombie', icon: '\u{1F9DF}', name: 'TGIF Zombie', how: 'Friday evening with 40+ fatigue', tgt: 1 },
   { id: 'sunday_scaries', icon: '\u{1F631}', name: 'Sunday Scaries', how: 'Start a session Sunday after 8 PM', tgt: 1 },
   { id: 'world_tour', icon: '\u{1F30D}', name: 'World Tour', how: 'Work in 10 different repos', tgt: 10 },
+  { id: 'first_brew', icon: '\u{1F9EA}', name: 'First Brew', how: 'Brew your first consumable at the Arcane Sanctum', tgt: 1 },
+  { id: 'master_brewer', icon: '\u2697\uFE0F', name: 'Master Brewer', how: 'Brew at least 1 of every recipe (all 6)', tgt: 6 },
+  { id: 'soul_trader', icon: '\u{1F480}', name: 'Soul Trader', how: 'Spend 4 KJ shards on legendary brews', tgt: 4 },
 ];
 
 var EVT_LABELS = {
@@ -2316,6 +2360,15 @@ var BREW_RECIPES = {
   twin_eclipse:    {g:30000,  l:10000, s:3, t:10}
 };
 
+var BREW_COLORS = {
+  chain_lightning: { liquid:'#3a5fa8', light:'#6a9fdf', glow:'rgba(80,160,255,0.5)' },
+  death_coil:      { liquid:'#5a2540', light:'#a05080', glow:'rgba(190,80,160,0.5)' },
+  finger_of_death: { liquid:'#3a2050', light:'#7050a0', glow:'rgba(140,80,200,0.5)' },
+  doom:            { liquid:'#aa3010', light:'#ff7040', glow:'rgba(255,100,40,0.6)' },
+  soul_reaver:     { liquid:'#2a6030', light:'#5fc070', glow:'rgba(80,220,100,0.6)' },
+  twin_eclipse:    { liquid:'#a05500', light:'#ffb840', glow:'rgba(255,180,60,0.7)' }
+};
+
 function fmtLoot(arr) {
   var a = typeof arr === 'string' ? [arr] : arr;
   return a.map(function(t) { return '<span class="raid-loot-' + t + '">' + t + '</span>'; }).join(', ') + ' (' + a.length + ' drop' + (a.length !== 1 ? 's' : '') + ')';
@@ -2468,6 +2521,48 @@ function raidRenderItems(s) {
   });
 }
 
+function renderCauldron(queue) {
+  var active = queue.length > 0;
+  var head = active ? queue[0] : null;
+  var color = active ? (BREW_COLORS[head.item] || BREW_COLORS.doom) : null;
+  var styleVars = color
+    ? '--brew-color:' + color.liquid + ';--brew-color-light:' + color.light + ';--brew-color-glow:' + color.glow + ';'
+    : '';
+  var svg = '<svg class="cauldron-svg" viewBox="0 0 64 64" aria-hidden="true">' +
+    '<rect class="cauldron-leg" x="14" y="50" width="4" height="10"/>' +
+    '<rect class="cauldron-leg" x="46" y="50" width="4" height="10"/>' +
+    '<path class="cauldron-body" d="M8 26 Q8 56 32 56 Q56 56 56 26 Z"/>' +
+    '<path class="cauldron-liquid" d="M11 28 Q11 50 32 50 Q53 50 53 28 Z"/>' +
+    '<circle class="cauldron-bubble b1" cx="22" cy="34" r="2"/>' +
+    '<circle class="cauldron-bubble b2" cx="32" cy="36" r="2.5"/>' +
+    '<circle class="cauldron-bubble b3" cx="40" cy="33" r="2"/>' +
+    '<circle class="cauldron-bubble b4" cx="28" cy="38" r="1.5"/>' +
+    '<ellipse class="cauldron-rim" cx="32" cy="26" rx="26" ry="5"/>' +
+  '</svg>';
+  var statusHtml, etaHtml, listHtml = '';
+  if (active) {
+    var bi = BOSS_ITEMS[head.item] || {name: head.item};
+    statusHtml = '<div class="cauldron-status">Brewing ' + bi.name + '\u2026</div>';
+    etaHtml = '<div class="cauldron-eta">\u23F3 Ready in ' + head.remaining + ' task' + (head.remaining !== 1 ? 's' : '') + '. Each task completion ticks the cauldron.</div>';
+    if (queue.length > 1) {
+      listHtml = '<div class="cauldron-list">Queue: ' + queue.slice(1).map(function(q) {
+        var qbi = BOSS_ITEMS[q.item] || {name: q.item};
+        return qbi.name + ' (' + q.remaining + ')';
+      }).join(' \u2192 ') + '</div>';
+    }
+  } else {
+    statusHtml = '<div class="cauldron-status cauldron-status-idle">Cauldron is cold.</div>';
+    etaHtml = '<div class="cauldron-eta">Pick a recipe below to start brewing. Instant brews skip the cauldron.</div>';
+  }
+  return '<div class="cauldron-wrap ' + (active ? 'cauldron-active' : 'cauldron-idle') + '">' +
+    '<div class="cauldron" style="' + styleVars + '">' +
+      '<div class="cauldron-glow"></div>' +
+      svg +
+    '</div>' +
+    '<div class="cauldron-info">' + statusHtml + etaHtml + listHtml + '</div>' +
+  '</div>';
+}
+
 function updateCraft(s) {
   var bld = s.buildings || {};
   if (!bld.arcane_sanctum) {
@@ -2502,12 +2597,7 @@ function updateCraft(s) {
       '</div>' +
     '</div>' +
   '</div>';
-  if (queue.length > 0) {
-    html += '<div class="brew-queue">Brewing: ' + queue.map(function(q) {
-      var bi = BOSS_ITEMS[q.item] || {name: q.item};
-      return '<span class="brew-queue-item">' + bi.name + '</span> (' + q.remaining + ' task' + (q.remaining !== 1 ? 's' : '') + ' left)';
-    }).join(' &middot; ') + '</div>';
-  }
+  html += renderCauldron(queue);
   html += '<div class="raid-use-hint">Spend gold/lumber (and shards for legendaries) to brew damage consumables. They go straight to your inventory.</div><div class="raid-use-grid" id="raid-brew-grid"></div>';
   $('raid-brew-items').innerHTML = html;
   var grid = $('raid-brew-grid');
@@ -3019,6 +3109,7 @@ function detectToasts(s) {
     if (entry.c) text += ' \u2014 ' + entry.c;
     if (entry.a) { type = 'ach'; icon = '\u{1F3C6}'; text += ' \u2014 ' + entry.a; }
     if (entry.i) { type = 'evt'; icon = '\u{1F381}'; text += ' \u2014 ' + entry.i; }
+    if (entry.b) { type = 'evt'; icon = '\u{1F9EA}'; text = 'Brewed: ' + entry.b; }
     addToast(type, icon, text, entry.g || null);
   }
   if (maxTs > lastSeenTs) lastSeenTs = maxTs;
