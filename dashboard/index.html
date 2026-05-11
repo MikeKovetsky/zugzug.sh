@@ -785,6 +785,21 @@ body {
 .brew-queue { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 .brew-queue-item { color: var(--gold); }
 
+.shard-panel {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, #1a0f1f 0%, #0f0a18 100%);
+  border: 1px solid #4a2060; border-radius: 6px;
+  padding: 12px 16px; margin-bottom: 16px;
+}
+.shard-icon { font-size: 32px; line-height: 1; flex-shrink: 0; filter: drop-shadow(0 0 6px rgba(180,80,220,0.5)); }
+.shard-body { flex: 1; min-width: 0; }
+.shard-count { font-size: 22px; font-weight: 700; color: #d8a; line-height: 1.1; }
+.shard-count .shard-zero { color: var(--muted); font-weight: 400; font-size: 16px; }
+.shard-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.shard-help { font-size: 12px; color: #c0c8d0; line-height: 1.5; margin-top: 4px; }
+.shard-help strong { color: #d8a; font-weight: 600; }
+.shard-help-cost { display: inline-block; padding: 1px 6px; background: rgba(216,170,170,0.12); border-radius: 3px; color: #d8a; font-family: ui-monospace, monospace; font-size: 11px; }
+
 .raid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .raid-card {
   background: #12121f; border: 1px solid var(--border); border-radius: 4px;
@@ -1289,7 +1304,7 @@ body {
       <p>&#x1F512; Build the <strong>Arcane Sanctum</strong> to brew damage consumables. (7,500g / 3,000l)</p>
     </div>
     <div id="craft-content" style="display:none">
-      <div class="sec-title">Brew Damage Consumables <span id="brew-shards-hdr" class="brew-shards"></span></div>
+      <div class="sec-title">Brew Damage Consumables</div>
       <div class="raid-use-items" id="raid-brew-items"></div>
     </div>
   </div>
@@ -2466,15 +2481,34 @@ function updateCraft(s) {
   var gold = ec.gold || 0, lumber = ec.lumber || 0;
   var shards = s.kj_shards || 0;
   var queue = s.brew_queue || [];
-  $('brew-shards-hdr').innerHTML = shards > 0 ? ('&#x1F480; ' + shards + ' KJ shard' + (shards !== 1 ? 's' : '')) : '';
+  var bk = s.boss_kills || {};
+  var kjKills = bk.kiljaeden || 0;
   var html = '';
+  var countHtml = shards > 0
+    ? (shards + ' shard' + (shards !== 1 ? 's' : ''))
+    : '<span class="shard-zero">0 shards</span>';
+  var earnedHtml = kjKills > 0
+    ? ('You\'ve earned <strong>' + kjKills + '</strong> from <strong>' + kjKills + '</strong> Kil\'jaeden kill' + (kjKills !== 1 ? 's' : '') + '.')
+    : 'Defeat <strong>Kil\'jaeden the Deceiver</strong> (1M HP, 10‑day raid) to earn your first shard.';
+  html += '<div class="shard-panel">' +
+    '<div class="shard-icon">\u{1F480}</div>' +
+    '<div class="shard-body">' +
+      '<div class="shard-label">Soul Shards of Kil\'jaeden</div>' +
+      '<div class="shard-count">' + countHtml + '</div>' +
+      '<div class="shard-help">Drop <strong>1 per Kil\'jaeden kill</strong>. Required to brew the legendary tier: ' +
+        '<span class="shard-help-cost">Soul Reaver \u2014 1 shard</span> ' +
+        '<span class="shard-help-cost">Twin Eclipse \u2014 3 shards</span>. ' +
+        earnedHtml +
+      '</div>' +
+    '</div>' +
+  '</div>';
   if (queue.length > 0) {
     html += '<div class="brew-queue">Brewing: ' + queue.map(function(q) {
       var bi = BOSS_ITEMS[q.item] || {name: q.item};
       return '<span class="brew-queue-item">' + bi.name + '</span> (' + q.remaining + ' task' + (q.remaining !== 1 ? 's' : '') + ' left)';
     }).join(' &middot; ') + '</div>';
   }
-  html += '<div class="raid-use-hint">Spend gold/lumber (and KJ shards) to brew damage consumables. They go straight to your inventory.</div><div class="raid-use-grid" id="raid-brew-grid"></div>';
+  html += '<div class="raid-use-hint">Spend gold/lumber (and shards for legendaries) to brew damage consumables. They go straight to your inventory.</div><div class="raid-use-grid" id="raid-brew-grid"></div>';
   $('raid-brew-items').innerHTML = html;
   var grid = $('raid-brew-grid');
   Object.keys(BREW_RECIPES).forEach(function(iid) {
