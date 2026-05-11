@@ -244,6 +244,10 @@ Items drop randomly from completed tasks. Legendary items have a 0.01% drop rate
 <img src="docs/screenshots/screenshot-inventory.png" width="800" alt="Inventory page">
 </div>
 
+### Brewing (Arcane Sanctum)
+
+Build the **Arcane Sanctum** (7,500g / 3,000l) to unlock `peon brew <item>`: spend gold + lumber to craft damage consumables instead of grinding boss RNG. Recipes scale with player stage — Chain Lightning and Death Coil are instant; Doom queues for 3 task completions; the legendary tier (**Soul Reaver** 200k dmg, **Twin Eclipse** 500k dmg) additionally costs KJ shards (1 shard drops per Kil'jaeden kill) and is the intended way to load up before pulling the Lich King.
+
 ### Achievements
 
 14 achievements with WC3-themed flavor text, tracked across sessions:

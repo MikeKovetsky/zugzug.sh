@@ -44,6 +44,7 @@ complete -c peon -n __peon_no_subcommand -a unequip -d "Unequip an item"
 complete -c peon -n __peon_no_subcommand -a use -d "Use a consumable item"
 complete -c peon -n __peon_no_subcommand -a sell -d "Sell an item for gold"
 complete -c peon -n __peon_no_subcommand -a raid -d "Start or check boss raids"
+complete -c peon -n __peon_no_subcommand -a brew -d "Brew damage consumables at Arcane Sanctum"
 complete -c peon -n __peon_no_subcommand -a army -d "Show army composition and stats"
 complete -c peon -n __peon_no_subcommand -a hire -d "Hire units for your army"
 complete -c peon -n __peon_no_subcommand -a dismiss -d "Dismiss units from your army"
@@ -127,6 +128,15 @@ complete -c peon -n "__peon_using_subcommand raid" -a mannoroth -d "Pit Lord Man
 complete -c peon -n "__peon_using_subcommand raid" -a archimonde -d "Archimonde (100000 HP, 7 days)"
 complete -c peon -n "__peon_using_subcommand raid" -a kiljaeden -d "Kil'jaeden the Deceiver (1000000 HP, 10 days)"
 complete -c peon -n "__peon_using_subcommand raid" -a lich_king -d "The Lich King (5000000 HP, 14 days)"
+
+# brew subcommands (requires Arcane Sanctum)
+complete -c peon -n "__peon_using_subcommand brew" -a list -d "Show recipes, queue, KJ shards"
+complete -c peon -n "__peon_using_subcommand brew" -a chain_lightning -d "2,500 dmg (200g/50l, instant)"
+complete -c peon -n "__peon_using_subcommand brew" -a death_coil -d "7,500 dmg (500g/150l, instant)"
+complete -c peon -n "__peon_using_subcommand brew" -a finger_of_death -d "15,000 dmg (1500g/500l, 1 task)"
+complete -c peon -n "__peon_using_subcommand brew" -a doom -d "75,000 dmg (4000g/1500l, 3 tasks)"
+complete -c peon -n "__peon_using_subcommand brew" -a soul_reaver -d "200,000 dmg (12000g/4000l/1 KJ shard, 5 tasks)"
+complete -c peon -n "__peon_using_subcommand brew" -a twin_eclipse -d "500,000 dmg (30000g/10000l/3 KJ shards, 10 tasks)"
 
 # hire subcommands
 complete -c peon -n "__peon_using_subcommand hire" -a grunt -d "Grunt (100g, 2 food, +1 dmg)"

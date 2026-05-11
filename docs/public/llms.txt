@@ -119,6 +119,7 @@ peon rotation [random|round-robin|agentskill]
 peon packs list / use / install / next / remove
 peon notifications on / off / test
 peon economy / build / achievements / inventory / equip / unequip / use
+peon raid [status|<boss>] / brew [list|<item>]
 peon dashboard
 peon mobile ntfy <topic>
 peon relay --daemon

@@ -727,3 +727,170 @@ json.dump(s, open('$TEST_DIR/.state.json', 'w'))
   bloodstone_dmg=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['active_boss']['log'][-1]['bk'].get('bloodstone', 0))")
   [ "$bloodstone_dmg" = "90" ]
 }
+
+# ============================================================
+# peon brew (Arcane Sanctum brewing)
+# ============================================================
+
+@test "brew requires Arcane Sanctum" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+del s['buildings']['arcane_sanctum']
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" brew
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Arcane Sanctum"* ]]
+}
+
+@test "brew list shows all recipes and current shards" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['kj_shards'] = 2
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" brew
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"chain_lightning"* ]]
+  [[ "$output" == *"twin_eclipse"* ]]
+  [[ "$output" == *"KJ Shards: 2"* ]]
+}
+
+@test "brew chain_lightning is instant and adds to inventory" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['inventory'] = []
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" brew chain_lightning
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Brewed Chain Lightning"* ]]
+  local has gold
+  has=$(python3 -c "import json; print('chain_lightning' in json.load(open('$TEST_DIR/.state.json')).get('inventory', []))")
+  gold=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
+  [ "$has" = "True" ]
+  [ "$gold" -eq 49800 ]
+}
+
+@test "brew doom queues for 3 tasks (not instant)" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['inventory'] = []
+s['brew_queue'] = []
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" brew doom
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Brewing Doom"* ]]
+  local q gold
+  q=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['brew_queue'][0]['remaining'])")
+  gold=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['economy']['gold'])")
+  [ "$q" -eq 3 ]
+  [ "$gold" -eq 46000 ]
+}
+
+@test "brew soul_reaver requires KJ shards" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['kj_shards'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" brew soul_reaver
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"shard"* ]]
+}
+
+@test "brew soul_reaver consumes 1 KJ shard when sufficient" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['kj_shards'] = 2
+s['inventory'] = []
+s['brew_queue'] = []
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" brew soul_reaver
+  [ "$status" -eq 0 ]
+  local shards q
+  shards=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['kj_shards'])")
+  q=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json'))['brew_queue'][0]['item'])")
+  [ "$shards" -eq 1 ]
+  [ "$q" = "soul_reaver" ]
+}
+
+@test "brew queue ticks down 1 per task.complete and finished items go to inventory" {
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss'] = None
+s['brew_queue'] = [{'item':'finger_of_death','remaining':1,'started_at':1}]
+s['inventory'] = []
+s['fatigue'] = 0
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local q_len has
+  q_len=$(python3 -c "import json; print(len(json.load(open('$TEST_DIR/.state.json')).get('brew_queue', [])))")
+  has=$(python3 -c "import json; print('finger_of_death' in json.load(open('$TEST_DIR/.state.json')).get('inventory', []))")
+  [ "$q_len" -eq 0 ]
+  [ "$has" = "True" ]
+}
+
+@test "killing kiljaeden grants 1 KJ shard" {
+  bash "$PEON_SH" raid kiljaeden
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['hp'] = 1
+s['active_boss']['atk_min'] = 0
+s['active_boss']['atk_max'] = 0
+s['kj_shards'] = 0
+s['army'] = {}
+s['equipped'] = []
+s['fatigue'] = 0
+s['last_stop_time'] = 0
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  local shards
+  shards=$(python3 -c "import json; print(json.load(open('$TEST_DIR/.state.json')).get('kj_shards', 0))")
+  [ "$shards" -eq 1 ]
+}
+
+@test "doom consumable deals 75000 damage (bumped from 40k)" {
+  bash "$PEON_SH" raid archimonde
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['hp'] = 100000
+s['inventory'] = ['doom']
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" use doom
+  [ "$status" -eq 0 ]
+  local hp
+  hp=$(python3 -c "import json; b=json.load(open('$TEST_DIR/.state.json'))['active_boss']; print(b['hp'] if b else -1)")
+  [ "$hp" -eq 25000 ]
+}
+
+@test "twin_eclipse legendary consumable deals 500000 damage" {
+  bash "$PEON_SH" raid kiljaeden
+  python3 -c "
+import json
+s = json.load(open('$TEST_DIR/.state.json'))
+s['active_boss']['hp'] = 1000000
+s['inventory'] = ['twin_eclipse']
+json.dump(s, open('$TEST_DIR/.state.json', 'w'))
+"
+  run bash "$PEON_SH" use twin_eclipse
+  [ "$status" -eq 0 ]
+  local hp
+  hp=$(python3 -c "import json; b=json.load(open('$TEST_DIR/.state.json'))['active_boss']; print(b['hp'] if b else -1)")
+  [ "$hp" -eq 500000 ]
+}

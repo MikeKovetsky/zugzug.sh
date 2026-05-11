@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## v3.8.0 (2026-05-11)
+
+### Added
+- **Brew damage consumables at the Arcane Sanctum**: New `peon brew <item>` CLI command (and matching dashboard "Brew" panel on the Raid view) lets you spend gold + lumber to craft damage consumables instead of grinding boss RNG for them. Recipes scale with player stage — Chain Lightning and Death Coil are instant brews (200g/50l and 500g/150l), Finger of Death and Doom queue for 1 and 3 task completions (1500g/500l and 4000g/1500l), and the new legendary tier (Soul Reaver at 12000g/4000l, Twin Eclipse at 30000g/10000l) additionally costs 1 and 3 KJ shards respectively. The brew queue ticks down 1 per `task.complete`; completed brews drop straight into your inventory and surface in the game subtitle. Re-purposes the Arcane Sanctum, which previously only granted "peon prophecies on session start."
+- **Two new legendary consumables for the LK-tier endgame**: **Soul Reaver** (200,000 dmg — 20% of Kil'jaeden HP, 4% of Lich King HP) and **Twin Eclipse** (500,000 dmg — Kil'jaeden's signature spell, 50% of KJ HP / 10% of LK HP). Both are brew-only (no boss drop tables), so they can't randomly fail to roll, and they're the answer to "how do I survive a 14-day Lich King fight?" — preload your inventory before pulling the boss.
+- **KJ shard drop on Kil'jaeden victory**: Each Kil'jaeden kill grants 1 `kj_shards` (tracked in `.state.json`, displayed on the dashboard raid view). Soul Reaver costs 1 shard, Twin Eclipse costs 3, so the path to a Twin-Eclipse-fueled LK pull is 3 KJ kills + ~30k gold — predictable and grindable, not RNG-gated.
+
+### Changed
+- **Epic damage consumables bumped to keep pace with the buffed Lich King (5M HP)**: Chain Lightning 2,000 → 2,500, Death Coil 5,000 → 7,500, Finger of Death 10,000 → 15,000, Doom 40,000 → 75,000. Doom still doesn't one-shot Archimonde (75% of 100k HP) and is now ~7.5% of KJ rather than 4%. Common/uncommon/rare consumables (Firebolt through Thunder Clap) are unchanged — they're correctly tuned for early bosses and a flat 5x bump would have one-shot Kobolds.
+- **Arcane Sanctum description** updated to mention the brewing role: `peon prophecies + brewing damage consumables (peon brew)`.
+
 ## v3.7.0 (2026-04-29)
 
 ### Added

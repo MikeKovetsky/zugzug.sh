@@ -777,6 +777,13 @@ body {
 .raid-use-btn.r-rare:hover:not(:disabled) { border-color: #4080ff; }
 .raid-use-btn.r-epic { border-color: rgba(160,64,224,0.5); }
 .raid-use-btn.r-epic:hover:not(:disabled) { border-color: #a040e0; }
+.raid-use-btn.r-legendary { border-color: rgba(255,136,0,0.6); }
+.raid-use-btn.r-legendary:hover:not(:disabled) { border-color: var(--orange); box-shadow: 0 0 8px rgba(255,136,0,0.4); }
+.brew-shards { display: inline-flex; align-items: center; gap: 4px; color: #d8a; font-size: 12px; margin-left: 10px; }
+.brew-cost { color: var(--muted); font-size: 11px; }
+.brew-time { color: #8a8; font-size: 11px; }
+.brew-queue { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.brew-queue-item { color: var(--gold); }
 
 .raid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .raid-card {
@@ -1257,6 +1264,10 @@ body {
     <div id="raid-use-section" style="display:none">
       <div class="sec-title">Use Items</div>
       <div class="raid-use-items" id="raid-use-items"></div>
+    </div>
+    <div id="raid-brew-section" style="display:none">
+      <div class="sec-title">Brew at Arcane Sanctum <span id="brew-shards-hdr" class="brew-shards"></span></div>
+      <div class="raid-use-items" id="raid-brew-items"></div>
     </div>
     <div id="raid-log-section" style="display:none">
       <div class="sec-title">Battle Log</div>
@@ -2260,15 +2271,26 @@ var RAID_BOSSES = {
 };
 
 var BOSS_ITEMS = {
-  firebolt:        {name:'Firebolt',             dmg:50,    r:'common',   icon:wwi('BTNFireBolt.png')},
-  goblin_sapper:   {name:'Goblin Sapper Charge', dmg:100,   r:'uncommon', icon:wwi('BTNGoblinSapper.png')},
-  storm_bolt:      {name:'Storm Bolt',           dmg:250,   r:'uncommon', icon:wwi('BTNStormBolt.png')},
-  demolisher_shot: {name:'Demolisher Shot',      dmg:500,   r:'rare',     icon:wwi('BTNDemolisher.png')},
-  thunder_clap:    {name:'Thunder Clap',         dmg:750,   r:'rare',     icon:wwi('BTNThunderClap.png')},
-  chain_lightning: {name:'Chain Lightning',      dmg:2000,  r:'epic',     icon:wwi('BTNChainLightning.png')},
-  death_coil:      {name:'Death Coil',           dmg:5000,  r:'epic',     icon:wwi('BTNDeathCoil.png')},
-  finger_of_death: {name:'Finger of Death',      dmg:10000, r:'epic',     icon:wwi('BTNCarrionSwarm.png')},
-  doom:            {name:'Doom',                 dmg:40000, r:'epic',     icon:wwi('BTNDoom.png')}
+  firebolt:        {name:'Firebolt',             dmg:50,     r:'common',    icon:wwi('BTNFireBolt.png')},
+  goblin_sapper:   {name:'Goblin Sapper Charge', dmg:100,    r:'uncommon',  icon:wwi('BTNGoblinSapper.png')},
+  storm_bolt:      {name:'Storm Bolt',           dmg:250,    r:'uncommon',  icon:wwi('BTNStormBolt.png')},
+  demolisher_shot: {name:'Demolisher Shot',      dmg:500,    r:'rare',      icon:wwi('BTNDemolisher.png')},
+  thunder_clap:    {name:'Thunder Clap',         dmg:750,    r:'rare',      icon:wwi('BTNThunderClap.png')},
+  chain_lightning: {name:'Chain Lightning',      dmg:2500,   r:'epic',      icon:wwi('BTNChainLightning.png')},
+  death_coil:      {name:'Death Coil',           dmg:7500,   r:'epic',      icon:wwi('BTNDeathCoil.png')},
+  finger_of_death: {name:'Finger of Death',      dmg:15000,  r:'epic',      icon:wwi('BTNCarrionSwarm.png')},
+  doom:            {name:'Doom',                 dmg:75000,  r:'epic',      icon:wwi('BTNDoom.png')},
+  soul_reaver:     {name:'Soul Reaver',          dmg:200000, r:'legendary', icon:wwi('BTNSoulPreserver.png')},
+  twin_eclipse:    {name:'Twin Eclipse',         dmg:500000, r:'legendary', icon:wwi('BTNStarFall.png')}
+};
+
+var BREW_RECIPES = {
+  chain_lightning: {g:200,    l:50,    s:0, t:0},
+  death_coil:      {g:500,    l:150,   s:0, t:0},
+  finger_of_death: {g:1500,   l:500,   s:0, t:1},
+  doom:            {g:4000,   l:1500,  s:0, t:3},
+  soul_reaver:     {g:12000,  l:4000,  s:1, t:5},
+  twin_eclipse:    {g:30000,  l:10000, s:3, t:10}
 };
 
 function fmtLoot(arr) {
@@ -2309,10 +2331,12 @@ function updateRaids(s) {
     $('raid-log-section').style.display = '';
     raidRenderActive(boss);
     raidRenderItems(s);
+    raidRenderBrew(s);
     raidRenderLog(boss);
   } else if (!raidResultShown) {
     $('raid-active-section').style.display = 'none';
     $('raid-use-section').style.display = 'none';
+    $('raid-brew-section').style.display = 'none';
     $('raid-log-section').style.display = 'none';
     $('raid-select-section').style.display = '';
     raidRenderGrid(bld, bk, bkTotal, lvl, ec, hasPortal);
@@ -2417,6 +2441,49 @@ function raidRenderItems(s) {
       apiPost('/api/use', {item: iid}).then(function(res) {
         if (res.ok) { addToast('', '\u2694\uFE0F', bi.name + ' \u2014 -' + bi.dmg + ' HP'); poll(); }
         else { addToast('err', '\u274C', res.error || 'Failed'); btn.disabled = false; }
+      }).catch(function() { addToast('err', '\u274C', 'Request failed'); btn.disabled = false; });
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function raidRenderBrew(s) {
+  var bld = s.buildings || {};
+  var sec = $('raid-brew-section');
+  if (!bld.arcane_sanctum) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  var ec = s.economy || {};
+  var gold = ec.gold || 0, lumber = ec.lumber || 0;
+  var shards = s.kj_shards || 0;
+  var queue = s.brew_queue || [];
+  $('brew-shards-hdr').innerHTML = shards > 0 ? ('&#x1F480; ' + shards + ' KJ shard' + (shards !== 1 ? 's' : '')) : '';
+  var html = '';
+  if (queue.length > 0) {
+    html += '<div class="brew-queue">Brewing: ' + queue.map(function(q) {
+      var bi = BOSS_ITEMS[q.item] || {name: q.item};
+      return '<span class="brew-queue-item">' + bi.name + '</span> (' + q.remaining + ' task' + (q.remaining !== 1 ? 's' : '') + ' left)';
+    }).join(' &middot; ') + '</div>';
+  }
+  html += '<div class="raid-use-hint">Spend gold/lumber (and KJ shards) to brew damage consumables. They go straight to your inventory.</div><div class="raid-use-grid" id="raid-brew-grid"></div>';
+  $('raid-brew-items').innerHTML = html;
+  var grid = $('raid-brew-grid');
+  Object.keys(BREW_RECIPES).forEach(function(iid) {
+    var r = BREW_RECIPES[iid];
+    var bi = BOSS_ITEMS[iid];
+    var btn = document.createElement('button');
+    btn.className = 'raid-use-btn r-' + bi.r;
+    var afford = gold >= r.g && lumber >= r.l && shards >= r.s;
+    if (!afford) btn.disabled = true;
+    var costStr = r.g + 'g/' + r.l + 'l' + (r.s ? '/' + r.s + '\u{1F480}' : '');
+    var timeStr = r.t === 0 ? 'instant' : (r.t + ' task' + (r.t !== 1 ? 's' : ''));
+    btn.innerHTML = bi.icon + ' <strong>' + bi.name + '</strong> <span class="ru-dmg">-' + bi.dmg.toLocaleString() + '</span> <span class="brew-cost">' + costStr + '</span> <span class="brew-time">&middot; ' + timeStr + '</span>';
+    btn.addEventListener('click', function() {
+      btn.disabled = true;
+      apiPost('/api/brew', {item: iid}).then(function(res) {
+        if (res.ok) {
+          addToast('', '\u{1F9EA}', bi.name + (res.instant ? ' brewed!' : ' brewing... ' + res.remaining + ' tasks left'));
+          poll();
+        } else { addToast('err', '\u274C', res.error || 'Failed'); btn.disabled = false; }
       }).catch(function() { addToast('err', '\u274C', 'Request failed'); btn.disabled = false; });
     });
     grid.appendChild(btn);
@@ -2701,6 +2768,7 @@ function raidShowResult(entry) {
 
   $('raid-active-section').style.display = 'none';
   $('raid-use-section').style.display = 'none';
+  $('raid-brew-section').style.display = 'none';
   $('raid-log-section').style.display = 'none';
   $('raid-select-section').style.display = 'none';
   $('raid-history-section').style.display = 'none';

@@ -1751,7 +1751,7 @@ BUILDINGS = {
     'spirit_lodge':    (2500, 1000, 'Unlocks idle peon wisdom.'),
     'barracks':        (3000, 1200, 'Subagent sessions count toward stats.'),
     'blacksmith':      (4000, 1500, '3x slower durability loss.'),
-    'arcane_sanctum':  (7500, 3000, 'Unlocks peon prophecies on session start.'),
+    'arcane_sanctum':  (7500, 3000, 'Unlocks peon prophecies + brewing damage consumables (peon brew).'),
     'fortress':        (10000, 4000, 'Max rank. Unlocks leaderboard title.'),
     'dark_portal':     (12000, 5000, 'Open the Dark Portal. Raid bosses await beyond.'),
     'citadel':         (15000, 6000, 'Prestige rank. Boosts item drop rate.'),
@@ -2258,8 +2258,9 @@ if item_id in heal_items or item_id == 'healing_ward':
     sys.exit(0)
 boss_items = {
     'firebolt': 50, 'goblin_sapper': 100, 'storm_bolt': 250,
-    'demolisher_shot': 500, 'thunder_clap': 750, 'chain_lightning': 2000,
-    'death_coil': 5000, 'finger_of_death': 10000, 'doom': 40000,
+    'demolisher_shot': 500, 'thunder_clap': 750, 'chain_lightning': 2500,
+    'death_coil': 7500, 'finger_of_death': 15000, 'doom': 75000,
+    'soul_reaver': 200000, 'twin_eclipse': 500000,
 }
 if item_id in boss_items:
     boss = state.get('active_boss')
@@ -2344,6 +2345,7 @@ ITEMS_R = {
     'frostmourne': 'legendary', 'wirts_leg': 'legendary', 'thunderfury': 'legendary',
     'unstoppable_force': 'legendary', 'azzinoth_blades': 'legendary', 'ashbringer': 'legendary', 'cheese': 'legendary',
     'sulfuras': 'legendary', 'crown_of_eredar': 'legendary', 'soul_cage': 'legendary', 'helm_of_domination': 'legendary', 'doom': 'epic',
+    'soul_reaver': 'legendary', 'twin_eclipse': 'legendary',
 }
 if item_id in equipped:
     print('Unequip it first: peon unequip ' + item_id)
@@ -2496,6 +2498,80 @@ else:
     print(f'Unknown boss tier: {arg}')
     print('Available: ' + ', '.join(BOSSES.keys()))
     sys.exit(1)
+"
+    exit $? ;;
+  brew)
+    shift
+    python3 -c "
+import json, os, sys, time
+state_file = '$STATE'
+arg = '${1:-list}'
+$_PY_STATE_IO
+state = _load_state(state_file)
+buildings = state.get('buildings', {})
+if 'arcane_sanctum' not in buildings:
+    print('Build Arcane Sanctum first! (peon build arcane_sanctum)')
+    sys.exit(1)
+BREW = {
+    'chain_lightning': dict(name='Chain Lightning',  g=200,   l=50,    s=0, t=0,  dmg=2500),
+    'death_coil':      dict(name='Death Coil',       g=500,   l=150,   s=0, t=0,  dmg=7500),
+    'finger_of_death': dict(name='Finger of Death',  g=1500,  l=500,   s=0, t=1,  dmg=15000),
+    'doom':            dict(name='Doom',             g=4000,  l=1500,  s=0, t=3,  dmg=75000),
+    'soul_reaver':     dict(name='Soul Reaver',      g=12000, l=4000,  s=1, t=5,  dmg=200000),
+    'twin_eclipse':    dict(name='Twin Eclipse',     g=30000, l=10000, s=3, t=10, dmg=500000),
+}
+econ = state.get('economy', {})
+gold = econ.get('gold', 0)
+lumber = econ.get('lumber', 0)
+shards = state.get('kj_shards', 0)
+queue = state.get('brew_queue', [])
+if arg == 'list':
+    print(f'Gold: {gold} | Lumber: {lumber} | KJ Shards: {shards}')
+    print()
+    if queue:
+        print('Brew queue:')
+        for q in queue:
+            r = q.get('remaining', 0)
+            n = BREW.get(q['item'], {}).get('name', q['item'])
+            print(f'  {n}: {r} task{\"s\" if r != 1 else \"\"} left')
+        print()
+    print('Brewable consumables (peon brew <item>):')
+    for bid, b in BREW.items():
+        cost = f'{b[\"g\"]}g/{b[\"l\"]}l'
+        if b['s']: cost += f'/{b[\"s\"]} shard{\"s\" if b[\"s\"] != 1 else \"\"}'
+        time_str = 'instant' if b['t'] == 0 else f'{b[\"t\"]} task{\"s\" if b[\"t\"] != 1 else \"\"}'
+        afford = (' (can brew)' if gold >= b['g'] and lumber >= b['l'] and shards >= b['s'] else '')
+        print(f'  {bid:18s} {b[\"dmg\"]:>7} dmg  {cost:25s} {time_str:12s}{afford}')
+    sys.exit(0)
+bid = arg
+if bid not in BREW:
+    print(f'Unknown brew: {arg}')
+    print('Available: ' + ', '.join(BREW.keys()))
+    sys.exit(1)
+b = BREW[bid]
+if gold < b['g'] or lumber < b['l'] or shards < b['s']:
+    short = []
+    if gold < b['g']: short.append(f'{b[\"g\"] - gold}g')
+    if lumber < b['l']: short.append(f'{b[\"l\"] - lumber}l')
+    if shards < b['s']: short.append(f'{b[\"s\"] - shards} shard{\"s\" if (b[\"s\"] - shards) != 1 else \"\"}')
+    print(f'Not enough! Need {b[\"g\"]}g/{b[\"l\"]}l' + (f'/{b[\"s\"]} shards' if b['s'] else '') + f', short: {\", \".join(short)}')
+    sys.exit(1)
+econ['gold'] = gold - b['g']
+econ['lumber'] = lumber - b['l']
+state['economy'] = econ
+if b['s']:
+    state['kj_shards'] = shards - b['s']
+if b['t'] == 0:
+    inventory = state.get('inventory', [])
+    inventory.append(bid)
+    state['inventory'] = inventory
+    _save_state(state_file, state)
+    print(f'Brewed {b[\"name\"]}! Added to inventory.')
+else:
+    queue.append(dict(item=bid, remaining=b['t'], started_at=int(time.time())))
+    state['brew_queue'] = queue
+    _save_state(state_file, state)
+    print(f'Brewing {b[\"name\"]}... ready in {b[\"t\"]} task{\"s\" if b[\"t\"] != 1 else \"\"}.')
 "
     exit $? ;;
   army)
@@ -3003,7 +3079,7 @@ class H(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
-            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':40000}
+            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2500,'death_coil':7500,'finger_of_death':15000,'doom':75000,'soul_reaver':200000,'twin_eclipse':500000}
             if iid in boss_items:
                 boss = st.get('active_boss')
                 if not boss or boss.get('hp', 0) <= 0:
@@ -3095,6 +3171,44 @@ class H(http.server.BaseHTTPRequestHandler):
             st['economy'] = ec
             self._save('.state.json', st)
             self._json(200, {'ok': True, 'price': price, 'gold': ec['gold']})
+        elif self.path == '/api/brew':
+            iid = body.get('item', '')
+            BREW = {
+                'chain_lightning': dict(g=200,   l=50,    s=0, t=0),
+                'death_coil':      dict(g=500,   l=150,   s=0, t=0),
+                'finger_of_death': dict(g=1500,  l=500,   s=0, t=1),
+                'doom':            dict(g=4000,  l=1500,  s=0, t=3),
+                'soul_reaver':     dict(g=12000, l=4000,  s=1, t=5),
+                'twin_eclipse':    dict(g=30000, l=10000, s=3, t=10),
+            }
+            if iid not in BREW:
+                return self._json(400, {'error': 'Unknown brew'})
+            st = self._load('.state.json')
+            if 'arcane_sanctum' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build Arcane Sanctum first'})
+            b = BREW[iid]
+            ec = st.setdefault('economy', {})
+            g, l = ec.get('gold', 0), ec.get('lumber', 0)
+            shards = st.get('kj_shards', 0)
+            if g < b['g'] or l < b['l'] or shards < b['s']:
+                return self._json(400, {'error': f'Need {b["g"]}g/{b["l"]}l' + (f'/{b["s"]} shards' if b['s'] else '')})
+            ec['gold'] = g - b['g']
+            ec['lumber'] = l - b['l']
+            if b['s']:
+                st['kj_shards'] = shards - b['s']
+            if b['t'] == 0:
+                inv = st.get('inventory', [])
+                inv.append(iid)
+                st['inventory'] = inv
+                st['economy'] = ec
+                self._save('.state.json', st)
+                return self._json(200, {'ok': True, 'instant': True})
+            queue = st.get('brew_queue', [])
+            queue.append({'item': iid, 'remaining': b['t'], 'started_at': int(time.time())})
+            st['brew_queue'] = queue
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'remaining': b['t']})
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))
@@ -3209,6 +3323,7 @@ WC3 Metagame:
   use <item>           Use a consumable item (scrolls, potions, tomes)
   sell <item>          Sell an item from backpack for gold
   raid [status|<boss>] Start or check boss raids (requires Dark Portal)
+  brew [list|<item>]   Brew damage consumables (requires Arcane Sanctum)
   army                 Show your army composition and stats
   hire <unit> [count]  Hire units for your army (requires Barracks)
   dismiss <unit> [n]   Dismiss units from your army
@@ -4066,6 +4181,23 @@ if game_on:
                 stats['fatigue_total'] = stats.get('fatigue_total', 0) + 1
             econ['daily_tasks'] = daily_tasks
             stats['tasks_completed'] = stats.get('tasks_completed', 0) + 1
+            _bq = state.get('brew_queue', [])
+            if _bq:
+                _BREW_NAMES = dict(chain_lightning='Chain Lightning', death_coil='Death Coil', finger_of_death='Finger of Death', doom='Doom', soul_reaver='Soul Reaver', twin_eclipse='Twin Eclipse')
+                _inv = state.get('inventory', [])
+                _done_names = []
+                _bq2 = []
+                for _br in _bq:
+                    _br['remaining'] = _br.get('remaining', 0) - 1
+                    if _br['remaining'] <= 0:
+                        _inv.append(_br['item'])
+                        _done_names.append(_BREW_NAMES.get(_br['item'], _br['item']))
+                    else:
+                        _bq2.append(_br)
+                state['brew_queue'] = _bq2
+                state['inventory'] = _inv
+                if _done_names:
+                    game_subtitle = (game_subtitle or '') + ' Brewed: ' + ', '.join(_done_names)
         elif category == 'task.acknowledge':
             gold_delta += int(2 * upkeep_mult)
         elif category == 'resource.limit':
@@ -4490,10 +4622,12 @@ if game_on:
         'storm_bolt':          dict(name='Storm Bolt',             r='uncommon',  e='consumable',      v='boss_250',    desc='Deal 250 damage to active boss (consumable)'),
         'demolisher_shot':     dict(name='Demolisher Shot',        r='rare',      e='consumable',      v='boss_500',    desc='Deal 500 damage to active boss (consumable)'),
         'thunder_clap':        dict(name='Thunder Clap',           r='rare',      e='consumable',      v='boss_750',    desc='Deal 750 damage to active boss (consumable)'),
-        'chain_lightning':     dict(name='Chain Lightning',        r='epic',      e='consumable',      v='boss_2000',   desc='Deal 2000 damage to active boss (consumable)'),
-        'death_coil':          dict(name='Death Coil',             r='epic',      e='consumable',      v='boss_5000',   desc='Deal 5000 damage to active boss (consumable)'),
-        'finger_of_death':     dict(name='Finger of Death',        r='epic',      e='consumable',      v='boss_10000',  desc='Deal 10000 damage to active boss (consumable)'),
-        'doom':                dict(name='Doom',                   r='epic',      e='consumable',      v='boss_40000',  desc='Deal 40000 damage to active boss (consumable)'),
+        'chain_lightning':     dict(name='Chain Lightning',        r='epic',      e='consumable',      v='boss_2500',   desc='Deal 2500 damage to active boss (consumable)'),
+        'death_coil':          dict(name='Death Coil',             r='epic',      e='consumable',      v='boss_7500',   desc='Deal 7500 damage to active boss (consumable)'),
+        'finger_of_death':     dict(name='Finger of Death',        r='epic',      e='consumable',      v='boss_15000',  desc='Deal 15000 damage to active boss (consumable)'),
+        'doom':                dict(name='Doom',                   r='epic',      e='consumable',      v='boss_75000',  desc='Deal 75000 damage to active boss (consumable)'),
+        'soul_reaver':         dict(name='Soul Reaver',            r='legendary', e='consumable',      v='boss_200000', desc='Deal 200000 damage to active boss. Brewed only \u2014 not dropped.'),
+        'twin_eclipse':        dict(name='Twin Eclipse',           r='legendary', e='consumable',      v='boss_500000', desc='Deal 500000 damage to active boss. Kil\\'jaeden\\'s signature spell. Brewed only.'),
         'war_axe':             dict(name='War Axe',                r='common',    e='boss_dmg',        v=3,    desc='+3 raid damage per task'),
         'tome_of_agility':     dict(name='Tome of Agility',     r='common',    e='boss_crit',       v=3,    desc='+3% crit chance vs bosses'),
         'iron_shield':         dict(name='Iron Shield',            r='common',    e='boss_armor',      v=25,   desc='25% less army damage from boss counter-attacks'),
@@ -4851,6 +4985,9 @@ if game_on:
                     inventory.append(trophy)
                     drop_names.append(_ITEMS[trophy]['name'] + ' (TROPHY)')
                     stats['total_items_looted'] = stats.get('total_items_looted', 0) + 1
+                if bid == 'kiljaeden':
+                    state['kj_shards'] = state.get('kj_shards', 0) + 1
+                    drop_names.append('Soul Shard of Kil\\'jaeden (BREW)')
                 state['inventory'] = inventory
                 overkill = abs(_boss['hp'])
                 has_cleave = any(_ITEMS.get(eid, {}).get('e') == 'boss_dmg' and eid == 'sulfuras' and _durability.get(eid, 1) > 0 for eid in equipped)
@@ -5619,7 +5756,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if iid not in inv and iid not in eq:
                 return self._json(400, {'error': 'Item not found'})
             ec = st.setdefault('economy', {})
-            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2000,'death_coil':5000,'finger_of_death':10000,'doom':40000}
+            boss_items = {'firebolt':50,'goblin_sapper':100,'storm_bolt':250,'demolisher_shot':500,'thunder_clap':750,'chain_lightning':2500,'death_coil':7500,'finger_of_death':15000,'doom':75000,'soul_reaver':200000,'twin_eclipse':500000}
             if iid in boss_items:
                 boss = st.get('active_boss')
                 if not boss or boss.get('hp', 0) <= 0:
@@ -5711,6 +5848,44 @@ class Handler(http.server.BaseHTTPRequestHandler):
             st['economy'] = ec
             self._save('.state.json', st)
             self._json(200, {'ok': True, 'price': price, 'gold': ec['gold']})
+        elif self.path == '/api/brew':
+            iid = body.get('item', '')
+            BREW = {
+                'chain_lightning': dict(g=200,   l=50,    s=0, t=0),
+                'death_coil':      dict(g=500,   l=150,   s=0, t=0),
+                'finger_of_death': dict(g=1500,  l=500,   s=0, t=1),
+                'doom':            dict(g=4000,  l=1500,  s=0, t=3),
+                'soul_reaver':     dict(g=12000, l=4000,  s=1, t=5),
+                'twin_eclipse':    dict(g=30000, l=10000, s=3, t=10),
+            }
+            if iid not in BREW:
+                return self._json(400, {'error': 'Unknown brew'})
+            st = self._load('.state.json')
+            if 'arcane_sanctum' not in st.get('buildings', {}):
+                return self._json(400, {'error': 'Build Arcane Sanctum first'})
+            b = BREW[iid]
+            ec = st.setdefault('economy', {})
+            g, l = ec.get('gold', 0), ec.get('lumber', 0)
+            shards = st.get('kj_shards', 0)
+            if g < b['g'] or l < b['l'] or shards < b['s']:
+                return self._json(400, {'error': f'Need {b["g"]}g/{b["l"]}l' + (f'/{b["s"]} shards' if b['s'] else '')})
+            ec['gold'] = g - b['g']
+            ec['lumber'] = l - b['l']
+            if b['s']:
+                st['kj_shards'] = shards - b['s']
+            if b['t'] == 0:
+                inv = st.get('inventory', [])
+                inv.append(iid)
+                st['inventory'] = inv
+                st['economy'] = ec
+                self._save('.state.json', st)
+                return self._json(200, {'ok': True, 'instant': True})
+            queue = st.get('brew_queue', [])
+            queue.append({'item': iid, 'remaining': b['t'], 'started_at': int(time.time())})
+            st['brew_queue'] = queue
+            st['economy'] = ec
+            self._save('.state.json', st)
+            self._json(200, {'ok': True, 'remaining': b['t']})
         elif self.path == '/api/hire':
             uid = body.get('unit', '')
             cnt = max(1, int(body.get('count', 1)))

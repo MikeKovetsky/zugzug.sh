@@ -55,6 +55,11 @@ _peon_completions() {
           COMPREPLY=( $(compgen -W "status kobold murloc troll ogre whelps naga tichondrius illidan mannoroth archimonde kiljaeden lich_king" -- "$cur") )
         fi
         return 0 ;;
+      brew)
+        if [ "$cword" -eq 2 ]; then
+          COMPREPLY=( $(compgen -W "list chain_lightning death_coil finger_of_death doom soul_reaver twin_eclipse" -- "$cur") )
+        fi
+        return 0 ;;
       hire)
         if [ "$cword" -eq 2 ]; then
           COMPREPLY=( $(compgen -W "grunt raider tauren shaman" -- "$cur") )
@@ -70,7 +75,7 @@ _peon_completions() {
   fi
 
   # Top-level commands
-  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay economy achievements build inventory equip unequip use sell raid army hire dismiss bunker resurrect taunt dashboard preview update trainer help" -- "$cur") )
+  COMPREPLY=( $(compgen -W "pause resume toggle status volume rotation packs notifications mobile relay economy achievements build inventory equip unequip use sell raid brew army hire dismiss bunker resurrect taunt dashboard preview update trainer help" -- "$cur") )
   return 0
 }
 
